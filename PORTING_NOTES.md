@@ -32,8 +32,9 @@ if it contradicts `printshare/api.py` the server wins; otherwise the simplest id
 ## Verification
 
 - The session that wrote this code had **no macOS, no Xcode and no Swift toolchain** (download of a toolchain is
-  blocked by the sandbox proxy). No simulator run took place and nothing was compiled locally; the only local check
-  was a bracket-balance scan. The CI workflow is the compiler and test runner.
+  blocked by the sandbox proxy). No simulator run took place and nothing was compiled locally. The GitHub Actions
+  workflow (macos-latest) is the compiler and test runner: build with Swift 6 / complete strict concurrency and all
+  unit tests are green, with no compiler warnings (last checked at run #3).
 - Not verified on device or simulator: any screen, the share extension, the QR scanner, TestFlight upload,
   Keychain migration from the Expo build.
 

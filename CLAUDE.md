@@ -10,7 +10,7 @@ State (2026-09-29): all screens and flows of the Expo app 0.1.0 are written (Hom
 Prepare, Job with review and confirmation, Preview, Jobs, Printers, Settings, Connect/QR), plus the share extension.
 Same bundle id / App Group / URL scheme as the Expo build.
 
-**Verified:** only what CI reports (see the workflow runs of this repository). Unit tests cover URL normalisation,
+**Verified:** CI (macos-latest): builds without errors or warnings in Swift 6 mode, all unit tests green. Unit tests cover URL normalisation,
 pairing links, the friendly-error rules and their order, formats, decoding of every endpoint (incl. unknown enum
 values), the API client's home/away routing with a `URLProtocol` stub (probe picks the faster address, 401 wins,
 GET repeated on the other address, POST never, timeouts) and that every text exists in DE and EN.
