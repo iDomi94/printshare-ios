@@ -151,11 +151,11 @@ final class APIClientTests: XCTestCase {
     }
 
     func testRequestShape() async throws {
-        var seen: [URLRequest] = []
+        var requestsSeen: [URLRequest] = []
         let lock = NSLock()
         let opts = try Fixture.data("options")
         StubProtocol.install { req in
-            lock.lock(); seen.append(req); lock.unlock()
+            lock.lock(); requestsSeen.append(req); lock.unlock()
             return StubResponse(body: req.url?.path.hasSuffix("/options") == true ? opts : Data("{\"ok\":true}".utf8))
         }
         let api = client(remote: false)
@@ -163,7 +163,7 @@ final class APIClientTests: XCTestCase {
         try await api.control(printer: "cc", action: "cancel")
         try await api.send(job: "j1", start: true)
 
-        lock.lock(); defer { lock.unlock() }
+        let seen = lock.withLock { requestsSeen }
         XCTAssertEqual(seen[0].url?.absoluteString,
                        "http://home.test:8484/api/printers/centauri%20carbon/options?process=0.20mm%20Standard%20%40Elegoo")
         XCTAssertEqual(seen[0].value(forHTTPHeaderField: "Authorization"), "Bearer tok")
@@ -181,10 +181,10 @@ final class APIClientTests: XCTestCase {
 
     func testUploadIsRawBody() async throws {
         let up = try Fixture.data("upload")
-        var contentType: String?
+        var uploadType: String?
         let lock = NSLock()
         StubProtocol.install { req in
-            lock.lock(); contentType = req.value(forHTTPHeaderField: "Content-Type"); lock.unlock()
+            lock.lock(); uploadType = req.value(forHTTPHeaderField: "Content-Type"); lock.unlock()
             return StubResponse(body: up)
         }
         let file = FileManager.default.temporaryDirectory.appendingPathComponent("part-\(UUID().uuidString).stl")
@@ -192,7 +192,7 @@ final class APIClientTests: XCTestCase {
         defer { try? FileManager.default.removeItem(at: file) }
         let result = try await client(remote: false).upload(fileURL: file, name: "my part.stl")
         XCTAssertEqual(result.link, "upload:0123456789ab")
-        lock.lock(); defer { lock.unlock() }
+        let contentType = lock.withLock { uploadType }
         XCTAssertEqual(contentType, "application/octet-stream")
         XCTAssertEqual(StubProtocol.requests.last?.path, "/api/uploads")
     }
