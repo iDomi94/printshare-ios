@@ -32,9 +32,11 @@ jobs:
           set -o pipefail
           xcodebuild -project PrintShare.xcodeproj -scheme PrintShare -destination "id=$UDID" \
             CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO build test 2>&1 | tee build.log | tail -n 150
-      - name: Compiler warnings
+      - name: Compiler errors and warnings
         if: always()
-        run: grep -E "warning:" build.log | sort -u | head -50 || true
+        run: |
+          echo "== errors"; grep -E "error:" build.log | sort -u | head -60 || true
+          echo "== warnings"; grep -E "warning:" build.log | sort -u | head -60 || true
       - uses: actions/upload-artifact@v4
         if: always()
         with:

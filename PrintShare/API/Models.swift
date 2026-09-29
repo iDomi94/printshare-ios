@@ -439,10 +439,6 @@ struct ModelDetail: Codable, Sendable, Equatable {
     }
 }
 
-extension Recommended {
-    init() { self.init(nozzle: nil, layerHeight: nil, material: nil, weightG: nil, printHours: nil) }
-}
-
 struct SearchPage: Codable, Sendable, Equatable {
     var results: [ModelHit]
     var total: Int?
