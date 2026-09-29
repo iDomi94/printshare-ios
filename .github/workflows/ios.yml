@@ -1,0 +1,42 @@
+name: iOS
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build-test:
+    runs-on: macos-latest
+    env:
+      DEVELOPMENT_TEAM: ""
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install XcodeGen
+        run: brew install xcodegen
+      - name: Generate project
+        run: xcodegen generate
+      - name: Show toolchain
+        run: |
+          xcodebuild -version
+          swift --version
+      - name: Pick a simulator
+        run: |
+          UDID=$(xcrun simctl list devices available -j | python3 -c "
+          import json, sys
+          d = json.load(sys.stdin)['devices']
+          print(next(x['udid'] for k, v in sorted(d.items(), reverse=True) if 'iOS' in k for x in v if x['name'].startswith('iPhone')))")
+          echo "UDID=$UDID" >> "$GITHUB_ENV"
+      - name: Build and test
+        run: |
+          set -o pipefail
+          xcodebuild -project PrintShare.xcodeproj -scheme PrintShare -destination "id=$UDID" \
+            CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO build test 2>&1 | tee build.log | tail -n 150
+      - name: Compiler warnings
+        if: always()
+        run: grep -E "warning:" build.log | sort -u | head -50 || true
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: build-log
+          path: build.log

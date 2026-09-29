@@ -1,0 +1,4 @@
+[{"id": "abc123def4", "kind": "prepare", "state": "sliced", "error": null, "created": 1790000000.5, "printer": "centauri-carbon",
+  "link": "https://www.printables.com/model/3161-3d-benchy", "file": "3dbenchy.stl", "print_time": "35m 32s", "filament_g": 11.49},
+ {"id": "zz", "kind": "oneshot", "state": "done", "error": null, "created": 1790000100, "printer": null,
+  "link": "upload:abc", "file": null, "print_time": null, "filament_g": null}]

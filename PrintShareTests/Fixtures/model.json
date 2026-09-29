@@ -1,0 +1,5 @@
+{"source": "printables", "id": "3161", "name": "3D Benchy", "url": "https://www.printables.com/model/3161-3d-benchy",
+ "author": "CreativeTools", "thumbnail": "https://media.printables.com/x.jpg", "likes": 1, "downloads": 2, "makes": 3, "license": "CC BY",
+ "images": ["https://media.printables.com/a.jpg", "https://media.printables.com/b.jpg"], "summary": "The boat", "description": "Long text",
+ "category": "Toys", "recommended": {"nozzle": "0.4 mm", "layer_height": "0.2 mm", "material": "PLA", "weight_g": 11.5, "print_hours": 0.6},
+ "files": [{"name": "benchy.stl", "size": 2621440, "sliceable": true}, {"name": "readme.pdf", "size": null, "sliceable": false}]}

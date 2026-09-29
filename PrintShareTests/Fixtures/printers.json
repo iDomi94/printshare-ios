@@ -1,0 +1,2 @@
+[{"id": "centauri-carbon", "name": "Centauri Carbon", "type": "elegoo_sdcp", "machine": "Elegoo Centauri Carbon 0.4 nozzle"},
+ {"id": "mk4", "name": "Prusa MK4", "type": "prusalink", "machine": "Prusa MK4 0.4 nozzle", "leveling": true}]

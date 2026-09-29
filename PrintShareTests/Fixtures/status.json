@@ -1,0 +1,3 @@
+{"state": "printing", "kind": "active", "file": "benchy.gcode", "progress": 42.5, "layer": 100, "layers": 240.0,
+ "print_duration_s": 900, "time_remaining_s": 1200.5, "nozzle": 219.6, "nozzle_target": 220, "bed": 60, "bed_target": 60,
+ "camera": null}

@@ -1,0 +1,372 @@
+import SwiftUI
+
+/// Model -> printer, material, quality, plate, supports … -> slice (spec sections 3 + 4).
+struct PrepareView: View {
+    let args: PrepareArgs
+
+    private enum SheetKind: String, Identifiable {
+        case printer, filament, process, plate, file
+        var id: String { rawValue }
+    }
+
+    @Environment(AppModel.self) private var app
+    @State private var link: String?
+    @State private var name: String
+    @State private var error = ""
+    @State private var listed: (link: String, files: [ModelFile])?
+    @State private var file: String?
+    @State private var printers: [Printer] = []
+    @State private var kinds: [String: PrinterKind] = [:]
+    @State private var printer = ""
+    @State private var opts: Options?
+    @State private var filament = ""
+    @State private var process = ""
+    @State private var plate = ""
+    @State private var supports = "off"
+    @State private var brim = "auto"
+    @State private var infill: Int?  // nil = profile default
+    @State private var walls: Int?
+    @State private var showMore = false
+    @State private var sheet: SheetKind?
+    @State private var submitting = false
+    @State private var firstLoad = true
+
+    init(args: PrepareArgs) {
+        self.args = args
+        _link = State(initialValue: args.link)
+        _name = State(initialValue: args.fileName ?? args.edit?.name ?? "")
+        _file = State(initialValue: args.edit?.file)
+    }
+
+    private var files: [ModelFile]? {
+        guard let listed, listed.link == link else { return nil }  // nil while loading
+        return listed.files
+    }
+
+    private var uploading: Bool { args.fileURL != nil && link == nil && error.isEmpty }
+    private var needsFile: Bool { (files?.count ?? 0) > 1 && file == nil }
+
+    var body: some View {
+        let t = app.l10n
+        Group {
+            if uploading {
+                VStack(spacing: 6) {
+                    ProgressView().controlSize(.large)
+                    Text(t(.uploading)).font(.body).foregroundStyle(Theme.text).padding(.top, 10)
+                    if !name.isEmpty { Text(name).foregroundStyle(Theme.sub) }
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity).background(Theme.bg)
+            } else {
+                form(t)
+            }
+        }
+        .navigationTitle(t(.prepareTitle))
+        .navigationBarTitleDisplayMode(.inline)
+        .task(id: args) { await upload() }
+        .task(id: link) { await listFiles() }
+        .task { await loadPrinters() }
+        .task(id: printer) { await loadOptions() }
+    }
+
+    // MARK: form
+
+    private func form(_ t: L10n) -> some View {
+        let ready = link != nil && opts != nil && files != nil && !printer.isEmpty
+        return PSScreen {
+            if !error.isEmpty { PSBanner(kind: .error, text: error) }
+            modelSection(t)
+            printerSection(t)
+            if let opts {
+                optionSections(t, opts)
+            } else if !printer.isEmpty {
+                ProgressView().frame(maxWidth: .infinity).padding(.top, 24)
+            }
+        } footer: {
+            PSButton(title: t(.slice), icon: "square.3.layers.3d", loading: submitting, disabled: !ready || needsFile) {
+                Task { await submit() }
+            }
+        }
+        .sheet(item: $sheet) { kind in
+            PickerSheet(title: sheetTitle(t, kind), choices: choices(t, kind), selected: sheetValue(kind),
+                        searchLabel: t(.search), closeLabel: "OK") { pick(kind, $0) }
+        }
+    }
+
+    private func modelSection(_ t: L10n) -> some View {
+        PSSection(title: t(.model)) {
+            PSRow(icon: "cube", label: name.isEmpty ? Format.jobName(file: nil, link: link) : name,
+                  sub: (link ?? "").hasPrefix("upload:") ? nil : link)
+            if files == nil && link != nil {
+                PSDivider()
+                PSRow(label: t(.filesLoading), right: { ProgressView() })
+            } else if let files, files.count > 1 {
+                PSDivider()
+                let chosen = files.first { String($0.index) == file }?.name
+                PSRow(icon: "doc", label: chosen ?? t(.filesMany, ["n": String(files.count)])) { sheet = .file }
+            } else if let files, files.count == 1, name.isEmpty {
+                PSDivider()
+                PSRow(icon: "doc", label: files[0].name)
+            }
+        }
+    }
+
+    @ViewBuilder
+    private func printerSection(_ t: L10n) -> some View {
+        if !(printers.isEmpty && error.isEmpty) {
+            PSSection(title: t(.printer)) {
+                let current = printers.first { $0.id == printer }
+                PSRow(icon: "printer", label: current?.name ?? (printer.isEmpty ? "…" : printer),
+                      value: kindLabel(t, printer), chevron: printers.count > 1,
+                      action: printers.count > 1 ? { sheet = .printer } : nil,
+                      right: { if !printer.isEmpty { statusDot(printer) } })
+            }
+        }
+    }
+
+    @ViewBuilder
+    private func optionSections(_ t: L10n, _ opts: Options) -> some View {
+        let d = opts.defaults
+        ForEach(Format.comboWarnings(t, filament: filament, plate: plate), id: \.self) { PSBanner(kind: .warn, text: $0) }
+        PSSection {
+            PSRow(icon: "paintpalette", label: t(.material), value: Format.shortName(filament)) { sheet = .filament }
+            PSDivider()
+            PSRow(icon: "speedometer", label: t(.quality), value: Format.shortName(process)) { sheet = .process }
+            PSDivider()
+            PSRow(icon: "square.grid.3x3", label: t(.plate), value: Format.plateName(t, plate)) { sheet = .plate }
+        }
+        PSSection {
+            PSField(label: t(.supports)) {
+                PSSegmented(values: opts.supports, selection: $supports) { supportLabel(t, $0) }
+            }
+        }
+        Button { Haptics.tap(); withAnimation { showMore.toggle() } } label: {
+            HStack {
+                Text(t(.more)).font(.body).foregroundStyle(Theme.accent)
+                Spacer()
+                Image(systemName: showMore ? "chevron.up" : "chevron.down").foregroundStyle(Theme.accent)
+            }
+            .padding(.horizontal, 16).padding(.bottom, 10)
+        }
+        .buttonStyle(.plain)
+        if showMore {
+            PSSection {
+                PSField(label: t(.brim)) {
+                    PSSegmented(values: opts.brims, selection: $brim) { brimLabel(t, $0) }
+                }
+                PSDivider()
+                PSField(label: t(.infill), hint: infill == nil || infill == d.infill ? t(.standard) : nil) {
+                    PSStepper(value: infill ?? d.infill ?? 15, range: 0...100, step: 5, format: { "\($0) %" }) { infill = $0 }
+                }
+                PSDivider()
+                PSField(label: t(.walls), hint: walls == nil || walls == d.walls ? t(.standard) : nil) {
+                    PSStepper(value: walls ?? d.walls ?? 2, range: 1...10) { walls = $0 }
+                }
+            }
+        }
+    }
+
+    private func supportLabel(_ t: L10n, _ v: String) -> String {
+        switch v {
+        case "off": return t(.supOff)
+        case "normal": return t(.supNormal)
+        case "tree": return t(.supTree)
+        default: return v
+        }
+    }
+
+    private func brimLabel(_ t: L10n, _ v: String) -> String {
+        switch v {
+        case "auto": return t(.brimAuto)
+        case "off": return t(.brimOff)
+        case "outer": return t(.brimOuter)
+        default: return v
+        }
+    }
+
+    // MARK: printers
+
+    private func kindLabel(_ t: L10n, _ id: String) -> String? {
+        kinds[id].map { t.printerKind($0.rawValue) }
+    }
+
+    private func statusDot(_ id: String) -> some View {
+        let color: Color
+        switch kinds[id] {
+        case nil: color = Theme.sub
+        case .offline?, .error?: color = Theme.danger
+        case .idle?, .done?, .stopped?: color = Theme.ok
+        default: color = Theme.warn
+        }
+        return Circle().fill(color).frame(width: 10, height: 10).accessibilityHidden(true)
+    }
+
+    // MARK: picker sheets
+
+    private func sheetTitle(_ t: L10n, _ k: SheetKind) -> String {
+        switch k {
+        case .printer: return t(.printer)
+        case .filament: return t(.material)
+        case .process: return t(.quality)
+        case .plate: return t(.plate)
+        case .file: return t(.file)
+        }
+    }
+
+    private func sheetValue(_ k: SheetKind) -> String? {
+        switch k {
+        case .printer: return printer
+        case .filament: return filament
+        case .process: return process
+        case .plate: return plate
+        case .file: return file
+        }
+    }
+
+    private func choices(_ t: L10n, _ k: SheetKind) -> [Choice] {
+        switch k {
+        case .printer:
+            return printers.map { Choice(value: $0.id, label: $0.name, sub: kindLabel(t, $0.id)) }
+        case .filament:
+            return (opts?.materials ?? []).map { Choice(value: $0, label: Format.shortName($0), group: Format.brandOf($0)) }
+        case .process:
+            return (opts?.processes ?? []).map { Choice(value: $0, label: Format.shortName($0)) }
+        case .plate:
+            return (opts?.plates ?? []).map { Choice(value: $0, label: Format.plateName(t, $0)) }
+        case .file:
+            return (files ?? []).map { Choice(value: String($0.index), label: $0.name, sub: $0.size.map(Format.mb)) }
+        }
+    }
+
+    private func pick(_ k: SheetKind, _ v: String) {
+        switch k {
+        case .printer: printer = v
+        case .filament: filament = v
+        case .process: Task { await changeProcess(v) }
+        case .plate: plate = v
+        case .file: file = v
+        }
+    }
+
+    // MARK: loading (same order as the Expo screen)
+
+    /// 1. file from the phone -> upload to the server first
+    private func upload() async {
+        guard let api = app.api, let url = args.fileURL, link == nil else { return }
+        do {
+            let u = try await api.upload(fileURL: url, name: args.fileName ?? "model.stl")
+            link = u.link
+            name = u.name
+        } catch {
+            self.error = error.localizedDescription
+        }
+    }
+
+    /// 2. files of the model (MQ-02)
+    private func listFiles() async {
+        guard let api = app.api, let link else { return }
+        do {
+            let fl = try await api.files(link: link)
+            listed = (link, fl)
+            if fl.count == 1 {
+                file = nil
+            } else if args.edit?.file == nil {
+                let threeMf = fl.filter { $0.name.lowercased().hasSuffix(".3mf") }
+                file = threeMf.count == 1 ? String(threeMf[0].index) : nil
+            }
+        } catch {
+            listed = (link, [])
+            self.error = error.localizedDescription
+        }
+    }
+
+    /// 3. printers + their state (DV-01)
+    private func loadPrinters() async {
+        guard let api = app.api else { return }
+        do {
+            let list = try await api.printers()
+            printers = list
+            let last = args.edit?.printer ?? app.lastPrinter()
+            printer = list.first { $0.id == last }?.id ?? list.first?.id ?? ""
+            for p in list {
+                Task {
+                    let kind = (try? await api.status(printer: p.id))?.kind ?? .offline
+                    kinds[p.id] = kind
+                }
+            }
+        } catch {
+            self.error = error.localizedDescription
+        }
+    }
+
+    /// 4. presets for the chosen printer, preselected with the last choices (spec 4)
+    private func loadOptions() async {
+        guard let api = app.api, !printer.isEmpty else { return }
+        let chosen = printer
+        do {
+            let useEdit = firstLoad ? args.edit?.options : nil
+            let prefs = app.loadPrefs(chosen)
+            let prefFilament = useEdit?.filament ?? prefs?.filament
+            let prefProcess = useEdit?.process ?? prefs?.process
+            let prefPlate = useEdit?.bedType ?? prefs?.bedType
+            var o = try await api.options(printer: chosen)
+            let wanted = prefProcess.flatMap { o.processes.contains($0) ? $0 : nil } ?? o.defaults.process
+            if wanted != o.defaults.process { o = try await api.options(printer: chosen, process: wanted) }
+            guard chosen == printer else { return }
+            opts = o
+            filament = prefFilament.flatMap { o.materials.contains($0) ? $0 : nil } ?? o.defaults.filament
+            process = o.defaults.process
+            plate = prefPlate.flatMap { o.plates.contains($0) ? $0 : nil } ?? o.defaults.bedType
+            applyDefaults(o, keep: useEdit)
+            firstLoad = false
+        } catch {
+            if chosen == printer { self.error = error.localizedDescription }
+        }
+    }
+
+    private func applyDefaults(_ o: Options, keep: JobOptions?) {
+        let d = o.defaults
+        supports = keep?.supports ?? d.supports
+        brim = keep?.brim ?? d.brim
+        infill = keep?.infill
+        walls = keep?.walls
+    }
+
+    private func changeProcess(_ p: String) async {
+        guard let api = app.api, let current = opts, p != process else { return }
+        process = p
+        do {
+            let o = try await api.options(printer: printer, process: p)
+            var merged = current
+            merged.defaults = o.defaults
+            opts = merged
+            applyDefaults(o, keep: nil)
+        } catch {
+            self.error = error.localizedDescription
+        }
+    }
+
+    // MARK: submit
+
+    private func submit() async {
+        guard let api = app.api, let link, let opts else { return }
+        let d = opts.defaults
+        if needsFile { error = app.l10n(.chooseFile); return }
+        var o = JobOptions(process: process, bedType: plate)
+        if filament != d.filament { o.filament = filament }
+        if supports != d.supports { o.supports = supports }
+        if brim != d.brim { o.brim = brim }
+        if let infill, infill != d.infill { o.infill = infill }
+        if let walls, walls != d.walls { o.walls = walls }
+        submitting = true
+        error = ""
+        defer { submitting = false }
+        do {
+            app.saveLastPrinter(printer)
+            app.savePrefs(printer, PrinterPrefs(filament: filament, process: process, bedType: plate))
+            let job = try await api.createJob(link: link, printer: printer, file: file, options: o)
+            app.replaceTop(with: .job(job))
+        } catch {
+            self.error = error.localizedDescription
+        }
+    }
+}

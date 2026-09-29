@@ -1,0 +1,2 @@
+{"id": "zz", "kind": "prepare", "state": "quantum", "log": [], "result": null, "error": "Sending failed: boom",
+ "created": 1, "request": {"link": "upload:abc"}}

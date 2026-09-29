@@ -1,0 +1,11 @@
+{"id": "abc123def4", "kind": "prepare", "state": "sliced", "log": ["Looking up model files", "Downloading benchy.stl", "Sliced: benchy"],
+ "result": {"printer": "centauri-carbon", "source_file": "3dbenchy.stl", "print_time": "35m 32s", "filament_g": 11.49,
+            "filament_m": 3.85, "layers": 240,
+            "profiles": {"machine": "Elegoo Centauri Carbon 0.4 nozzle", "process": "0.20mm Standard @Elegoo CC 0.4 nozzle",
+                         "filament": "Elegoo PLA @ECC", "bed_type": "Textured PEI Plate"},
+            "overrides": {"enable_support": "1", "support_type": "tree(auto)", "brim_type": "outer_only",
+                          "sparse_infill_density": "20%", "wall_loops": "3"}},
+ "error": null, "created": 1790000000.5, "printer": "centauri-carbon",
+ "request": {"link": "https://www.printables.com/model/3161-3d-benchy", "printer": "centauri-carbon", "file": null,
+             "options": {"filament": null, "process": "0.20mm Standard @Elegoo CC 0.4 nozzle", "bed_type": "Textured PEI Plate",
+                         "supports": "tree", "brim": null, "infill": 20, "walls": 3}}}

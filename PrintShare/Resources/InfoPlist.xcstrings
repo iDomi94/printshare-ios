@@ -1,0 +1,24 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "CFBundleDisplayName" : {
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "PrintShare" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "PrintShare" } }
+      }
+    },
+    "NSCameraUsageDescription" : {
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "PrintShare nutzt die Kamera nur, um den Kopplungs-QR-Code deines Servers zu scannen." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "PrintShare uses the camera only to scan the pairing QR code of your server." } }
+      }
+    },
+    "NSLocalNetworkUsageDescription" : {
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "PrintShare verbindet sich mit deinem eigenen PrintShare-Server im Heimnetz." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "PrintShare connects to your own PrintShare server in your home network." } }
+      }
+    }
+  },
+  "version" : "1.0"
+}
