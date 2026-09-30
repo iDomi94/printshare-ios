@@ -11,7 +11,7 @@ final class BundleVersionTests: XCTestCase {
         let (appVersion, appBuild) = versions(.main)
         XCTAssertNotEqual(appVersion, "1.0")
         XCTAssertNotEqual(appBuild, "1")
-        XCTAssertEqual(Int(appBuild ?? "") ?? 0 >= 100, true, "CURRENT_PROJECT_VERSION starts at 100")
+        XCTAssertGreaterThanOrEqual(Int(appBuild ?? "") ?? 0, 100, "CURRENT_PROJECT_VERSION starts at 100")
 
         let plugins = try XCTUnwrap(Bundle.main.builtInPlugInsURL)
         let appex = try XCTUnwrap(try FileManager.default.contentsOfDirectory(at: plugins, includingPropertiesForKeys: nil)
