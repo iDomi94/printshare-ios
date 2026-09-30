@@ -38,6 +38,9 @@ targets:
     info:
       path: PrintShare/Info.plist
       properties:
+        # XcodeGen writes 1.0 / 1 otherwise; App Store Connect needs the build settings (set per upload by testflight.yml)
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
         CFBundleDisplayName: PrintShare
         CFBundleLocalizations: [de, en]
         UILaunchScreen:
@@ -81,6 +84,9 @@ targets:
     info:
       path: ShareExtension/Info.plist
       properties:
+        # XcodeGen writes 1.0 / 1 otherwise; App Store Connect needs the build settings (set per upload by testflight.yml)
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
         CFBundleDisplayName: PrintShare
         NSExtension:
           NSExtensionPointIdentifier: com.apple.share-services
