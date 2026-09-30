@@ -241,7 +241,7 @@ actor APIClient {
         try await download("/api/jobs/\(enc(id))/gcode", folder: "gcode-\(id)", name: name)
     }
 
-    /// One file of a model (index as in `files(link:)`) for the 3D view, into a temporary file (server 0.6.1).
+    /// One file of a model (index as in `files(link:)`) for the 3D view, into a temporary file (server 0.8.1).
     func downloadModelFile(link: String, file: String?, name: String) async throws -> URL {
         let path = "/api/model-file?link=\(enc(link))" + (file.map { "&file=\(enc($0))" } ?? "")
         return try await download(path, folder: "model-\(UUID().uuidString)", name: name)
