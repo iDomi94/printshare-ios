@@ -64,6 +64,7 @@ enum L10nKey: String, CaseIterable, Sendable {
     case errPrinterOffline = "errPrinterOffline"
     case errProfile = "errProfile"
     case errRefused = "errRefused"
+    case errServerOld = "errServerOld"
     case errSlice = "errSlice"
     case errThingiverse = "errThingiverse"
     case errTimeout = "errTimeout"

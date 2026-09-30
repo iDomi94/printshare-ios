@@ -79,6 +79,8 @@ EXTRA = {
     "cameraUnreachable": ("Kamera nicht erreichbar. Das Bild kommt direkt vom Drucker und geht nur im Heimnetz.",
                           "Camera not reachable. The picture comes straight from the printer and only works at home."),
     "openInBrowser": ("Im Browser öffnen", "Open in browser"),
+    "errServerOld": ("Dein PrintShare-Server kennt diese Funktion noch nicht. Aktualisiere ihn auf Version 0.6.0 oder neuer.",
+                     "Your PrintShare server does not have this feature yet. Update it to version 0.6.0 or newer."),
 }
 for k, (d_, e_) in EXTRA.items():
     if k not in de:

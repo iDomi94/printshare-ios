@@ -29,6 +29,7 @@ final class FriendlyErrorTests: XCTestCase {
         check(400, "Machine preset 'x' not found", .errProfile)
         check(400, "Thingiverse needs a token", .errThingiverse)
         check(404, "unknown job not found", .errNotFound)
+        check(404, "Not Found", .errServerOld)  // route missing: server older than the app
         check(502, "download failed: 500", .errDownload)
         check(502, "Printables API error", .errDownload)
         check(502, "server refused the download", .errDownload)

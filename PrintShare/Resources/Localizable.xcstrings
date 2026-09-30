@@ -1009,6 +1009,22 @@
         }
       }
     },
+    "errServerOld": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dein PrintShare-Server kennt diese Funktion noch nicht. Aktualisiere ihn auf Version 0.6.0 oder neuer."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your PrintShare server does not have this feature yet. Update it to version 0.6.0 or newer."
+          }
+        }
+      }
+    },
     "errSlice": {
       "localizations": {
         "de": {
