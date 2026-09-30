@@ -75,6 +75,13 @@ if it contradicts `printshare/api.py` the server wins; otherwise the simplest id
     Swift target and module names.
   - Texts from the 0.13.1 `i18n.ts`; the native-only key `slotsHint` became `jobSlotsHint` (upstream now has its own).
 
+- **Server 0.14.0** (upstream PR halvar20000/printshare#14, 2026-09-30): plate options per job. `JobOptions` got
+  `copies`, `rotate_x`, `rotate_y`, `scale`, `orient`; `JobResult` `copies_requested` / `copies` (`knowsPlate` = the
+  server sent `copies_requested`, older servers ignore the options silently, so the review only shows the plate row
+  for 0.14+). `PlateOptions.swift` has the same choices as the Expo app's `lib/plate.ts` (one "Lage" picker for tilt
+  / lay flat, copies 1-50, size 25-400 % in 25 steps). No Z rotation: OrcaSlicer's auto-arrange turns objects anyway.
+  Texts from the 0.14.0 `i18n.ts`.
+
 - **Model files in 3D** (not in the Expo app): the file row on the model page opens a sheet with the files of
   `/api/files` (same order and index as the prepare screen). STL is read by `STLReader` (binary + ASCII; ModelIO returned no mesh for STL on CI), 3MF by `ThreeMFReader` (own zip reader: stored/deflate via `NSData.decompressed(.zlib)`, zip64; `XMLParser` for the
   model files incl. Orca/Bambu `3D/Objects/*.model` components and build transforms; colour per object/part from

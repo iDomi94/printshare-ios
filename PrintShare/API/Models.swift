@@ -444,16 +444,27 @@ struct JobOptions: Codable, Sendable, Equatable, Hashable {
     var infill: Int?
     var walls: Int?
     var filaments: [String?]?
+    /// Plate (server 0.14.0): copies 1-50 (OrcaSlicer fits as many as it can), tilt in degrees before slicing,
+    /// size in percent, lay flat automatically (nil = printer setting). Older servers ignore them.
+    var copies: Int?
+    var rotateX: Double?
+    var rotateY: Double?
+    var scale: Int?
+    var orient: Bool?
 
     enum CodingKeys: String, CodingKey {
-        case filament, process, supports, brim, infill, walls, filaments
+        case filament, process, supports, brim, infill, walls, filaments, copies, scale, orient
         case bedType = "bed_type"
+        case rotateX = "rotate_x"
+        case rotateY = "rotate_y"
     }
 
     init(filament: String? = nil, process: String? = nil, bedType: String? = nil, supports: String? = nil,
-         brim: String? = nil, infill: Int? = nil, walls: Int? = nil, filaments: [String?]? = nil) {
+         brim: String? = nil, infill: Int? = nil, walls: Int? = nil, filaments: [String?]? = nil,
+         copies: Int? = nil, rotateX: Double? = nil, rotateY: Double? = nil, scale: Int? = nil, orient: Bool? = nil) {
         self.filament = filament; self.process = process; self.bedType = bedType; self.supports = supports
         self.brim = brim; self.infill = infill; self.walls = walls; self.filaments = filaments
+        self.copies = copies; self.rotateX = rotateX; self.rotateY = rotateY; self.scale = scale; self.orient = orient
     }
 
     init(from decoder: Decoder) throws {
@@ -466,6 +477,11 @@ struct JobOptions: Codable, Sendable, Equatable, Hashable {
         infill = c.lenient(Int.self, .infill)
         walls = c.lenient(Int.self, .walls)
         filaments = c.lenient([String?].self, .filaments)
+        copies = c.lenient(Int.self, .copies)
+        rotateX = c.lenient(Double.self, .rotateX)
+        rotateY = c.lenient(Double.self, .rotateY)
+        scale = c.lenient(Int.self, .scale)
+        orient = c.lenient(Bool.self, .orient)
     }
 }
 
@@ -549,6 +565,11 @@ struct JobResult: Codable, Sendable, Equatable {
     var overrides: [String: String]
     /// Multicolour: preset, colour and grams per filament.
     var filaments: [FilamentUse]
+    /// Server 0.14.0: copies asked for and copies on the plate (both nil for one copy); `knowsPlate` is false
+    /// for older servers, which ignore the plate options.
+    var copiesRequested: Int?
+    var copies: Int?
+    var knowsPlate = false
 
     struct FilamentUse: Codable, Sendable, Equatable, Identifiable {
         var index: Int
@@ -573,8 +594,9 @@ struct JobResult: Codable, Sendable, Equatable {
     }
 
     enum CodingKeys: String, CodingKey {
-        case printer, layers, profiles, overrides, filaments
+        case printer, layers, profiles, overrides, filaments, copies
         case sourceFile = "source_file"
+        case copiesRequested = "copies_requested"
         case printTime = "print_time"
         case filamentG = "filament_g"
         case filamentM = "filament_m"
@@ -591,6 +613,9 @@ struct JobResult: Codable, Sendable, Equatable {
         profiles = c.lenient([String: String].self, .profiles) ?? [:]
         overrides = c.lenient([String: String].self, .overrides) ?? [:]
         filaments = c.lenient([FilamentUse].self, .filaments) ?? []
+        copiesRequested = c.lenient(Int.self, .copiesRequested)
+        copies = c.lenient(Int.self, .copies)
+        knowsPlate = c.contains(.copiesRequested)
     }
 
     init(printer: String, sourceFile: String? = nil, printTime: String? = nil, filamentG: Double? = nil,

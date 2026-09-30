@@ -89,6 +89,7 @@ struct L10n: Sendable {
         ("^Waiting for another slice job", "Wartet auf einen anderen Auftrag"),
         ("^Slicing for (.*)", "Slicen für $1"),
         ("^Sliced: (.*)", "Geslict: $1"),
+        ("^Only (\\d+) of (\\d+) copies fit on the plate", "Nur $1 von $2 Kopien passen auf die Platte"),
         ("^Sending to printer and starting", "Wird gesendet und gestartet"),
         ("^Sending to printer", "Wird gesendet"),
         ("^Done", "Fertig"),

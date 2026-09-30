@@ -4,6 +4,14 @@ Jeder Abschnitt `## X.Y.Z` wird beim Tag `vX.Y.Z` automatisch als „Was testen�
 (`.github/workflows/testflight.yml`). Text auf Deutsch, höchstens 4000 Zeichen. Fehlt der Abschnitt, stehen dort
 die Commit-Titel seit dem letzten Tag.
 
+## 0.3.0
+
+Aufgeholt mit Server 0.14.0.
+
+- Neuer Abschnitt „Auf der Platte“ beim Vorbereiten: Anzahl der Kopien (der Slicer ordnet sie an, so viele wie passen), Lage (wie im Modell, automatisch hinlegen, nach vorne/hinten/links/rechts kippen, auf den Kopf) und Größe in Prozent
+- In der Prüfung steht die Anordnung bei den Details; passen weniger Kopien als gewünscht, erscheint ein gelber Hinweis
+- „Einstellungen ändern“ übernimmt die Anordnung
+
 ## 0.2.0
 
 Aufgeholt mit Server 0.13.1.
