@@ -59,7 +59,7 @@ final class PlateMeshTests: XCTestCase {
         let l = mesh.layers[0]
         let top = vertex(l, 4), foot = vertex(l, 3)
         let d = SIMD2(foot.x - top.x, foot.z - top.z)
-        XCTAssertEqual(simd_length(d), PlateMesh.width / 2 * 2.squareRoot(), accuracy: 1e-4)
+        XCTAssertEqual(simd_length(d), PlateMesh.width / 2 * Float(2).squareRoot(), accuracy: 1e-4)
         XCTAssertEqual(abs(d.x), abs(d.y), accuracy: 1e-4)
     }
 
@@ -129,7 +129,7 @@ final class PlateMeshTests: XCTestCase {
     }
 
     func testPreviewColoursAsRgb() {
-        XCTAssertEqual(PreviewColors.rgb(0xFF8000), SIMD3(1, 128.0 / 255, 0))
+        XCTAssertEqual(PreviewColors.rgb(0xFF8000), SIMD3<Float>(1, 128 / 255, 0))
         XCTAssertEqual(PreviewColors.hex(name: "Outer wall", index: 5), 0xFF8A3D)
         XCTAssertEqual(PreviewColors.hex(name: "whatever", index: 9), PreviewColors.fallbackHex(1))
         XCTAssertEqual(Color.hexValue("#A18787"), 0xA18787)
