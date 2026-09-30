@@ -152,25 +152,53 @@ struct CameraImage: View {
 }
 
 /// Minimal MJPEG reader: cuts JPEG frames (FFD8 … FFD9) out of a `multipart/x-mixed-replace` stream, off the main actor.
+///
+/// Read through a data delegate, not `URLSession.bytes(for:)`: URLSession splits `multipart/x-mixed-replace` into its
+/// parts itself (one response per part), and the async byte sequence then delivered no frames at all - live view
+/// stayed "not available" on a COSMOS / mjpg-streamer camera (2026-09-30). The delegate gets every part's data; the
+/// parser finds the frames whether URLSession split the parts or passed the raw stream.
 enum MJPEG {
-    static func frames(_ req: URLRequest, session: URLSession = .shared) -> AsyncThrowingStream<Data, Error> {
+    static func frames(_ req: URLRequest, configuration: URLSessionConfiguration = .default) -> AsyncThrowingStream<Data, Error> {
         AsyncThrowingStream { continuation in
-            let task = Task.detached {
-                do {
-                    let (bytes, response) = try await session.bytes(for: req)
-                    if let http = response as? HTTPURLResponse, !(200..<300).contains(http.statusCode) {
-                        throw URLError(.badServerResponse)
-                    }
-                    var parser = Parser()
-                    for try await byte in bytes {
-                        if let frame = parser.feed(byte) { continuation.yield(frame) }
-                    }
-                    continuation.finish()
-                } catch {
-                    continuation.finish(throwing: error)
-                }
+            let reader = Reader(continuation)
+            let queue = OperationQueue()
+            queue.maxConcurrentOperationCount = 1
+            let session = URLSession(configuration: configuration, delegate: reader, delegateQueue: queue)
+            let task = session.dataTask(with: req)
+            continuation.onTermination = { _ in
+                task.cancel()
+                session.invalidateAndCancel()
             }
-            continuation.onTermination = { _ in task.cancel() }
+            task.resume()
+        }
+    }
+
+    /// Delegate callbacks come one at a time on the session's serial queue, so the parser needs no lock.
+    private final class Reader: NSObject, URLSessionDataDelegate, @unchecked Sendable {
+        private let continuation: AsyncThrowingStream<Data, Error>.Continuation
+        private var parser = Parser()
+
+        init(_ continuation: AsyncThrowingStream<Data, Error>.Continuation) { self.continuation = continuation }
+
+        func urlSession(_ session: URLSession, dataTask: URLSessionDataTask, didReceive response: URLResponse,
+                        completionHandler: @escaping @Sendable (URLSession.ResponseDisposition) -> Void) {
+            if let http = response as? HTTPURLResponse, !(200..<300).contains(http.statusCode) {
+                completionHandler(.cancel)
+                continuation.finish(throwing: URLError(.badServerResponse))
+                return
+            }
+            completionHandler(.allow)
+        }
+
+        func urlSession(_ session: URLSession, dataTask: URLSessionDataTask, didReceive data: Data) {
+            for byte in data {
+                if let frame = parser.feed(byte) { continuation.yield(frame) }
+            }
+        }
+
+        func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
+            if let error { continuation.finish(throwing: error) } else { continuation.finish() }
+            session.finishTasksAndInvalidate()
         }
     }
 
