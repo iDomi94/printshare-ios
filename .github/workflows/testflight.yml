@@ -38,6 +38,10 @@ on:
         description: "Build number (empty = 100 + run number). Must be higher than the last uploaded one."
         required: false
         default: ""
+      xcode_version:
+        description: "Xcode version for setup-xcode (e.g. 26.6, latest-stable)"
+        required: false
+        default: "latest-stable"
 
 concurrency:
   group: testflight
@@ -48,24 +52,35 @@ env:
 
 jobs:
   upload:
-    runs-on: macos-latest
+    runs-on: macos-26
     timeout-minutes: 60
     outputs:
       version: ${{ steps.numbers.outputs.version }}
       build_number: ${{ steps.numbers.outputs.build_number }}
-    env:
-      DEVELOPMENT_TEAM: ${{ secrets.APPLE_TEAM_ID }}
-      ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
-      ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
     steps:
       - uses: actions/checkout@v4
+      - uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: ${{ inputs.xcode_version || 'latest-stable' }}
+      # sets DEVELOPMENT_TEAM, ASC_KEY_ID and ASC_ISSUER_ID (trimmed) for the following steps
       - name: Check secrets
         env:
+          DEVELOPMENT_TEAM: ${{ secrets.APPLE_TEAM_ID }}
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
           ASC_KEY_P8: ${{ secrets.ASC_KEY_P8 }}
         run: |
           missing=""
           for v in DEVELOPMENT_TEAM ASC_KEY_ID ASC_ISSUER_ID ASC_KEY_P8; do [ -n "${!v}" ] || missing="$missing $v"; done
           if [ -n "$missing" ]; then echo "::error::missing secrets:$missing (see the top of testflight.yml)"; exit 1; fi
+          # a pasted secret may carry spaces or a line break
+          TEAM=$(printf '%s' "$DEVELOPMENT_TEAM" | tr -d '[:space:]')
+          if ! printf '%s' "$TEAM" | grep -qE '^[A-Z0-9]{10}$'; then
+            echo "::error::APPLE_TEAM_ID must be the 10-character team id (Membership details on developer.apple.com)"; exit 1
+          fi
+          echo "DEVELOPMENT_TEAM=$TEAM" >> "$GITHUB_ENV"
+          echo "ASC_KEY_ID=$(printf '%s' "$ASC_KEY_ID" | tr -d '[:space:]')" >> "$GITHUB_ENV"
+          echo "ASC_ISSUER_ID=$(printf '%s' "$ASC_ISSUER_ID" | tr -d '[:space:]')" >> "$GITHUB_ENV"
       - name: Version and build number
         id: numbers
         env:
@@ -89,6 +104,11 @@ jobs:
         run: |
           python3 .github/scripts/normalize_p8.py > "$RUNNER_TEMP/AuthKey.p8"
           echo "ASC_KEY_PATH=$RUNNER_TEMP/AuthKey.p8" >> "$GITHUB_ENV"
+      - name: Check API key
+        run: |
+          python3 -m venv "$RUNNER_TEMP/venv"
+          "$RUNNER_TEMP/venv/bin/pip" install --quiet "pyjwt[crypto]" requests
+          "$RUNNER_TEMP/venv/bin/python" .github/scripts/check_asc_key.py "$BUNDLE_ID" "$ASC_KEY_PATH"
       - name: Install XcodeGen
         run: brew install xcodegen
       - name: Generate project
@@ -98,7 +118,7 @@ jobs:
           set -o pipefail
           xcodebuild -project PrintShare.xcodeproj -scheme PrintShare -configuration Release \
             -destination 'generic/platform=iOS' -archivePath "$RUNNER_TEMP/PrintShare.xcarchive" \
-            MARKETING_VERSION="$VERSION" CURRENT_PROJECT_VERSION="$BUILD_NUMBER" \
+            DEVELOPMENT_TEAM="$DEVELOPMENT_TEAM" MARKETING_VERSION="$VERSION" CURRENT_PROJECT_VERSION="$BUILD_NUMBER" \
             -allowProvisioningUpdates -authenticationKeyPath "$ASC_KEY_PATH" \
             -authenticationKeyID "$ASC_KEY_ID" -authenticationKeyIssuerID "$ASC_ISSUER_ID" \
             archive 2>&1 | tee archive.log | tail -n 80
