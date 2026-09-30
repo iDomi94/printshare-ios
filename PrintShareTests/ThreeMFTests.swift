@@ -87,7 +87,7 @@ final class ThreeMFTests: XCTestCase {
           </object>
         </config>
         """
-        let project = #"{"filament_colour": ["#FF0000", "#00FF00"], "layer_height": "0.2"}"#
+        let project = ##"{"filament_colour": ["#FF0000", "#00FF00"], "layer_height": "0.2"}"##
         let data = try zip([("_rels/.rels", rels), ("3D/3dmodel.model", root), ("3D/Objects/object_1.model", objects),
                             ("Metadata/model_settings.config", settings), ("Metadata/project_settings.config", project)],
                            deflate: true)
