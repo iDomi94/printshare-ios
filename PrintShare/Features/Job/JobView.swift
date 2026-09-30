@@ -17,7 +17,7 @@ struct JobView: View {
     @State private var printers: [Printer] = []
     @State private var printerStatus: PrinterStatus?
     @State private var printerKind: PrinterKind?
-    @State private var laneChoice: [Int: Int] = [:]
+    @State private var laneChoice: [Int: Int]
     @State private var laneSheet: LaneSheet?
     @State private var camera: CameraTarget?
     @State private var hasCamera = false
@@ -30,6 +30,12 @@ struct JobView: View {
     @State private var levelLoaded = false
     @State private var gcodeShare: SharedFile?
     @State private var gcodeLoading = false
+
+    /// `slots`: tool per model colour chosen on the prepare screen (the default until changed here).
+    init(id: String, slots: [Int: Int] = [:]) {
+        self.id = id
+        _laneChoice = State(initialValue: slots)
+    }
 
     private var working: Bool { job?.state.isWorking ?? false }
     private var printerId: String? {
@@ -226,7 +232,7 @@ struct JobView: View {
             }
 
             if !done && !printerLanes.isEmpty {
-                PSSection(title: t(.lanes), footer: t(.lanesHint)) {
+                PSSection(title: t(.slots), footer: t(.slotsHint)) {
                     ForEach(Array(colours.enumerated()), id: \.element.index) { i, col in
                         if i > 0 { PSDivider() }
                         laneRow(t, col)
@@ -291,8 +297,8 @@ struct JobView: View {
 
     private func laneRow(_ t: L10n, _ col: LanePlan.Colour) -> some View {
         let lane = printerLanes.first { $0.tool == laneTools[col.index] }
-        return PSRow(label: colours.count > 1 ? t(.colorN, ["n": String(col.index)]) : t(.lane),
-                     value: LanePlan.label(t, lane: lane), sub: Format.shortName(col.preset),
+        return PSRow(label: colours.count > 1 ? t(.colorN, ["n": String(col.index)]) : t(.slot),
+                     value: LanePlan.label(t, lane: lane, lanes: printerLanes), sub: Format.shortName(col.preset),
                      action: { laneSheet = LaneSheet(colour: col.index) }, right: {
             HStack(spacing: 4) {
                 if let c = col.color { ColorDot(color: Color(hexString: c), size: 14) }
@@ -303,13 +309,8 @@ struct JobView: View {
     }
 
     private func laneSheetView(_ t: L10n, _ colour: Int) -> some View {
-        let choices = printerLanes.compactMap { l -> Choice? in
-            guard let tool = l.tool else { return nil }
-            let what = l.loaded ? [l.material, l.filament].compactMap { $0 }.joined(separator: " · ") : t(.laneEmpty)
-            let sub = [what.isEmpty ? nil : what, l.inToolhead ? t(.laneInToolhead) : nil].compactMap { $0 }
-            return Choice(value: String(tool), label: "\(l.id) (T\(tool))", sub: sub.isEmpty ? nil : sub.joined(separator: " · "))
-        }
-        return PickerSheet(title: colours.count > 1 ? t(.colorN, ["n": String(colour)]) : t(.lane), choices: choices,
+        let choices = LanePlan.choices(t, lanes: printerLanes)
+        return PickerSheet(title: colours.count > 1 ? t(.colorN, ["n": String(colour)]) : t(.slot), choices: choices,
                            selected: laneTools[colour].map(String.init), searchLabel: t(.search), closeLabel: "OK") { v in
             if let tool = Int(v) { laneChoice[colour] = tool }
         }

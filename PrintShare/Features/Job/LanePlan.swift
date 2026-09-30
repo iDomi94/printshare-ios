@@ -78,13 +78,14 @@ enum LanePlan {
         var out: [Warning] = []
         for c in colours {
             guard let lane = lanes.first(where: { $0.tool == tools[c.index] }) else { continue }
-            let what = colours.count > 1 ? t(.colorN, ["n": String(c.index)]) : t(.lane)
+            let what = colours.count > 1 ? t(.colorN, ["n": String(c.index)]) : t(.slot)
+            let slot = slotName(t, lane: lane, lanes: lanes)
             if !lane.loaded {
-                out.append(Warning(text: t(.laneEmptyWarn, ["what": what, "lane": lane.id]), blocking: true))
+                out.append(Warning(text: t(.slotEmptyWarn, ["what": what, "slot": slot]), blocking: true))
             }
             let want = materialOf(c.preset), have = (lane.material ?? "").uppercased()
             if lane.loaded, let want, !have.isEmpty, !have.hasPrefix(want) {
-                out.append(Warning(text: t(.laneMaterialWarn, ["what": what, "want": want, "lane": lane.id,
+                out.append(Warning(text: t(.slotMaterialWarn, ["what": what, "want": want, "slot": slot,
                                                                 "have": lane.material ?? ""]),
                                    blocking: false))
             }
@@ -92,9 +93,61 @@ enum LanePlan {
         return out
     }
 
-    /// "CANVAS_1 · PLA" or "CANVAS_3 · empty".
-    static func label(_ t: L10n, lane: Lane?) -> String {
+    /// Physical slot number of a lane, as printed on the unit: the trailing number of its id ("CANVAS_1" -> 1).
+    /// Only when every lane has one and no two share it (several units), else nil and the app shows the lane id.
+    static func slotNumbers(_ lanes: [Lane]) -> [String: Int] {
+        var out: [String: Int] = [:]
+        for l in lanes {
+            guard let n = Int(String(l.id.reversed().prefix(while: { $0.isNumber }).reversed())) else { return [:] }
+            out[l.id] = n
+        }
+        return Set(out.values).count == lanes.count ? out : [:]
+    }
+
+    /// "Slot 1" (physical slot) or the lane id when the lanes have no usable slot numbers.
+    static func slotName(_ t: L10n, lane: Lane, lanes: [Lane]) -> String {
+        slotNumbers(lanes)[lane.id].map { t(.slotN, ["n": String($0)]) } ?? lane.id
+    }
+
+    /// Lanes in the order of their slots (the server sorts by tool, which is not the physical order).
+    static func bySlot(_ lanes: [Lane]) -> [Lane] {
+        let n = slotNumbers(lanes)
+        return lanes.enumerated().sorted { a, b in
+            let x = n[a.element.id] ?? a.offset, y = n[b.element.id] ?? b.offset
+            return x != y ? x < y : a.offset < b.offset
+        }.map(\.element)
+    }
+
+    /// Filament preset for the material loaded in a lane: the one named like the lane's filament, else the
+    /// preferred preset if it has that material, else the default, else the first preset of that material.
+    /// nil for an empty lane or a material the app does not know (the caller keeps its preset).
+    static func preset(for lane: Lane?, materials: [String], preferred: String?, fallback: String?) -> String? {
+        guard let lane, lane.loaded, let want = materialOf(lane.material) else { return nil }
+        let same = materials.filter { materialOf($0) == want }
+        if let name = lane.filament?.lowercased(), !name.isEmpty,
+           let hit = same.first(where: { $0.lowercased().hasPrefix(name) }) ?? same.first(where: { $0.lowercased().contains(name) }) {
+            return hit
+        }
+        if let p = preferred, same.contains(p) { return p }
+        if let f = fallback, same.contains(f) { return f }
+        return same.first
+    }
+
+    /// "Slot 1 · PLA" or "Slot 3 · empty".
+    static func label(_ t: L10n, lane: Lane?, lanes: [Lane]) -> String {
         guard let lane else { return "–" }
-        return [lane.id, lane.loaded ? lane.material : t(.laneEmpty)].compactMap { $0 }.joined(separator: " · ")
+        return [slotName(t, lane: lane, lanes: lanes), lane.loaded ? lane.material : t(.laneEmpty)]
+            .compactMap { $0 }.joined(separator: " · ")
+    }
+
+    /// Picker rows: "Slot 1", sub "PLA · T3 · in the toolhead" (value = tool number).
+    static func choices(_ t: L10n, lanes: [Lane]) -> [Choice] {
+        bySlot(lanes).compactMap { l -> Choice? in
+            guard let tool = l.tool else { return nil }
+            let what = l.loaded ? [l.material, l.filament].compactMap { $0 }.joined(separator: " · ") : t(.laneEmpty)
+            let parts: [String?] = [what.isEmpty ? nil : what, "T\(tool)", l.inToolhead ? t(.laneInToolhead) : nil]
+            let sub = parts.compactMap { $0 }
+            return Choice(value: String(tool), label: slotName(t, lane: l, lanes: lanes), sub: sub.joined(separator: " · "))
+        }
     }
 }

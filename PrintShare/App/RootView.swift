@@ -13,7 +13,7 @@ struct RootView: View {
                         .navigationDestination(for: Screen.self) { screen in
                             switch screen {
                             case .prepare(let args): PrepareView(args: args)
-                            case .job(let id): JobView(id: id)
+                            case .job(let id): JobView(id: id, slots: app.plannedSlots[id] ?? [:])
                             case .model(let source, let id): ModelDetailView(source: source, id: id)
                             case .preview(let id): PreviewView(id: id)
                             case .control(let id, let name): ControlView(printer: id, name: name)

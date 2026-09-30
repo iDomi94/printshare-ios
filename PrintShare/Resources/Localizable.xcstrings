@@ -529,6 +529,22 @@
         }
       }
     },
+    "chooseMaterial": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Material wählen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choose material"
+          }
+        }
+      }
+    },
     "clipboardEmpty": {
       "localizations": {
         "de": {
@@ -4189,6 +4205,118 @@
           "stringUnit": {
             "state": "translated",
             "value": "This usually takes less than a minute."
+          }
+        }
+      }
+    },
+    "slot": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Slot"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Slot"
+          }
+        }
+      }
+    },
+    "slotEmptyWarn": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "{what}: {slot} ist leer – Filament laden oder einen anderen Slot wählen."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "{what}: {slot} is empty – load filament or choose another slot."
+          }
+        }
+      }
+    },
+    "slotMaterialWarn": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "{what}: Profil ist {want}, in {slot} ist {have}."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "{what}: the profile is {want}, {slot} holds {have}."
+          }
+        }
+      }
+    },
+    "slotN": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Slot {n}"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Slot {n}"
+          }
+        }
+      }
+    },
+    "slots": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Slots"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Slots"
+          }
+        }
+      }
+    },
+    "slotsHint": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Welcher Slot des Druckers jede Farbe druckt. Material und Farbe kommen vom Drucker. Ändern geht ohne neu zu slicen."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Which slot of the printer prints each colour. Material and colour come from the printer. Changing it needs no re-slicing."
+          }
+        }
+      }
+    },
+    "slotsPrepareHint": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Material und Farbe kommen vom Drucker, das Material zum Slicen folgt dem Slot. Gedrückt halten, um das Material selbst zu wählen."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Material and colour come from the printer; the slicing material follows the slot. Long-press to choose the material yourself."
           }
         }
       }

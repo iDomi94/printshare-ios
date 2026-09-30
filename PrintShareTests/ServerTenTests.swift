@@ -117,7 +117,7 @@ final class ServerTenTests: XCTestCase {
         let tools = LanePlan.tools(colours: colours, lanes: cosmosLanes, choice: [:])
         XCTAssertEqual(tools, [1: 0])
         let w = LanePlan.warnings(l, colours: colours, lanes: cosmosLanes, tools: tools)
-        XCTAssertEqual(w, [.init(text: "Lane: the profile is PETG, lane CANVAS_4 holds PLA.", blocking: false)])
+        XCTAssertEqual(w, [.init(text: "Slot: the profile is PETG, Slot 4 holds PLA.", blocking: false)])
     }
 
     func testChosenEmptyLaneBlocksPrinting() {
@@ -126,9 +126,40 @@ final class ServerTenTests: XCTestCase {
         let tools = LanePlan.tools(colours: colours, lanes: cosmosLanes, choice: [2: 2])
         XCTAssertEqual(tools[2], 2)
         let w = LanePlan.warnings(l, colours: colours, lanes: cosmosLanes, tools: tools)
-        XCTAssertEqual(w.filter(\.blocking).map(\.text), ["Colour 2: lane CANVAS_3 is empty – load filament or choose another lane."])
-        XCTAssertEqual(LanePlan.label(l, lane: cosmosLanes[2]), "CANVAS_3 · empty")
-        XCTAssertEqual(LanePlan.label(l, lane: cosmosLanes[0]), "CANVAS_4 · PLA")
+        XCTAssertEqual(w.filter(\.blocking).map(\.text), ["Colour 2: Slot 3 is empty – load filament or choose another slot."])
+        XCTAssertEqual(LanePlan.label(l, lane: cosmosLanes[2], lanes: cosmosLanes), "Slot 3 · empty")
+        XCTAssertEqual(LanePlan.label(l, lane: cosmosLanes[0], lanes: cosmosLanes), "Slot 4 · PLA")
+    }
+
+    func testSlotsAreThePhysicalLaneNumbers() {
+        // Dominique's CANVAS: Slot 1 is CANVAS_1 although it maps to T3
+        let choices = LanePlan.choices(l, lanes: cosmosLanes)
+        XCTAssertEqual(choices.map(\.label), ["Slot 1", "Slot 2", "Slot 3", "Slot 4"])
+        XCTAssertEqual(choices.map(\.value), ["3", "1", "2", "0"])
+        XCTAssertEqual(choices[0].sub, "PLA · T3")
+        XCTAssertEqual(choices[2].sub, "empty · T2")
+        // two units with the same numbers: fall back to the lane ids
+        let twoUnits = [Lane(id: "BOX_1", tool: 0), Lane(id: "CANVAS_1", tool: 1)]
+        XCTAssertEqual(LanePlan.choices(l, lanes: twoUnits).map(\.label), ["BOX_1", "CANVAS_1"])
+        XCTAssertEqual(LanePlan.choices(l, lanes: [Lane(id: "left", tool: 0)]).map(\.label), ["left"])
+    }
+
+    func testSlotMaterialPicksTheSlicingPreset() {
+        let materials = ["Elegoo PLA @ECC", "Elegoo PLA Matte @ECC", "Elegoo PETG @ECC", "Generic PETG @ECC"]
+        let petg = Lane(id: "CANVAS_2", tool: 1, material: "PETG")
+        XCTAssertEqual(LanePlan.preset(for: petg, materials: materials, preferred: "Elegoo PLA @ECC",
+                                       fallback: "Elegoo PLA @ECC"), "Elegoo PETG @ECC")
+        XCTAssertEqual(LanePlan.preset(for: petg, materials: materials, preferred: "Generic PETG @ECC",
+                                       fallback: "Elegoo PLA @ECC"), "Generic PETG @ECC")
+        let named = Lane(id: "CANVAS_1", tool: 3, material: "PLA", filament: "Elegoo PLA Matte")
+        XCTAssertEqual(LanePlan.preset(for: named, materials: materials, preferred: "Elegoo PLA @ECC",
+                                       fallback: nil), "Elegoo PLA Matte @ECC")
+        XCTAssertEqual(LanePlan.preset(for: cosmosLanes[3], materials: materials, preferred: "Elegoo PETG @ECC",
+                                       fallback: "Elegoo PLA @ECC"), "Elegoo PLA @ECC")
+        XCTAssertNil(LanePlan.preset(for: cosmosLanes[2], materials: materials, preferred: nil, fallback: nil))  // empty
+        XCTAssertNil(LanePlan.preset(for: Lane(id: "x", tool: 0, material: "Unobtainium"), materials: materials,
+                                     preferred: nil, fallback: nil))
+        XCTAssertNil(LanePlan.preset(for: nil, materials: materials, preferred: nil, fallback: nil))
     }
 
     func testLanesOnlyFromAReachablePrinter() {

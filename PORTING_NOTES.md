@@ -34,6 +34,14 @@ if it contradicts `printshare/api.py` the server wins; otherwise the simplest id
     colour; default and warnings follow `job/[id].tsx` (`LanePlan`): loaded lane with the profile's material and the
     closest colour, else T(n-1), else any loaded lane. An empty lane blocks "Print" (red), another material warns
     (yellow). `send` carries `lanes {"<colour>": <tool>}` when the printer has lanes, for uploads too.
+  - **Slots before slicing** (native only, Dominique's feedback 2026-09-30): the Expo app picks a material per colour
+    and the lane only after slicing. Here, when the chosen printer reports lanes, the prepare screen shows "Slot N" per
+    colour instead (N = the physical number from the lane id, `CANVAS_1` = Slot 1, not the tool: on his CANVAS Slot 1
+    is T3; lane ids when the numbers are missing or repeat). Material and colour come from the printer; the slicing
+    preset follows the slot's material (`LanePlan.preset`: preset named like the lane's filament, else the last choice,
+    else the default, else the first of that material). Long-press a colour (or the material row for one colour) to
+    pick the preset by hand. The chosen tools go to the job screen as its default (`AppModel.plannedSlots`, memory
+    only) and are still changeable there without re-slicing. The upstream wording "Spur/Lane" is shown as "Slot".
   - **Camera** (issue #3, 0.9.0): no longer straight from the printer. `CameraView` shows live MJPEG from
     `/api/printers/<id>/camera/stream` (our own parser, token as header - no WebView needed) or still images from
     `/camera/snapshot?w=`; away (route "remote") it starts with still images (every 3 s) to save mobile data. The

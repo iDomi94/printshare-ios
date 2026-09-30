@@ -11,7 +11,7 @@ Prepare, Job with review and confirmation, Preview, Jobs, Printers, Settings, Co
 Same bundle id / App Group / URL scheme as the Expo build. Caught up with **server 0.10.0** (upstream `7c03c58`):
 bed leveling per print (`leveling`), multicolour 3MF projects (`/api/inspect`, `options.filaments`, grams per colour),
 preview format 2 (`?format=2`, filament per path, `bounds`, `filament_colors`), G-code sharing (`/api/jobs/<id>/gcode`),
-AFC lane choice (`status.lanes`, `send.lanes`, #6), camera through the server (live MJPEG / stills, #3), printer control
+AFC lane choice (`status.lanes`, `send.lanes`, #6; shown as "Slot N", chosen already before slicing, see PORTING_NOTES), camera through the server (live MJPEG / stills, #3), printer control
 (`/controls`, `/adjust`, `/temperatures`, #5), own printer profile (`/api/profiles`, `/api/printers/<id>/profile`, #2).
 Beyond the Expo app: model files in 3D before slicing (tap "X printable files" on the model page; STL via own reader,
 OBJ via ModelIO, shown with SceneKit, needs server 0.10.1 `/api/model-file`, upstream PR #11), manual TestFlight workflow.
