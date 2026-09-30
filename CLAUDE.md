@@ -24,7 +24,8 @@ exists in DE and EN. Wire formats were checked against the 0.6.0 server code (`p
 
 **Not verified:** no simulator or device run, no real server, no share extension on a device, no QR scan, no
 TestFlight upload (workflow `testflight.yml` exists, needs the secrets listed in it), no camera stream from a real
-printer, Keychain migration only tested with items written like expo-secure-store 57 (not with a real Expo install).
+printer, Keychain migration: the key layout was checked against the expo-secure-store 57 source, but its test is skipped in the
+unsigned CI (no keychain) and it was never run against a real Expo install.
 
 ## Rules
 

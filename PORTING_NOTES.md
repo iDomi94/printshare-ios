@@ -73,8 +73,9 @@ if it contradicts `printshare/api.py` the server wins; otherwise the simplest id
 - **Keychain migration** from `expo-secure-store`: checked against the expo-secure-store 57.0.4 source
   (`ios/SecureStoreModule.swift`). Items live under service `app:no-auth` (older versions: `app`), with account and
   generic attribute set to the key as UTF-8 **data**. The first port looked only at service `app` and read the account
-  as a string, so it would have found nothing; fixed and covered by `KeychainMigrationTests` (writes an item the way
-  Expo does). Still not tried on a phone that has the Expo build installed.
+  as a string, so it would have found nothing; fixed. `KeychainMigrationTests` writes an item the way Expo does, but
+  the unsigned CI test host has no keychain access, so that test is skipped there (run it in Xcode with a team set).
+  Still not tried on a phone that has the Expo build installed.
 - **Tests**: XCTest. The test target compiles in Swift 5 language mode (mutable URLProtocol test doubles); the app itself is
   Swift 6 with complete strict concurrency.
 - **Jobs list** has no swipe-to-delete, because the Expo list does not offer it either.
