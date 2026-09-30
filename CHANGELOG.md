@@ -11,6 +11,7 @@ Aufgeholt mit Server 0.14.0.
 - Neuer Abschnitt „Auf der Platte“ beim Vorbereiten: Anzahl der Kopien (der Slicer ordnet sie an, so viele wie passen), Lage (wie im Modell, automatisch hinlegen, nach vorne/hinten/links/rechts kippen, auf den Kopf) und Größe in Prozent
 - In der Prüfung steht die Anordnung bei den Details; passen weniger Kopien als gewünscht, erscheint ein gelber Hinweis
 - „Einstellungen ändern“ übernimmt die Anordnung
+- Live-Kamerabild funktioniert jetzt (vorher „Kamerabild nicht verfügbar“, z. B. bei COSMOS/Moonraker); Vorschau und Standbild waren nicht betroffen
 
 ## 0.2.0
 
