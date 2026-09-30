@@ -351,9 +351,16 @@ struct PrepareView: View {
         case .printer:
             return printers.map { Choice(value: $0.id, label: $0.name, sub: kindLabel(t, $0.id)) }
         case .filament, .color:
-            return (opts?.materials ?? []).map { Choice(value: $0, label: Format.shortName($0), group: Format.brandOf($0)) }
+            // uploaded presets come first from the server and get their own group (server 0.13.0)
+            let own = Set(opts?.own?.materials ?? [])
+            return (opts?.materials ?? []).map {
+                Choice(value: $0, label: Format.shortName($0), group: own.contains($0) ? t(.ownProfiles) : Format.brandOf($0))
+            }
         case .process:
-            return (opts?.processes ?? []).map { Choice(value: $0, label: Format.shortName($0)) }
+            let own = Set(opts?.own?.processes ?? [])
+            return (opts?.processes ?? []).map {
+                Choice(value: $0, label: Format.shortName($0), group: own.contains($0) ? t(.ownProfiles) : nil)
+            }
         case .plate:
             return (opts?.plates ?? []).map { Choice(value: $0, label: Format.plateName(t, $0)) }
         case .file:

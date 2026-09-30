@@ -14,7 +14,7 @@ final class ShareViewController: UIViewController {
         label.font = .preferredFont(forTextStyle: .headline)
         label.adjustsFontForContentSizeCategory = true
         label.numberOfLines = 0
-        label.text = german ? "In PrintShare öffnen" : "Open in PrintShare"
+        label.text = german ? "In PocketPrint3D öffnen" : "Open in PocketPrint3D"
         label.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(label)
         NSLayoutConstraint.activate([

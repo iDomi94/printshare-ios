@@ -12,9 +12,9 @@ server slices it with OrcaSlicer and uploads the G-code to the printer. This app
 - No third-party packages, only Apple frameworks
 - Share extension (links, text, files), QR pairing, home / away server address, 2D G-code preview (by line type or
   filament), multicolour 3MF projects (material per colour), G-code sharing, lane choice for AFC / CANVAS,
-  printer camera, printer control (temperatures with history, fans, light, speed), own OrcaSlicer printer profile,
-  model files in 3D
-- Made for PrintShare server 0.10 (0.10.1 for the 3D view); older servers still work, newer features then say the
+  printer camera, printer control (temperatures with history, fans, light, speed), power on/off through Home Assistant,
+  own OrcaSlicer printer / quality / material profiles, model files in 3D
+- Made for the PocketPrint3D (formerly PrintShare) server 0.13 (0.10.1 for the 3D view, 0.12 for power, 0.13 for own presets); older servers still work, newer features then say the
   server is too old
 
 See [PORTING_NOTES.md](PORTING_NOTES.md) for decisions and deviations from the Expo app and [CLAUDE.md](CLAUDE.md)

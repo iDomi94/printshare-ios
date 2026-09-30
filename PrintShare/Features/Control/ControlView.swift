@@ -19,6 +19,8 @@ struct ControlView: View {
         let id = UUID()
         var text: String
         var destructive: Bool
+        /// Label of the confirming button (default: "Change").
+        var confirm: String?
         var onConfirm: @MainActor () -> Void
     }
 
@@ -49,6 +51,8 @@ struct ControlView: View {
     @State private var busy = ""
     @State private var picker: HeaterPick?
     @State private var question: Question?
+    /// Home Assistant plug of the printer (issue #9), nil when the server has none.
+    @State private var power: PowerInfo?
 
     private var printing: Bool { status?.kind.isBusy ?? false }
 
@@ -64,13 +68,14 @@ struct ControlView: View {
         .navigationTitle(name)
         .navigationBarTitleDisplayMode(.inline)
         .task { await loadControls() }
+        .task { await loadPower() }
         .task(id: scenePhase == .active) { await pollStatus() }
         .task(id: scenePhase == .active) { await pollHistory() }
         .sheet(item: $picker) { heaterSheet(t, $0.id) }
         .alert(question?.text ?? "", isPresented: Binding(get: { question != nil }, set: { if !$0 { question = nil } }),
                presenting: question) { q in
             Button(t(.cancelBtn), role: .cancel) {}
-            Button(t(.change), role: q.destructive ? .destructive : nil) { q.onConfirm() }
+            Button(q.confirm ?? t(.change), role: q.destructive ? .destructive : nil) { q.onConfirm() }
         }
     }
 
@@ -129,7 +134,36 @@ struct ControlView: View {
                     .padding(12)
                 }
             }
+
+            if let power, power.available {
+                PSSection(title: t(.powerTitle), footer: printing ? t(.powerOffBusy) : nil) {
+                    PSRow(icon: "power", label: t(.powerOff), value: power.state.map { t.powerState($0) },
+                          danger: !printing, chevron: false,
+                          action: printing || busy == "power" ? nil : { askPowerOff(t) }) {
+                        if busy == "power" { ProgressView().padding(.leading, 8) }
+                    }
+                    .opacity(printing ? 0.5 : 1)
+                }
+            }
         }
+    }
+
+    /// Switching the plug off always asks first; the server refuses it during a print anyway (409).
+    private func askPowerOff(_ t: L10n) {
+        question = Question(text: t(.powerOffQ, ["printer": name]), destructive: true, confirm: t(.powerOff)) {
+            Task { await powerOff() }
+        }
+    }
+
+    private func powerOff() async {
+        guard let api = app.api else { return }
+        busy = "power"
+        do {
+            try await api.setPower(printer: printer, on: false)
+            power?.state = "off"
+            error = ""
+        } catch { self.error = error.localizedDescription }
+        busy = ""
     }
 
     // MARK: rows
@@ -284,6 +318,11 @@ struct ControlView: View {
     private func loadControls() async {
         guard let api = app.api else { return }
         do { caps = try await api.controls(printer: printer) } catch { self.error = error.localizedDescription }
+    }
+
+    private func loadPower() async {
+        guard let api = app.api else { return }
+        power = try? await api.power(printer: printer)
     }
 
     private func loadStatus() async {

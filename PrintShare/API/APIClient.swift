@@ -26,6 +26,7 @@ private struct Ack: Decodable, Sendable {
 }
 
 private struct ControlBody: Encodable { var action: String; var confirm: Bool }
+private struct PowerBody: Encodable { var on: Bool }
 private struct CreateJobBody: Encodable {
     var link: String
     var printer: String
@@ -245,6 +246,18 @@ actor APIClient {
     func control(printer: String, action: String) async throws {
         let _: Ack = try await request("/api/printers/\(enc(printer))/control", method: "POST",
                                        body: ControlBody(action: action, confirm: action == "cancel"))
+    }
+
+    // MARK: power through Home Assistant (server 0.12.0)
+
+    func power(printer: String) async throws -> PowerInfo {
+        try await request("/api/printers/\(enc(printer))/power", timeout: 20)
+    }
+
+    /// Switching off is refused by the server while a print runs (409). Never repeated automatically.
+    func setPower(printer: String, on: Bool) async throws {
+        let _: Ack = try await request("/api/printers/\(enc(printer))/power", method: "POST", body: PowerBody(on: on),
+                                       timeout: 20)
     }
 
     // MARK: printer control (server 0.10.0)

@@ -120,6 +120,24 @@ final class ServerTenTests: XCTestCase {
         XCTAssertEqual(w, [.init(text: "Slot: the profile is PETG, Slot 4 holds PLA.", blocking: false)])
     }
 
+    func testSingleColourTakesTheLaneInTheToolhead() {
+        var lanes = cosmosLanes
+        lanes[3].inToolhead = true   // CANVAS_1 (T3)
+        let colours = [LanePlan.Colour(index: 1, color: nil, preset: "Elegoo PLA @ECC")]
+        XCTAssertEqual(LanePlan.tools(colours: colours, lanes: lanes, choice: [:]), [1: 3])
+    }
+
+    func testEachLaneIsUsedOnceIfPossible() {
+        // two white colours: the second gets the next free loaded lane, not the same one
+        let colours = [LanePlan.Colour(index: 1, color: "#FFFFFF", preset: "Elegoo PLA @ECC"),
+                       LanePlan.Colour(index: 2, color: "#FFFFFF", preset: "Elegoo PLA @ECC")]
+        let tools = LanePlan.tools(colours: colours, lanes: cosmosLanes, choice: [:])
+        XCTAssertEqual(tools[1], 3)
+        XCTAssertNotEqual(tools[2], 3)
+        // a slot chosen by hand is not handed out again
+        XCTAssertEqual(LanePlan.tools(colours: colours, lanes: cosmosLanes, choice: [2: 3])[1], 0)
+    }
+
     func testChosenEmptyLaneBlocksPrinting() {
         let colours = [LanePlan.Colour(index: 1, color: nil, preset: "Elegoo PLA @ECC"),
                        LanePlan.Colour(index: 2, color: nil, preset: "Elegoo PLA @ECC")]
