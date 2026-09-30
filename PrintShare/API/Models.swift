@@ -254,7 +254,7 @@ struct ModelColors: Codable, Sendable, Equatable {
     var usedFilaments: [Filament] { filaments.filter { used.contains($0.index) } }
 }
 
-struct ModelFile: Codable, Sendable, Equatable, Identifiable {
+struct ModelFile: Codable, Sendable, Hashable, Identifiable {
     var index: Int
     var name: String
     var size: Int?

@@ -2017,6 +2017,38 @@
         }
       }
     },
+    "model3dHint": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mit einem Finger drehen, mit zwei Fingern zoomen."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Drag to rotate, pinch to zoom."
+          }
+        }
+      }
+    },
+    "model3dUnsupported": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Für {ext}-Dateien gibt es keine 3D-Ansicht. Drucken kannst du sie trotzdem."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "There is no 3D view for {ext} files. You can still print them."
+          }
+        }
+      }
+    },
     "more": {
       "localizations": {
         "de": {

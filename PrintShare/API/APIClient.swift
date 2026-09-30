@@ -238,12 +238,23 @@ actor APIClient {
 
     /// Download the sliced G-code (SL-10) into a temporary file named like the model, for the share sheet.
     func downloadGcode(job id: String, name: String) async throws -> URL {
-        let (data, res) = try await perform("/api/jobs/\(enc(id))/gcode", method: "GET", body: nil, timeout: 120)
+        try await download("/api/jobs/\(enc(id))/gcode", folder: "gcode-\(id)", name: name)
+    }
+
+    /// One file of a model (index as in `files(link:)`) for the 3D view, into a temporary file (server 0.6.1).
+    func downloadModelFile(link: String, file: String?, name: String) async throws -> URL {
+        let path = "/api/model-file?link=\(enc(link))" + (file.map { "&file=\(enc($0))" } ?? "")
+        return try await download(path, folder: "model-\(UUID().uuidString)", name: name)
+    }
+
+    private func download(_ path: String, folder: String, name: String) async throws -> URL {
+        let (data, res) = try await perform(path, method: "GET", body: nil, timeout: 120)
         guard (200..<300).contains(res.statusCode) else { throw failure(data, status: res.statusCode) }
-        let dir = FileManager.default.temporaryDirectory.appendingPathComponent("gcode-\(id)", isDirectory: true)
+        let dir = FileManager.default.temporaryDirectory.appendingPathComponent(folder, isDirectory: true)
         try? FileManager.default.removeItem(at: dir)
         try FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
-        let url = dir.appendingPathComponent(name)
+        let safe = (name as NSString).lastPathComponent
+        let url = dir.appendingPathComponent(safe.isEmpty ? "file" : safe)
         try data.write(to: url, options: .atomic)
         return url
     }

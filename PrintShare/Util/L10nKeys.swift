@@ -127,6 +127,8 @@ enum L10nKey: String, CaseIterable, Sendable {
     case manual = "manual"
     case material = "material"
     case model = "model"
+    case model3dHint = "model3dHint"
+    case model3dUnsupported = "model3dUnsupported"
     case more = "more"
     case needLink = "needLink"
     case newModel = "newModel"

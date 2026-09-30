@@ -11,7 +11,8 @@ Prepare, Job with review and confirmation, Preview, Jobs, Printers, Settings, Co
 Same bundle id / App Group / URL scheme as the Expo build. Caught up with **server 0.6.0** (upstream `507fff4`):
 bed leveling per print (`leveling`), multicolour 3MF projects (`/api/inspect`, `options.filaments`, grams per colour),
 preview format 2 (`?format=2`, filament per path, `bounds`, `filament_colors`), G-code sharing (`/api/jobs/<id>/gcode`).
-Beyond the Expo app: camera picture inside the app (MJPEG, issue #3), manual TestFlight workflow.
+Beyond the Expo app: camera picture inside the app (MJPEG, issue #3), model files in 3D before slicing (tap "X printable
+files" on the model page; STL/OBJ via ModelIO + SceneKit, needs server 0.6.1 `/api/model-file`), manual TestFlight workflow.
 Texts are generated from the 0.6.0 `i18n.ts`.
 
 **Verified:** CI (macos-latest): builds without errors or warnings in Swift 6 mode, all unit tests green. Unit tests cover URL normalisation,
