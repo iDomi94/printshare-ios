@@ -18,4 +18,29 @@ final class MJPEGTests: XCTestCase {
         let frames = ([0xFF, 0xD8, 1, 2, 3, 4, 0xFF, 0xD9] as [UInt8]).compactMap { parser.feed($0) }
         XCTAssertTrue(frames.isEmpty)
     }
+
+    func testFramesArriveThroughTheSessionDelegate() async throws {
+        let header = Array("--boundarydonotcross\r\nContent-Type: image/jpeg\r\n\r\n".utf8)
+        let frame: [UInt8] = [0xFF, 0xD8, 0x07, 0xFF, 0xD9]
+        StubProtocol.install { _ in StubResponse(body: Data(header + frame + header + frame)) }
+        let cfg = URLSessionConfiguration.ephemeral
+        cfg.protocolClasses = [StubProtocol.self]
+        var got: [Data] = []
+        for try await f in MJPEG.frames(URLRequest(url: URL(string: "http://home.test/stream")!), configuration: cfg) {
+            got.append(f)
+        }
+        XCTAssertEqual(got, [Data(frame), Data(frame)])
+    }
+
+    func testStreamErrorStatusFails() async {
+        StubProtocol.install { _ in StubResponse(status: 502, body: Data("{}".utf8)) }
+        let cfg = URLSessionConfiguration.ephemeral
+        cfg.protocolClasses = [StubProtocol.self]
+        do {
+            for try await _ in MJPEG.frames(URLRequest(url: URL(string: "http://home.test/stream")!), configuration: cfg) {}
+            XCTFail("expected an error")
+        } catch {
+            XCTAssertEqual((error as? URLError)?.code, .badServerResponse)
+        }
+    }
 }
