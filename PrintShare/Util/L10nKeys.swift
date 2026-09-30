@@ -165,6 +165,7 @@ enum L10nKey: String, CaseIterable, Sendable {
     case minutesAgo = "minutesAgo"
     case model = "model"
     case model3dHint = "model3dHint"
+    case model3dUnreadable = "model3dUnreadable"
     case model3dUnsupported = "model3dUnsupported"
     case more = "more"
     case needLink = "needLink"

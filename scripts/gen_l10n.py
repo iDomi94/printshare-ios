@@ -80,6 +80,8 @@ EXTRA = {
     "shareGcode": ("G-Code teilen", "Share G-code"),
     "model3dUnsupported": ("Für {ext}-Dateien gibt es keine 3D-Ansicht. Drucken kannst du sie trotzdem.",
                            "There is no 3D view for {ext} files. You can still print them."),
+    "model3dUnreadable": ("Diese Datei lässt sich nicht als 3D-Modell lesen. Drucken kannst du sie trotzdem.",
+                          "This file can't be read as a 3D model. You can still print it."),
     "model3dHint": ("Mit einem Finger drehen, mit zwei Fingern zoomen.", "Drag to rotate, pinch to zoom."),
     # AFC/CANVAS: the user picks the printer's slot (as printed on the unit) instead of the upstream "lane" wording
     "slot": ("Slot", "Slot"),

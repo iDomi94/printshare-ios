@@ -61,7 +61,7 @@ struct ModelFilesSheet: View {
     }
 }
 
-/// One model file in 3D (STL/OBJ via ModelIO + SceneKit), with "Prepare print" for exactly this file.
+/// One model file in 3D (STL / 3MF via own readers, OBJ via ModelIO; shown with SceneKit), with "Prepare print" for exactly this file.
 struct ModelFileView: View {
     let link: String
     let file: ModelFile
@@ -118,30 +118,46 @@ struct ModelFileView: View {
             let built = try ModelScene.make(url)
             scene = built.scene
             camera = built.camera
+        } catch is ThreeMFReader.Failure {
+            self.error = app.l10n(.model3dUnreadable)
         } catch {
             self.error = error.localizedDescription
         }
     }
 }
 
-/// Builds a SceneKit scene from an STL/OBJ file: one neutral material, model centred, camera looking at it.
+/// Builds a SceneKit scene from an STL/3MF/OBJ file: model centred, camera looking at it. 3MF projects show
+/// each object in its filament colour; everything else gets one neutral material.
 enum ModelScene {
     static func canShow(_ name: String) -> Bool {
         let ext = (name as NSString).pathExtension.lowercased()
-        return ext == "stl" || (ext == "obj" && MDLAsset.canImportFileExtension(ext))
+        return ext == "stl" || ext == "3mf" || (ext == "obj" && MDLAsset.canImportFileExtension(ext))
+    }
+
+    private static func material(_ color: UIColor) -> SCNMaterial {
+        let m = SCNMaterial()
+        m.diffuse.contents = color
+        m.lightingModel = .blinn
+        m.isDoubleSided = true
+        return m
     }
 
     @MainActor
     static func make(_ url: URL) throws -> (scene: SCNScene, camera: SCNNode) {
-        let material = SCNMaterial()
-        material.diffuse.contents = UIColor(Theme.accent)
-        material.lightingModel = .blinn
-        material.isDoubleSided = true
+        let accent = Self.material(UIColor(Theme.accent))
         let model = SCNNode()
-        if url.pathExtension.lowercased() == "stl" {
+        let ext = url.pathExtension.lowercased()
+        if ext == "3mf" {
+            for part in try ThreeMFReader.read(Data(contentsOf: url, options: .mappedIfSafe)) {
+                let geometry = try STLReader.geometry(triangles: part.vertices.map { SCNVector3($0.x, $0.y, $0.z) })
+                let color = part.color.flatMap { Color(hexString: $0) }.map { UIColor($0) }
+                geometry.materials = [color.map { Self.material($0) } ?? accent]
+                model.addChildNode(SCNNode(geometry: geometry))
+            }
+        } else if ext == "stl" {
             // ModelIO reads many STL files as empty, so STL gets its own small reader
             let geometry = try STLReader.geometry(Data(contentsOf: url, options: .mappedIfSafe))
-            geometry.materials = [material]
+            geometry.materials = [accent]
             model.geometry = geometry
         } else {
             let asset = MDLAsset(url: url)
@@ -150,7 +166,7 @@ enum ModelScene {
             for mesh in meshes {
                 mesh.addNormals(withAttributeNamed: MDLVertexAttributeNormal, creaseThreshold: 0.6)
                 let node = SCNNode(mdlObject: mesh)
-                node.geometry?.materials = [material]
+                node.geometry?.materials = [accent]
                 model.addChildNode(node)
             }
         }
@@ -187,7 +203,11 @@ enum ModelScene {
 /// Binary and ASCII STL → flat-shaded SceneKit geometry (normals computed from the vertices).
 enum STLReader {
     static func geometry(_ data: Data) throws -> SCNGeometry {
-        let triangles = try isBinary(data) ? binary(data) : ascii(data)
+        try geometry(triangles: isBinary(data) ? binary(data) : ascii(data))
+    }
+
+    /// Triangle soup (three vertices per triangle) → geometry with flat normals.
+    static func geometry(triangles: [SCNVector3]) throws -> SCNGeometry {
         guard !triangles.isEmpty else { throw CocoaError(.fileReadCorruptFile) }
         var normals: [SCNVector3] = []
         normals.reserveCapacity(triangles.count)
