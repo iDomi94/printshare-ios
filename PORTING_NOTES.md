@@ -58,7 +58,10 @@ if it contradicts `printshare/api.py` the server wins; otherwise the simplest id
   - Texts from the 0.10.0 `i18n.ts`, including the name tables for heaters, fans, lights and speed modes.
 
 - **Model files in 3D** (not in the Expo app): the file row on the model page opens a sheet with the files of
-  `/api/files` (same order and index as the prepare screen). STL is read by `STLReader` (binary + ASCII; ModelIO returned no mesh for STL on CI), OBJ with ModelIO (`MDLAsset`), and shown
+  `/api/files` (same order and index as the prepare screen). STL is read by `STLReader` (binary + ASCII; ModelIO returned no mesh for STL on CI), 3MF by `ThreeMFReader` (own zip reader: stored/deflate via `NSData.decompressed(.zlib)`, zip64; `XMLParser` for the
+  model files incl. Orca/Bambu `3D/Objects/*.model` components and build transforms; colour per object/part from
+  `Metadata/model_settings.config` + `project_settings.config` or PrusaSlicer `Slic3r_PE*.config`; painted colours are
+  not shown), OBJ with ModelIO (`MDLAsset`), and shown
   in a SceneKit `SceneView` (rotated from Z-up, centred, one material); 3MF/STEP show a note instead. "Prepare print"
   opens the prepare screen with that file preselected. The file comes from `GET /api/model-file` (server 0.10.1, upstream PR #11); older
   servers answer 404 and the app says the server is too old.

@@ -6,7 +6,7 @@ final class ModelSceneTests: XCTestCase {
     func testWhichFilesHaveA3DView() {
         XCTAssertTrue(ModelScene.canShow("Benchy.STL"))
         XCTAssertTrue(ModelScene.canShow("part.obj"))
-        XCTAssertFalse(ModelScene.canShow("plate.3mf"))
+        XCTAssertTrue(ModelScene.canShow("plate.3MF"))
         XCTAssertFalse(ModelScene.canShow("bracket.step"))
     }
 

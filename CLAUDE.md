@@ -13,8 +13,9 @@ bed leveling per print (`leveling`), multicolour 3MF projects (`/api/inspect`, `
 preview format 2 (`?format=2`, filament per path, `bounds`, `filament_colors`), G-code sharing (`/api/jobs/<id>/gcode`),
 AFC lane choice (`status.lanes`, `send.lanes`, #6; shown as "Slot N", chosen already before slicing, see PORTING_NOTES), camera through the server (live MJPEG / stills, #3), printer control
 (`/controls`, `/adjust`, `/temperatures`, #5), own printer profile (`/api/profiles`, `/api/printers/<id>/profile`, #2).
-Beyond the Expo app: model files in 3D before slicing (tap "X printable files" on the model page; STL via own reader,
-OBJ via ModelIO, shown with SceneKit, needs server 0.10.1 `/api/model-file`, upstream PR #11), manual TestFlight workflow.
+Beyond the Expo app: model files in 3D before slicing (tap "X printable files" on the model page; STL and 3MF via own
+readers (3MF: own zip reader + XMLParser, Orca/Bambu/Prusa object colours), OBJ via ModelIO, shown with SceneKit, needs
+server 0.10.1 `/api/model-file`, merged upstream), manual TestFlight workflow.
 Texts are generated from the 0.10.0 `i18n.ts`. When upstream changes, compare `mobile/` and `printshare/api.py` since
 the commit above and port the difference.
 

@@ -2625,6 +2625,22 @@
         }
       }
     },
+    "model3dUnreadable": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Diese Datei lässt sich nicht als 3D-Modell lesen. Drucken kannst du sie trotzdem."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This file can't be read as a 3D model. You can still print it."
+          }
+        }
+      }
+    },
     "model3dUnsupported": {
       "localizations": {
         "de": {
