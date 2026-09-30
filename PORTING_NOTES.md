@@ -10,24 +10,28 @@ if it contradicts `printshare/api.py` the server wins; otherwise the simplest id
 - No pull request against `halvar20000/printshare` was opened: this repository is separate and the run was
   limited to `printshare-ios` (pushing to its `main` was allowed).
 
-## Source snapshot and open ends
+## Source snapshot
 
-- The TypeScript sources were read from the working copy of `iDomi94/printshare` at commit `a2614f0` (server 0.4.0).
-  The upstream commit named in the task (`dd2bfe7`, 0.5.0) could not be read from this session. The 0.5.0 additions
-  were therefore implemented from the task description, **not** from the code, and their wire format is a guess:
-  - **G-code preview** (`Features/Preview`): `GET /api/jobs/{id}/preview`, response
-    `{unit, types[], bed[w,h]?, layers[{z, paths[[typeIndex, x0, y0, x1, y1, …]]}]}` (coordinates in 1/`unit` mm, as in
-    the task description). Bounds are computed from the paths instead of read from the server; bed defaults to
-    256 × 256 mm. Line colours are chosen by Orca feature name (`PreviewColors`) with a fallback palette.
-  - **Bed leveling per print**: `Printer.leveling` (present = printer can level; a Bool value is the default), toggle
-    remembered per printer in `ps_level_<id>`, sent as `level` in `POST /api/jobs/{id}/send` only when the printer
-    supports it.
-  - Extra texts for these screens are listed in `scripts/gen_l10n.py` (`EXTRA`).
-  Check these three points against `printshare/api.py` and `mobile/src/app/preview/[id].tsx` of 0.5.0 and adjust
-  `Models.swift` / `APIClient.swift`.
+- Ported from the working copy of `iDomi94/printshare` at `a2614f0` (server 0.4.0); on 2026-09-30 caught up with
+  upstream `halvar20000/printshare` `507fff4` (**server 0.6.0**), read from the code this time:
+  - **Bed leveling** (DO-01): `/api/printers` sends `leveling` (default, or null = no switch). The first port sent
+    `level` in `POST /send`, which the server silently ignored; it is `leveling` and only sent with `start: true`,
+    like the Expo app. The choice is remembered per printer (`ps_level_<id>`).
+  - **Preview**: the app asks for `?format=2`; paths are `[type, tool, x0, y0, …]` in 1/`unit` mm (unit 20), plus
+    `bounds` (model extent without start code) and `filament_colors`. Format 1 (servers 0.5.x, no `version` field)
+    is still read. Colour mode (by filament) is the default when more than one filament is used, like the Expo app;
+    the view opens on the last layer.
+  - **Multicolour** (MA-04): for a chosen `.3mf` the prepare screen calls `/api/inspect`; with more than one used colour
+    the single material row is replaced by one row per colour and `options.filaments` (one entry per project filament,
+    `null` = the default material) is sent. Any inspect error falls back to the single-colour flow.
+  - **G-code sharing** (SL-10): new in the native app (the Expo app has no button yet); the file is downloaded into
+    the temp folder and handed to the share sheet.
 - Pairing hint on the connect screen uses the container name `PrintShare`
-  (`docker exec PrintShare printshare pair --url http://SERVER-IP:8484`), as named in the task; the 0.4.0 source of
-  `connect.tsx` still says `printshare`.
+  (`docker exec PrintShare printshare pair --url http://SERVER-IP:8484`).
+
+- **Camera** (issue #3): the status `camera` URL is an MJPEG stream served by the printer itself; the app shows it
+  in a sheet (`CameraView`, frames cut out of the stream by JPEG markers) instead of opening Safari. It only works in
+  the home network, the sheet says so and still offers "open in browser".
 
 ## Verification
 
@@ -64,10 +68,13 @@ if it contradicts `printshare/api.py` the server wins; otherwise the simplest id
 - **Share extension** hands over a JSON manifest plus copied file in the App Group (`inbox.json`, `Inbox/<uuid>/<name>`;
   file paths are stored relative to the container). It opens `printshare://share` through the responder chain
   (`openURL:options:completionHandler:` selector); if that fails the app picks the item up the next time it becomes
-  active. Shared files are not deleted after the upload (the OS reclaims nothing in the App Group container; add a
-  cleanup if it grows).
-- **Keychain migration** from `expo-secure-store` (service `app`, keys `ps_*`) is best effort and unverified: the
-  layout of expo-secure-store items was assumed. If it does not find anything the user pairs again.
+  active. A shared file is deleted from the App Group once the server has it; files of abandoned shares are purged
+  after a day (`SharedInbox.purge`, when the inbox is processed).
+- **Keychain migration** from `expo-secure-store`: checked against the expo-secure-store 57.0.4 source
+  (`ios/SecureStoreModule.swift`). Items live under service `app:no-auth` (older versions: `app`), with account and
+  generic attribute set to the key as UTF-8 **data**. The first port looked only at service `app` and read the account
+  as a string, so it would have found nothing; fixed and covered by `KeychainMigrationTests` (writes an item the way
+  Expo does). Still not tried on a phone that has the Expo build installed.
 - **Tests**: XCTest. The test target compiles in Swift 5 language mode (mutable URLProtocol test doubles); the app itself is
   Swift 6 with complete strict concurrency.
 - **Jobs list** has no swipe-to-delete, because the Expo list does not offer it either.

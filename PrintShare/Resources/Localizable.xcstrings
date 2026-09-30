@@ -273,6 +273,22 @@
         }
       }
     },
+    "cameraUnreachable": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kamera nicht erreichbar. Das Bild kommt direkt vom Drucker und geht nur im Heimnetz."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Camera not reachable. The picture comes straight from the printer and only works at home."
+          }
+        }
+      }
+    },
     "cancelBtn": {
       "localizations": {
         "de": {
@@ -2205,6 +2221,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Offline"
+          }
+        }
+      }
+    },
+    "openInBrowser": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Im Browser öffnen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open in browser"
           }
         }
       }

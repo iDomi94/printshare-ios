@@ -4,8 +4,9 @@ import Security
 /// Small key/value store on the iOS Keychain (NF-04). Values are UTF-8 strings (JSON for structured data).
 struct Keychain: Sendable {
     static let defaultService = "io.github.halvar20000.printshare"
-    /// Service name `expo-secure-store` used, for the migration from the Expo build.
-    static let expoService = "app"
+    /// Services `expo-secure-store` (SDK 57) writes to: `app:no-auth` for items without biometrics (the Expo build
+    /// never asked for it), `app` for items of older versions. Items under `app:auth` are skipped (they would prompt).
+    static let expoServices = ["app:no-auth", "app"]
 
     let service: String
 
@@ -44,9 +45,18 @@ struct Keychain: Sendable {
         set(key, String(data: data, encoding: .utf8))
     }
 
-    /// All `ps_*` entries stored by the Expo build (best effort - the layout is that of expo-secure-store).
+    /// All `ps_*` entries stored by the Expo build. Layout as in expo-secure-store 57 (`SecureStoreModule.swift`):
+    /// generic password, service `app:no-auth`, account and generic attribute = the key as UTF-8 *data*.
     func expoEntries() -> [String: String] {
-        let q: [String: Any] = [kSecClass as String: kSecClassGenericPassword, kSecAttrService as String: Keychain.expoService,
+        var found: [String: String] = [:]
+        for service in Keychain.expoServices.reversed() {  // newer entries (app:no-auth) win
+            for (key, value) in Keychain.expoItems(service: service) { found[key] = value }
+        }
+        return found
+    }
+
+    private static func expoItems(service: String) -> [String: String] {
+        let q: [String: Any] = [kSecClass as String: kSecClassGenericPassword, kSecAttrService as String: service,
                                 kSecReturnAttributes as String: true, kSecReturnData as String: true,
                                 kSecMatchLimit as String: kSecMatchLimitAll]
         var out: CFTypeRef?
@@ -54,11 +64,17 @@ struct Keychain: Sendable {
         var found: [String: String] = [:]
         for item in items {
             guard let data = item[kSecValueData as String] as? Data, let value = String(data: data, encoding: .utf8) else { continue }
-            let account = (item[kSecAttrAccount as String] as? String) ?? ""
-            let generic = (item[kSecAttrGeneric as String] as? Data).flatMap { String(data: $0, encoding: .utf8) } ?? ""
-            for key in [account, generic] where key.hasPrefix("ps_") { found[key] = value }
+            let key = [item[kSecAttrAccount as String], item[kSecAttrGeneric as String]].lazy.compactMap(expoKey).first ?? ""
+            if key.hasPrefix("ps_") { found[key] = value }
         }
         return found
+    }
+
+    /// expo-secure-store stores the key as `Data`; the account attribute may also come back as a string.
+    static func expoKey(_ attribute: Any?) -> String? {
+        if let s = attribute as? String { return s }
+        if let d = attribute as? Data { return String(data: d, encoding: .utf8) }
+        return nil
     }
 
     /// One-time import of server, language and printer choices from the Expo app (same bundle id, same device).

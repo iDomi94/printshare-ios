@@ -76,6 +76,9 @@ EXTRA = {
     "shareOpen": ("In PrintShare öffnen", "Open in PrintShare"),
     "serverVersionLabel": ("Server-Version", "Server version"),
     "shareGcode": ("G-Code teilen", "Share G-code"),
+    "cameraUnreachable": ("Kamera nicht erreichbar. Das Bild kommt direkt vom Drucker und geht nur im Heimnetz.",
+                          "Camera not reachable. The picture comes straight from the printer and only works at home."),
+    "openInBrowser": ("Im Browser öffnen", "Open in browser"),
 }
 for k, (d_, e_) in EXTRA.items():
     if k not in de:
