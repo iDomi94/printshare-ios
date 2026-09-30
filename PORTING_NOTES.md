@@ -34,7 +34,7 @@ if it contradicts `printshare/api.py` the server wins; otherwise the simplest id
   the home network, the sheet says so and still offers "open in browser".
 
 - **Model files in 3D** (not in the Expo app): the file row on the model page opens a sheet with the files of
-  `/api/files` (same order and index as the prepare screen). STL and OBJ are loaded with ModelIO (`MDLAsset`) and shown
+  `/api/files` (same order and index as the prepare screen). STL is read by `STLReader` (binary + ASCII; ModelIO returned no mesh for STL on CI), OBJ with ModelIO (`MDLAsset`), and shown
   in a SceneKit `SceneView` (rotated from Z-up, centred, one material); 3MF/STEP show a note instead. "Prepare print"
   opens the prepare screen with that file preselected. The file comes from `GET /api/model-file` (server 0.6.1); older
   servers answer 404 and the app says the server is too old.
