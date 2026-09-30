@@ -1,26 +1,62 @@
 name: TestFlight
 
-# Manual: Actions -> TestFlight -> Run workflow. Archives a signed Release build and uploads it to App Store Connect.
-# Needs these repository secrets (Settings -> Secrets and variables -> Actions):
+# Archives a signed Release build, uploads it to App Store Connect and puts the changelog into TestFlight as
+# "What to Test". Same flow as iDomi94/Lademonitor-App.
+#
+# Runs on a release tag vX.Y.Z (git tag v0.2.0 && git push origin v0.2.0, or a GitHub release that creates the tag)
+# and by hand (Actions -> TestFlight -> Run workflow). Nothing else builds for TestFlight.
+#
+# Version: for a tag the tag without "v" (v0.2.0 -> 0.2.0), overriding MARKETING_VERSION in project.yml; by hand the
+# input, else the value in project.yml. Build number: 100 + run number (above the Expo build's EAS numbers) unless
+# given by hand; it must be higher than the last uploaded one.
+#
+# Changelog: the section "## X.Y.Z" of CHANGELOG.md, else the commit titles since the previous tag.
+#
+# Repository secrets (Settings -> Secrets and variables -> Actions):
 #   APPLE_TEAM_ID      team id of the Apple developer account (10 characters)
-#   ASC_KEY_ID         App Store Connect API key id        (Users and Access -> Integrations -> App Store Connect API,
-#   ASC_ISSUER_ID      issuer id of that key                role "App Manager" or "Admin", for cloud signing)
-#   ASC_KEY_P8         contents of the downloaded AuthKey_<id>.p8 file
-# The app id com.dominiqueherbrigpersonalteam.printshare (+ .share-extension) and the App Group
-# group.com.dominiqueherbrigpersonalteam.printshare must exist in the account; automatic signing creates the profiles.
+#   ASC_KEY_ID         App Store Connect API key id (Users and Access -> Integrations -> App Store Connect API)
+#   ASC_ISSUER_ID      issuer id of that key
+#   ASC_KEY_P8         contents of the downloaded AuthKey_<id>.p8, including the BEGIN/END lines
+# The key needs the role "App Manager" or "Admin" so xcodebuild may create the distribution certificate and the
+# profiles itself (no .p12 in the repository). Optional repository variable TESTFLIGHT_LOCALE (default de-DE), only
+# used when the build has no TestFlight localization yet.
+# The app com.dominiqueherbrigpersonalteam.printshare must exist in App Store Connect; the ids
+# com.dominiqueherbrigpersonalteam.printshare(.share-extension) and the App Group
+# group.com.dominiqueherbrigpersonalteam.printshare are created by automatic signing if missing.
 
 on:
+  push:
+    tags:
+      - "v*.*.*"
   workflow_dispatch:
+    inputs:
+      version:
+        description: "App version (empty = MARKETING_VERSION from project.yml)"
+        required: false
+        default: ""
+      build_number:
+        description: "Build number (empty = 100 + run number). Must be higher than the last uploaded one."
+        required: false
+        default: ""
+
+concurrency:
+  group: testflight
+  cancel-in-progress: false
+
+env:
+  BUNDLE_ID: com.dominiqueherbrigpersonalteam.printshare
 
 jobs:
-  testflight:
+  upload:
     runs-on: macos-latest
+    timeout-minutes: 60
+    outputs:
+      version: ${{ steps.numbers.outputs.version }}
+      build_number: ${{ steps.numbers.outputs.build_number }}
     env:
       DEVELOPMENT_TEAM: ${{ secrets.APPLE_TEAM_ID }}
       ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
       ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
-      # EAS used build numbers below 100; every run gets a new, higher one
-      BUILD_NUMBER: ${{ github.run_number }}
     steps:
       - uses: actions/checkout@v4
       - name: Check secrets
@@ -30,13 +66,29 @@ jobs:
           missing=""
           for v in DEVELOPMENT_TEAM ASC_KEY_ID ASC_ISSUER_ID ASC_KEY_P8; do [ -n "${!v}" ] || missing="$missing $v"; done
           if [ -n "$missing" ]; then echo "::error::missing secrets:$missing (see the top of testflight.yml)"; exit 1; fi
+      - name: Version and build number
+        id: numbers
+        env:
+          INPUT_VERSION: ${{ inputs.version }}
+          INPUT_BUILD: ${{ inputs.build_number }}
+        run: |
+          if [ "$GITHUB_REF_TYPE" = "tag" ]; then VERSION="${GITHUB_REF_NAME#v}"; else VERSION="$INPUT_VERSION"; fi
+          if [ -z "$VERSION" ]; then
+            VERSION=$(grep -m1 -E '^\s*MARKETING_VERSION:' project.yml | sed -E 's/.*MARKETING_VERSION:[[:space:]]*"?([^"#[:space:]]+)"?.*/\1/')
+          fi
+          BUILD_NUMBER="$INPUT_BUILD"
+          if [ -z "$BUILD_NUMBER" ]; then BUILD_NUMBER=$((100 + ${{ github.run_number }})); fi
+          echo "VERSION=$VERSION" >> "$GITHUB_ENV"
+          echo "BUILD_NUMBER=$BUILD_NUMBER" >> "$GITHUB_ENV"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "build_number=$BUILD_NUMBER" >> "$GITHUB_OUTPUT"
+          echo "Version $VERSION, build $BUILD_NUMBER"
       - name: API key
         env:
           ASC_KEY_P8: ${{ secrets.ASC_KEY_P8 }}
         run: |
-          mkdir -p "$RUNNER_TEMP/keys"
-          printf '%s\n' "$ASC_KEY_P8" > "$RUNNER_TEMP/keys/AuthKey.p8"
-          echo "ASC_KEY_PATH=$RUNNER_TEMP/keys/AuthKey.p8" >> "$GITHUB_ENV"
+          python3 .github/scripts/normalize_p8.py > "$RUNNER_TEMP/AuthKey.p8"
+          echo "ASC_KEY_PATH=$RUNNER_TEMP/AuthKey.p8" >> "$GITHUB_ENV"
       - name: Install XcodeGen
         run: brew install xcodegen
       - name: Generate project
@@ -46,11 +98,11 @@ jobs:
           set -o pipefail
           xcodebuild -project PrintShare.xcodeproj -scheme PrintShare -configuration Release \
             -destination 'generic/platform=iOS' -archivePath "$RUNNER_TEMP/PrintShare.xcarchive" \
-            CURRENT_PROJECT_VERSION=$((100 + BUILD_NUMBER)) \
+            MARKETING_VERSION="$VERSION" CURRENT_PROJECT_VERSION="$BUILD_NUMBER" \
             -allowProvisioningUpdates -authenticationKeyPath "$ASC_KEY_PATH" \
             -authenticationKeyID "$ASC_KEY_ID" -authenticationKeyIssuerID "$ASC_ISSUER_ID" \
             archive 2>&1 | tee archive.log | tail -n 80
-      - name: Upload to TestFlight
+      - name: Export and upload
         run: |
           set -o pipefail
           cat > "$RUNNER_TEMP/ExportOptions.plist" <<PLIST
@@ -62,6 +114,7 @@ jobs:
             <key>destination</key><string>upload</string>
             <key>teamID</key><string>${DEVELOPMENT_TEAM}</string>
             <key>signingStyle</key><string>automatic</string>
+            <key>manageAppVersionAndBuildNumber</key><false/>
           </dict>
           </plist>
           PLIST
@@ -69,10 +122,10 @@ jobs:
             -exportOptionsPlist "$RUNNER_TEMP/ExportOptions.plist" -exportPath "$RUNNER_TEMP/export" \
             -allowProvisioningUpdates -authenticationKeyPath "$ASC_KEY_PATH" \
             -authenticationKeyID "$ASC_KEY_ID" -authenticationKeyIssuerID "$ASC_ISSUER_ID" 2>&1 | tee export.log | tail -n 60
-          echo "Build $((100 + BUILD_NUMBER)) uploaded; it shows up in TestFlight after Apple's processing." >> "$GITHUB_STEP_SUMMARY"
+          echo "Version $VERSION, build $BUILD_NUMBER uploaded; it shows up in TestFlight after Apple's processing." >> "$GITHUB_STEP_SUMMARY"
       - name: Remove API key
         if: always()
-        run: rm -rf "$RUNNER_TEMP/keys"
+        run: rm -f "$RUNNER_TEMP/AuthKey.p8"
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -80,3 +133,46 @@ jobs:
           path: |
             archive.log
             export.log
+
+  # Own job on Linux: waiting for Apple's processing takes minutes, and macOS minutes count ten times.
+  whats-new:
+    needs: upload
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      VERSION: ${{ needs.upload.outputs.version }}
+      BUILD_NUMBER: ${{ needs.upload.outputs.build_number }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Changelog text
+        run: |
+          OUT="$RUNNER_TEMP/whats_new.txt"
+          # section "## X.Y.Z" up to the next "## " heading
+          if [ -f CHANGELOG.md ]; then
+            awk -v v="$VERSION" '
+              /^## / { if (found) exit; split(substr($0, 4), a, /[ \t]/); if (a[1] == v || a[1] == "[" v "]") { found = 1; next } }
+              found { print }
+            ' CHANGELOG.md | sed -e '/./,$!d' > "$OUT"
+          fi
+          if [ ! -s "$OUT" ] || ! grep -q '[^[:space:]]' "$OUT"; then
+            PREV=$(git describe --tags --abbrev=0 "HEAD^" 2>/dev/null || true)
+            if [ -n "$PREV" ]; then RANGE="$PREV..HEAD"; else RANGE="HEAD~20..HEAD"; fi
+            git log --no-merges --format='- %s' "$RANGE" > "$OUT"
+          fi
+          cat "$OUT"
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Put it into TestFlight
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+          ASC_KEY_P8: ${{ secrets.ASC_KEY_P8 }}
+          TESTFLIGHT_LOCALE: ${{ vars.TESTFLIGHT_LOCALE }}
+        run: |
+          pip install --quiet "pyjwt[crypto]" requests
+          ASC_KEY_P8="$(python .github/scripts/normalize_p8.py)"
+          export ASC_KEY_P8
+          python .github/scripts/testflight_whats_new.py "$BUNDLE_ID" "$VERSION" "$BUILD_NUMBER" "$RUNNER_TEMP/whats_new.txt"

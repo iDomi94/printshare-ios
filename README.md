@@ -92,9 +92,19 @@ With `destination` = `upload` the export uploads the build to App Store Connect 
 
 ### TestFlight from GitHub Actions
 
-`.github/workflows/testflight.yml` (Actions -> TestFlight -> Run workflow) archives and uploads without a Mac. It
-needs the repository secrets `APPLE_TEAM_ID`, `ASC_KEY_ID`, `ASC_ISSUER_ID` and `ASC_KEY_P8` (an App Store Connect API
-key with the App Manager or Admin role, used for cloud signing). The build number is `100 + run number`.
+`.github/workflows/testflight.yml` archives and uploads without a Mac. It runs only for a release tag `vX.Y.Z`
+(or by hand: Actions -> TestFlight -> Run workflow), not on normal pushes:
+
+```bash
+# 1. add a "## 0.2.0" section to CHANGELOG.md, commit, push
+git tag v0.2.0 && git push origin v0.2.0      # or create a GitHub release with that tag
+```
+
+The tag sets the app version (`0.2.0`), the build number is `100 + run number`. After Apple's processing a second job
+puts the `## 0.2.0` section of `CHANGELOG.md` into TestFlight as "What to Test" (fallback: commit titles since the
+previous tag). It needs the repository secrets `APPLE_TEAM_ID`, `ASC_KEY_ID`, `ASC_ISSUER_ID` and `ASC_KEY_P8` (an
+App Store Connect API key with the App Manager or Admin role, used for cloud signing) and the app record for
+`com.dominiqueherbrigpersonalteam.printshare` in App Store Connect.
 
 ## Layout
 
