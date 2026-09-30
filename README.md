@@ -2,8 +2,8 @@
 
 Native **Swift 6 + SwiftUI** port of the Expo/React Native app in `mobile/` of
 [halvar20000/printshare](https://github.com/halvar20000/printshare). Same features, same server API
-(`printshare/api.py`), same bundle id (`io.github.halvar20000.printshare`), so it can replace the Expo build in
-TestFlight / the App Store. Android keeps being built from `mobile/` of the main repository.
+(`printshare/api.py`), same URL scheme (`printshare://`). It has its own bundle id
+(`com.dominiqueherbrigpersonalteam.printshare`, Dominique's developer account) for TestFlight / the App Store. Android keeps being built from `mobile/` of the main repository.
 
 PrintShare is a self-hosted "Bambu Handy for everyone else": send a Printables/Thingiverse link from the phone, the
 server slices it with OrcaSlicer and uploads the G-code to the printer. This app is the phone side.
@@ -86,8 +86,8 @@ xcodebuild -exportArchive -archivePath build/PrintShare.xcarchive \
 ```
 
 With `destination` = `upload` the export uploads the build to App Store Connect / TestFlight directly. The bundle ids
-`io.github.halvar20000.printshare` and `io.github.halvar20000.printshare.share-extension` and the App Group
-`group.io.github.halvar20000.printshare` must exist in the developer account (automatic signing creates them).
+`com.dominiqueherbrigpersonalteam.printshare` and `com.dominiqueherbrigpersonalteam.printshare.share-extension` and the App Group
+`group.com.dominiqueherbrigpersonalteam.printshare` must exist in the developer account (automatic signing creates them).
 `CURRENT_PROJECT_VERSION` starts at 100, above the EAS build numbers of the Expo app; raise it for every upload.
 
 ### TestFlight from GitHub Actions

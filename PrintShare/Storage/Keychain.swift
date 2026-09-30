@@ -3,7 +3,7 @@ import Security
 
 /// Small key/value store on the iOS Keychain (NF-04). Values are UTF-8 strings (JSON for structured data).
 struct Keychain: Sendable {
-    static let defaultService = "io.github.halvar20000.printshare"
+    static let defaultService = "com.dominiqueherbrigpersonalteam.printshare"
     /// Services `expo-secure-store` (SDK 57) writes to: `app:no-auth` for items without biometrics (the Expo build
     /// never asked for it), `app` for items of older versions. Items under `app:auth` are skipped (they would prompt).
     static let expoServices = ["app:no-auth", "app"]
