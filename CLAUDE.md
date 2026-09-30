@@ -6,18 +6,26 @@ Native Swift 6 + SwiftUI port of the Expo app in `mobile/` of the PrintShare pro
 
 ## Native iOS app (this repository)
 
-State (2026-09-29): all screens and flows of the Expo app 0.1.0 are written (Home, Discover, Model detail,
+State (2026-09-30): all screens and flows of the Expo app are written (Home, Discover, Model detail,
 Prepare, Job with review and confirmation, Preview, Jobs, Printers, Settings, Connect/QR), plus the share extension.
-Same bundle id / App Group / URL scheme as the Expo build.
+Same bundle id / App Group / URL scheme as the Expo build. Caught up with **server 0.6.0** (upstream `507fff4`):
+bed leveling per print (`leveling`), multicolour 3MF projects (`/api/inspect`, `options.filaments`, grams per colour),
+preview format 2 (`?format=2`, filament per path, `bounds`, `filament_colors`), G-code sharing (`/api/jobs/<id>/gcode`).
+Beyond the Expo app: camera picture inside the app (MJPEG, issue #3), manual TestFlight workflow.
+Texts are generated from the 0.6.0 `i18n.ts`.
 
 **Verified:** CI (macos-latest): builds without errors or warnings in Swift 6 mode, all unit tests green. Unit tests cover URL normalisation,
 pairing links, the friendly-error rules and their order, formats, decoding of every endpoint (incl. unknown enum
-values), the API client's home/away routing with a `URLProtocol` stub (probe picks the faster address, 401 wins,
-GET repeated on the other address, POST never, timeouts) and that every text exists in DE and EN.
+values, preview format 1 and 2, inspect, colours per job), request shapes (`leveling` only with a print start, preview /
+inspect / G-code URLs), the API client's home/away routing with a `URLProtocol` stub (probe picks the faster address,
+401 wins, GET repeated on the other address, POST never, timeouts), the shared-inbox cleanup and that every text
+exists in DE and EN. Wire formats were checked against the 0.6.0 server code (`printshare/api.py`, `gcode_preview.py`,
+`model_info.py`); fixtures `preview_v2.json` is real output of `gcode_preview.parse`.
 
 **Not verified:** no simulator or device run, no real server, no share extension on a device, no QR scan, no
-TestFlight upload, no Keychain migration from the Expo build. The preview and bed-leveling wire formats were
-implemented from a description, not from the 0.5.0 server code – check them first (see PORTING_NOTES.md).
+TestFlight upload (workflow `testflight.yml` exists, needs the secrets listed in it), no camera stream from a real
+printer, Keychain migration: the key layout was checked against the expo-secure-store 57 source, but its test is skipped in the
+unsigned CI (no keychain) and it was never run against a real Expo install.
 
 ## Rules
 

@@ -161,7 +161,8 @@ final class APIClientTests: XCTestCase {
         let api = client(remote: false)
         _ = try await api.options(printer: "centauri carbon", process: "0.20mm Standard @Elegoo")
         try await api.control(printer: "cc", action: "cancel")
-        try await api.send(job: "j1", start: true)
+        try await api.send(job: "j1", start: true, leveling: false)
+        try await api.send(job: "j1", start: false, leveling: true)
 
         let seen = lock.withLock { requestsSeen }
         XCTAssertEqual(seen[0].url?.absoluteString,
@@ -176,7 +177,38 @@ final class APIClientTests: XCTestCase {
         let send = try XCTUnwrap(bodyJSON(seen[2]))
         XCTAssertEqual(send["start"] as? Bool, true)
         XCTAssertEqual(send["confirm"] as? Bool, true)
+        XCTAssertEqual(send["leveling"] as? Bool, false)  // the server's field name (SendRequest.leveling)
         XCTAssertNil(send["level"])
+        let upload = try XCTUnwrap(bodyJSON(seen[3]))
+        XCTAssertEqual(upload["start"] as? Bool, false)
+        XCTAssertNil(upload["leveling"])  // only a print start levels the bed
+    }
+
+    func testPreviewInspectAndGcodeURLs() async throws {
+        var seen: [URL] = []
+        let lock = NSLock()
+        let preview = try Fixture.data("preview_v2")
+        let inspect = try Fixture.data("inspect")
+        StubProtocol.install { req in
+            lock.lock(); seen.append(req.url!); lock.unlock()
+            let path = req.url?.path ?? ""
+            if path.hasSuffix("/preview") { return StubResponse(body: preview) }
+            if path.hasSuffix("/inspect") { return StubResponse(body: inspect) }
+            return StubResponse(body: Data("G1 X1\n".utf8))
+        }
+        let api = client(remote: false)
+        let p = try await api.preview(job: "j1")
+        XCTAssertEqual(p.version, 2)
+        let c = try await api.inspect(link: "upload:abc", file: "2")
+        XCTAssertTrue(c.isMulticolor)
+        let file = try await api.downloadGcode(job: "j1", name: "benchy.gcode")
+        defer { try? FileManager.default.removeItem(at: file.deletingLastPathComponent()) }
+        XCTAssertEqual(file.lastPathComponent, "benchy.gcode")
+        XCTAssertEqual(try String(contentsOf: file, encoding: .utf8), "G1 X1\n")
+        let urls = lock.withLock { seen.map(\.absoluteString) }
+        XCTAssertEqual(urls, ["http://home.test:8484/api/jobs/j1/preview?format=2",
+                              "http://home.test:8484/api/inspect?link=upload%3Aabc&file=2",
+                              "http://home.test:8484/api/jobs/j1/gcode"])
     }
 
     func testUploadIsRawBody() async throws {

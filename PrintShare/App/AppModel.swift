@@ -93,6 +93,7 @@ final class AppModel {
 
     /// Links or files shared from Safari, Files … open the prepare screen (MQ-01, MQ-03).
     func processInbox() {
+        SharedInbox.purge()
         guard ready, let item = SharedInbox.peek() else { return }
         guard server != nil else {
             if connectRequest == nil { showConnect() }  // the shared item waits until the server is connected

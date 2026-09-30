@@ -1,0 +1,8 @@
+{"id": "mc1", "kind": "prepare", "state": "sliced", "log": [],
+ "result": {"printer": "dom", "source_file": "two colours.3mf", "print_time": "1h 2m", "filament_g": 20.5,
+            "filament_m": 6.8, "layers": 100, "profiles": {"filament": "Elegoo PLA @ECC"}, "overrides": {},
+            "filaments": [{"index": 1, "color": "#FF0000", "preset": "Elegoo PLA @ECC", "grams": 12.25},
+                          {"index": 2, "color": null, "preset": "Generic PETG @ECC", "grams": null}]},
+ "error": null, "created": 1790000000, "printer": "dom",
+ "request": {"link": "upload:abc", "printer": "dom", "file": null,
+             "options": {"process": "0.20mm Standard @Elegoo CC 0.4 nozzle", "filaments": [null, "Generic PETG @ECC"]}}}

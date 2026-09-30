@@ -4,9 +4,20 @@ import SwiftUI
 struct PrepareView: View {
     let args: PrepareArgs
 
-    private enum SheetKind: String, Identifiable {
+    private enum SheetKind: Identifiable, Hashable {
         case printer, filament, process, plate, file
-        var id: String { rawValue }
+        case color(Int)  // material for filament n of a multicolour model
+
+        var id: String {
+            switch self {
+            case .printer: return "printer"
+            case .filament: return "filament"
+            case .process: return "process"
+            case .plate: return "plate"
+            case .file: return "file"
+            case .color(let n): return "color\(n)"
+            }
+        }
     }
 
     @Environment(AppModel.self) private var app
@@ -30,6 +41,9 @@ struct PrepareView: View {
     @State private var sheet: SheetKind?
     @State private var submitting = false
     @State private var firstLoad = true
+    /// Colours of a 3MF project, per `colorKey`; data nil = no colour info (single-colour flow).
+    @State private var colorInfo: (key: String, data: ModelColors?)?
+    @State private var perColor: [Int: String] = [:]
 
     init(args: PrepareArgs) {
         self.args = args
@@ -45,6 +59,25 @@ struct PrepareView: View {
 
     private var uploading: Bool { args.fileURL != nil && link == nil && error.isEmpty }
     private var needsFile: Bool { (files?.count ?? 0) > 1 && file == nil }
+
+    // MA-04: a 3MF project may have several colours; then the app asks for a material per colour.
+    private var chosenFileName: String? {
+        guard let files else { return nil }
+        return files.count == 1 ? files[0].name : files.first { String($0.index) == file }?.name
+    }
+
+    private var colorKey: String? {
+        guard let link, let files, let name = chosenFileName, name.lowercased().hasSuffix(".3mf") else { return nil }
+        return "\(link)|\(files.count > 1 ? (file ?? "") : "")"
+    }
+
+    private var colors: ModelColors? {
+        guard let key = colorKey, let info = colorInfo, info.key == key else { return nil }
+        return info.data
+    }
+
+    private var colorsLoading: Bool { colorKey != nil && colorInfo?.key != colorKey }
+    private var multi: Bool { colors?.isMulticolor ?? false }
 
     var body: some View {
         let t = app.l10n
@@ -66,6 +99,7 @@ struct PrepareView: View {
         .task(id: link) { await listFiles() }
         .task { await loadPrinters() }
         .task(id: printer) { await loadOptions() }
+        .task(id: colorKey) { await inspectColors() }
     }
 
     // MARK: form
@@ -127,9 +161,22 @@ struct PrepareView: View {
     private func optionSections(_ t: L10n, _ opts: Options) -> some View {
         let d = opts.defaults
         ForEach(Format.comboWarnings(t, filament: filament, plate: plate), id: \.self) { PSBanner(kind: .warn, text: $0) }
+        if multi, let colors {
+            PSSection(title: t(.colors), footer: t(colors.painted ? .colorsPainted : .colorsHint)) {
+                ForEach(Array(colors.usedFilaments.enumerated()), id: \.element.index) { i, f in
+                    if i > 0 { PSDivider() }
+                    PSRow(label: t(.colorN, ["n": String(f.index)]), value: Format.shortName(perColor[f.index] ?? filament),
+                          action: { sheet = .color(f.index) },
+                          right: { ColorDot(color: Color(hexString: f.color)).padding(.leading, 10) })
+                }
+            }
+        }
         PSSection {
-            PSRow(icon: "paintpalette", label: t(.material), value: Format.shortName(filament)) { sheet = .filament }
-            PSDivider()
+            if !multi {
+                PSRow(icon: "paintpalette", label: t(.material), value: Format.shortName(filament),
+                      action: { sheet = .filament }, right: { if colorsLoading { ProgressView().padding(.leading, 8) } })
+                PSDivider()
+            }
             PSRow(icon: "speedometer", label: t(.quality), value: Format.shortName(process)) { sheet = .process }
             PSDivider()
             PSRow(icon: "square.grid.3x3", label: t(.plate), value: Format.plateName(t, plate)) { sheet = .plate }
@@ -209,6 +256,7 @@ struct PrepareView: View {
         case .process: return t(.quality)
         case .plate: return t(.plate)
         case .file: return t(.file)
+        case .color(let n): return t(.colorN, ["n": String(n)])
         }
     }
 
@@ -219,6 +267,7 @@ struct PrepareView: View {
         case .process: return process
         case .plate: return plate
         case .file: return file
+        case .color(let n): return perColor[n] ?? filament
         }
     }
 
@@ -226,7 +275,7 @@ struct PrepareView: View {
         switch k {
         case .printer:
             return printers.map { Choice(value: $0.id, label: $0.name, sub: kindLabel(t, $0.id)) }
-        case .filament:
+        case .filament, .color:
             return (opts?.materials ?? []).map { Choice(value: $0, label: Format.shortName($0), group: Format.brandOf($0)) }
         case .process:
             return (opts?.processes ?? []).map { Choice(value: $0, label: Format.shortName($0)) }
@@ -244,6 +293,7 @@ struct PrepareView: View {
         case .process: Task { await changeProcess(v) }
         case .plate: plate = v
         case .file: file = v
+        case .color(let n): perColor[n] = v
         }
     }
 
@@ -256,6 +306,7 @@ struct PrepareView: View {
             let u = try await api.upload(fileURL: url, name: args.fileName ?? "model.stl")
             link = u.link
             name = u.name
+            SharedInbox.removeStaged(url)  // the server has it now (shared files would pile up in the App Group)
         } catch {
             self.error = error.localizedDescription
         }
@@ -323,6 +374,21 @@ struct PrepareView: View {
         }
     }
 
+    /// 2b. colours of a 3MF project (MA-04). Any failure falls back to the single-colour flow.
+    private func inspectColors() async {
+        guard let api = app.api, let key = colorKey, let link, let files else { return }
+        do {
+            let data = try await api.inspect(link: link, file: files.count > 1 ? file : nil)
+            guard key == colorKey else { return }
+            colorInfo = (key, data)
+            if let saved = args.edit?.options?.filaments, perColor.isEmpty {
+                for (i, f) in saved.enumerated() { if let f { perColor[i + 1] = f } }
+            }
+        } catch {
+            if key == colorKey { colorInfo = (key, nil) }
+        }
+    }
+
     private func applyDefaults(_ o: Options, keep: JobOptions?) {
         let d = o.defaults
         supports = keep?.supports ?? d.supports
@@ -357,6 +423,7 @@ struct PrepareView: View {
         if brim != d.brim { o.brim = brim }
         if let infill, infill != d.infill { o.infill = infill }
         if let walls, walls != d.walls { o.walls = walls }
+        if multi, let colors { o.filaments = colors.filaments.map { perColor[$0.index] } }
         submitting = true
         error = ""
         defer { submitting = false }

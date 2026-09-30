@@ -10,7 +10,9 @@ server slices it with OrcaSlicer and uploads the G-code to the printer. This app
 
 - iOS 17+, iPhone and iPad, German and English (language can be switched in the app)
 - No third-party packages, only Apple frameworks
-- Share extension (links, text, files), QR pairing, home / away server address, 2D G-code preview
+- Share extension (links, text, files), QR pairing, home / away server address, 2D G-code preview (by line type or
+  filament), multicolour 3MF projects (material per colour), G-code sharing
+- Needs PrintShare server 0.6.0 for multicolour and filament colours in the preview; older servers still work without them
 
 See [PORTING_NOTES.md](PORTING_NOTES.md) for decisions and deviations from the Expo app and [CLAUDE.md](CLAUDE.md)
 for the state of the port (what is verified, what is not).
@@ -85,6 +87,12 @@ With `destination` = `upload` the export uploads the build to App Store Connect 
 `group.io.github.halvar20000.printshare` must exist in the developer account (automatic signing creates them).
 `CURRENT_PROJECT_VERSION` starts at 100, above the EAS build numbers of the Expo app; raise it for every upload.
 
+### TestFlight from GitHub Actions
+
+`.github/workflows/testflight.yml` (Actions -> TestFlight -> Run workflow) archives and uploads without a Mac. It
+needs the repository secrets `APPLE_TEAM_ID`, `ASC_KEY_ID`, `ASC_ISSUER_ID` and `ASC_KEY_P8` (an App Store Connect API
+key with the App Manager or Admin role, used for cloud signing). The build number is `100 + run number`.
+
 ## Layout
 
 ```
@@ -105,7 +113,7 @@ scripts/gen_l10n.py        regenerates Localizable.xcstrings + L10nKeys.swift fr
 ## Texts
 
 `Localizable.xcstrings` and `PrintShare/Util/L10nKeys.swift` are generated from `mobile/src/lib/i18n.ts` (plus the few
-keys of newer screens listed in `scripts/gen_l10n.py`):
+keys only the native app has, listed in `scripts/gen_l10n.py`):
 
 ```bash
 python3 scripts/gen_l10n.py path/to/printshare/mobile/src/lib/i18n.ts

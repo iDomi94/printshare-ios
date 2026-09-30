@@ -15,6 +15,13 @@ struct PrintersView: View {
     @State private var error = ""
     @State private var acting = ""
     @State private var cancelTarget: Printer?
+    @State private var camera: CameraTarget?
+
+    private struct CameraTarget: Identifiable {
+        var url: URL
+        var name: String
+        var id: String { url.absoluteString }
+    }
 
     var body: some View {
         let t = app.l10n
@@ -28,6 +35,7 @@ struct PrintersView: View {
         .navigationTitle(t(.tabPrinters))
         .navigationBarTitleDisplayMode(.inline)
         .toolbar(.visible, for: .navigationBar)
+        .sheet(item: $camera) { CameraView(url: $0.url, title: $0.name) }
         .task(id: scenePhase == .active) { await pollWhileVisible() }
         .alert(t(.cancelPrint), isPresented: Binding(get: { cancelTarget != nil }, set: { if !$0 { cancelTarget = nil } }),
                presenting: cancelTarget) { p in
@@ -97,7 +105,10 @@ struct PrintersView: View {
                     .padding(.top, 16)
                 }
                 if let cam = s?.camera, let url = URL(string: cam) {
-                    PSButton(title: t(.camera), kind: .plain, icon: "video") { openURL(url) }.padding(.top, 6)
+                    PSButton(title: t(.camera), kind: .plain, icon: "video") {
+                        camera = CameraTarget(url: url, name: p.name)
+                    }
+                    .padding(.top, 6)
                 }
             }
         }

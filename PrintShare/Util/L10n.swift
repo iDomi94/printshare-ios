@@ -58,6 +58,8 @@ struct L10n: Sendable {
     func printerKind(_ kind: String) -> String { lookup("printerKind.\(kind)") ?? kind }
     func rawState(_ state: String) -> String { lookup("rawState.\(state)") ?? state }
     func plate(_ name: String) -> String { lookup("plate.\(name)") ?? name }
+    /// OrcaSlicer line type (`;TYPE:` name) in the app language.
+    func lineType(_ name: String) -> String { lookup("lineType.\(name)") ?? name }
     var suggestions: [String] { callAsFunction(.suggestionList).split(separator: "|").map(String.init) }
 
     /// Server log lines -> readable text (German only, like the Expo app).

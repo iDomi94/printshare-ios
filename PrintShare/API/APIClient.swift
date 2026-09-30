@@ -32,7 +32,8 @@ private struct CreateJobBody: Encodable {
     var file: String?
     var options: JobOptions
 }
-private struct SendBody: Encodable { var start: Bool; var confirm: Bool; var level: Bool? }
+/// `leveling`: bed leveling before the print (DO-01), nil = printer default. Only sent with a print start.
+private struct SendBody: Encodable { var start: Bool; var confirm: Bool; var leveling: Bool? }
 
 /// Client for the PrintShare server API (see printshare/api.py).
 actor APIClient {
@@ -219,13 +220,32 @@ actor APIClient {
     func jobs() async throws -> [JobSummary] { try await request("/api/jobs") }
     func job(id: String) async throws -> Job { try await request("/api/jobs/\(enc(id))") }
 
-    func send(job id: String, start: Bool, level: Bool? = nil) async throws {
+    func send(job id: String, start: Bool, leveling: Bool? = nil) async throws {
         let _: Ack = try await request("/api/jobs/\(enc(id))/send", method: "POST",
-                                       body: SendBody(start: start, confirm: start, level: level))
+                                       body: SendBody(start: start, confirm: start, leveling: start ? leveling : nil))
     }
 
+    /// Layer data for the G-code viewer. Format 2 (server 0.6.0) adds the filament per path; older servers ignore
+    /// the parameter and answer with format 1.
     func preview(job id: String) async throws -> Preview {
-        try await request("/api/jobs/\(enc(id))/preview", timeout: 60)
+        try await request("/api/jobs/\(enc(id))/preview?format=2", timeout: 60)
+    }
+
+    /// Colours/filaments of a 3MF project (MA-04). The server downloads the model for this, hence the long timeout.
+    func inspect(link: String, file: String?) async throws -> ModelColors {
+        try await request("/api/inspect?link=\(enc(link))" + (file.map { "&file=\(enc($0))" } ?? ""), timeout: 120)
+    }
+
+    /// Download the sliced G-code (SL-10) into a temporary file named like the model, for the share sheet.
+    func downloadGcode(job id: String, name: String) async throws -> URL {
+        let (data, res) = try await perform("/api/jobs/\(enc(id))/gcode", method: "GET", body: nil, timeout: 120)
+        guard (200..<300).contains(res.statusCode) else { throw failure(data, status: res.statusCode) }
+        let dir = FileManager.default.temporaryDirectory.appendingPathComponent("gcode-\(id)", isDirectory: true)
+        try? FileManager.default.removeItem(at: dir)
+        try FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+        let url = dir.appendingPathComponent(name)
+        try data.write(to: url, options: .atomic)
+        return url
     }
 
     func deleteJob(id: String) async throws {

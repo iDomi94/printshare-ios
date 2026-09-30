@@ -49,4 +49,25 @@ enum SharedInbox {
     static func fileURL(_ relative: String, in root: URL? = nil) -> URL? {
         container(root)?.appendingPathComponent(relative)
     }
+
+    /// Delete a staged file (its `Inbox/<uuid>` folder) once the server has it. Files outside the inbox are left alone.
+    static func removeStaged(_ file: URL, in root: URL? = nil) {
+        guard let inbox = container(root)?.appendingPathComponent("Inbox", isDirectory: true) else { return }
+        let folder = file.deletingLastPathComponent().standardizedFileURL
+        guard folder.deletingLastPathComponent().path == inbox.standardizedFileURL.path else { return }
+        try? FileManager.default.removeItem(at: folder)
+    }
+
+    /// Delete staged files older than `age` (uploads that were abandoned), keeping the one still waiting in the manifest.
+    static func purge(olderThan age: TimeInterval = 24 * 3600, now: Date = Date(), in root: URL? = nil) {
+        guard let base = container(root) else { return }
+        let inbox = base.appendingPathComponent("Inbox", isDirectory: true)
+        let waiting = peek(in: root)?.file?.split(separator: "/").dropFirst().first.map(String.init)
+        let fm = FileManager.default
+        guard let folders = try? fm.contentsOfDirectory(at: inbox, includingPropertiesForKeys: [.creationDateKey]) else { return }
+        for folder in folders where folder.lastPathComponent != waiting {
+            let created = (try? folder.resourceValues(forKeys: [.creationDateKey]))?.creationDate ?? .distantPast
+            if now.timeIntervalSince(created) > age { try? fm.removeItem(at: folder) }
+        }
+    }
 }
