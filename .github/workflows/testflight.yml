@@ -116,6 +116,8 @@ jobs:
       - name: Archive
         run: |
           set -o pipefail
+          # signing identities before the build, so only the ones xcodebuild creates here get revoked afterwards
+          security find-identity -v -p codesigning | awk '/"/ {print $2}' > "$RUNNER_TEMP/certs_before.txt"
           xcodebuild -project PrintShare.xcodeproj -scheme PrintShare -configuration Release \
             -destination 'generic/platform=iOS' -archivePath "$RUNNER_TEMP/PrintShare.xcarchive" \
             DEVELOPMENT_TEAM="$DEVELOPMENT_TEAM" MARKETING_VERSION="$VERSION" CURRENT_PROJECT_VERSION="$BUILD_NUMBER" \
@@ -143,6 +145,14 @@ jobs:
             -allowProvisioningUpdates -authenticationKeyPath "$ASC_KEY_PATH" \
             -authenticationKeyID "$ASC_KEY_ID" -authenticationKeyIssuerID "$ASC_ISSUER_ID" 2>&1 | tee export.log | tail -n 60
           echo "Version $VERSION, build $BUILD_NUMBER uploaded; it shows up in TestFlight after Apple's processing." >> "$GITHUB_STEP_SUMMARY"
+      # the certificates made on this runner die with it; revoke them so the team never hits Apple's limit
+      - name: Revoke this run's certificates
+        if: always()
+        run: |
+          [ -f "$RUNNER_TEMP/certs_before.txt" ] && [ -f "$ASC_KEY_PATH" ] || exit 0
+          security find-identity -v -p codesigning | awk '/"/ {print $2}' > "$RUNNER_TEMP/certs_after.txt"
+          "$RUNNER_TEMP/venv/bin/python" .github/scripts/revoke_run_certs.py "$ASC_KEY_PATH" \
+            "$RUNNER_TEMP/certs_before.txt" "$RUNNER_TEMP/certs_after.txt" || echo "::warning::certificate cleanup failed"
       - name: Remove API key
         if: always()
         run: rm -f "$RUNNER_TEMP/AuthKey.p8"

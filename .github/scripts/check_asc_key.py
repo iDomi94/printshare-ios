@@ -63,6 +63,17 @@ def main() -> None:
     found = sorted(item["attributes"]["identifier"] for item in resp.json()["data"])
     print(f"Registered bundle ids: {found or 'none yet (automatic signing registers them)'}")
 
+    # Every run on a fresh runner makes a new development certificate for the archive; Apple caps their number.
+    resp = get("/certificates", limit=200, **{"fields[certificates]": "name,displayName,certificateType,expirationDate"})
+    if resp.ok:
+        certs = resp.json()["data"]
+        dev = [c["attributes"] for c in certs
+               if c["attributes"].get("certificateType") in ("DEVELOPMENT", "IOS_DEVELOPMENT")]
+        print(f"Certificates: {len(certs)}, development: {len(dev)}")
+        for a in dev:
+            print(f"  {a.get('certificateType')}: {a.get('displayName') or a.get('name')} "
+                  f"(expires {str(a.get('expirationDate'))[:10]})")
+
 
 if __name__ == "__main__":
     main()
