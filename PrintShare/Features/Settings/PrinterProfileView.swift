@@ -1,19 +1,23 @@
 import SwiftUI
 import UniformTypeIdentifiers
 
-/// Printer settings: own OrcaSlicer printer profile (issue #2, spec PR-01/02, server 0.7.0).
+/// Printer settings: own OrcaSlicer printer profile (issue #2, spec PR-01/02, server 0.7.0) and the uploaded
+/// quality/material presets (server 0.13.0), which the pickers on the prepare screen show as own profiles.
 struct PrinterProfileView: View {
     let printer: String
     let name: String
 
     @Environment(AppModel.self) private var app
     @State private var current: PrinterProfile?
-    @State private var profiles: [UserProfile] = []
+    @State private var allProfiles: [UserProfile] = []
     @State private var busy = false
     @State private var error = ""
     @State private var done = ""
     @State private var importing = false
     @State private var deleteTarget: UserProfile?
+
+    private var profiles: [UserProfile] { allProfiles.filter { $0.kind == "machine" } }
+    private var ownPresets: [UserProfile] { allProfiles.filter { $0.kind == "process" || $0.kind == "filament" } }
 
     var body: some View {
         let t = app.l10n
@@ -40,10 +44,23 @@ struct PrinterProfileView: View {
                 }
             }
 
+            if !ownPresets.isEmpty {
+                PSSection(title: t(.ownPresetsTitle), footer: t(.ownPresetsHelp)) {
+                    ForEach(Array(ownPresets.enumerated()), id: \.element.id) { i, p in
+                        if i > 0 { PSDivider() }
+                        PSRow(icon: p.kind == "filament" ? "drop" : "gauge.with.dots.needle.33percent",
+                              label: p.name ?? p.file, sub: describeOwn(t, p), chevron: false)
+                            .contextMenu {
+                                Button(t(.del), systemImage: "trash", role: .destructive) { deleteTarget = p }
+                            }
+                    }
+                }
+            }
+
             PSButton(title: t(.uploadProfile), icon: "icloud.and.arrow.up", loading: busy, disabled: current == nil) {
                 importing = true
             }
-            if !profiles.isEmpty {
+            if !allProfiles.isEmpty {
                 Text(t(.longPressDelete)).font(.caption).foregroundStyle(Theme.sub)
                     .frame(maxWidth: .infinity).padding(.top, 10)
             }
@@ -84,11 +101,15 @@ struct PrinterProfileView: View {
         return parts.isEmpty ? nil : parts.joined(separator: " · ")
     }
 
+    private func describeOwn(_ t: L10n, _ p: UserProfile) -> String {
+        [t.profileKind(p.kind), p.inherits.map { t(.basedOn, ["name": $0]) }].compactMap { $0 }.joined(separator: " · ")
+    }
+
     private func load() async {
         guard let api = app.api else { return }
         do {
             current = try await api.printerProfile(printer: printer)
-            profiles = try await api.profiles().filter { $0.kind == "machine" }
+            allProfiles = try await api.profiles()
         } catch {
             self.error = error.localizedDescription
         }
@@ -119,8 +140,12 @@ struct PrinterProfileView: View {
                 current = try await api.setPrinterProfile(printer: printer, machineFile: machine.file)
                 done = app.l10n(.profileUploaded, ["name": machine.name ?? machine.file, "printer": name])
                 Haptics.success()
+            } else if !stored.isEmpty {
+                // only quality/material presets: they show up in the pickers of the prepare screen
+                done = app.l10n(.profileStoredOther, ["names": stored.map { $0.name ?? $0.file }.joined(separator: ", ")])
+                Haptics.success()
             }
-            profiles = try await api.profiles().filter { $0.kind == "machine" }
+            allProfiles = try await api.profiles()
         } catch {
             self.error = error.localizedDescription
         }
@@ -130,7 +155,7 @@ struct PrinterProfileView: View {
         guard let api = app.api else { return }
         do {
             try await api.deleteProfile(file: p.file)
-            profiles.removeAll { $0.file == p.file }
+            allProfiles.removeAll { $0.file == p.file }
         } catch {
             self.error = error.localizedDescription
         }

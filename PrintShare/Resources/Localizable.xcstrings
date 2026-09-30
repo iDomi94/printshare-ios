@@ -6,13 +6,13 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Über PrintShare"
+            "value": "Über PocketPrint3D"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "About PrintShare"
+            "value": "About PocketPrint3D"
           }
         }
       }
@@ -86,13 +86,13 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "PrintShare"
+            "value": "PocketPrint3D"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "PrintShare"
+            "value": "PocketPrint3D"
           }
         }
       }
@@ -342,13 +342,13 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Zum Scannen braucht PrintShare einmalig Zugriff auf die Kamera."
+            "value": "Zum Scannen braucht PocketPrint3D einmalig Zugriff auf die Kamera."
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "PrintShare needs camera access once to scan the code."
+            "value": "PocketPrint3D needs camera access once to scan the code."
           }
         }
       }
@@ -790,13 +790,13 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "PrintShare läuft auf deinem eigenen Server (z. B. Unraid). Scanne den Kopplungs-Code oder gib die Adresse ein."
+            "value": "PocketPrint3D läuft auf deinem eigenen Server (z. B. Unraid). Scanne den Kopplungs-Code oder gib die Adresse ein."
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "PrintShare runs on your own server (e.g. Unraid). Scan the pairing code or enter the address."
+            "value": "PocketPrint3D runs on your own server (e.g. Unraid). Scan the pairing code or enter the address."
           }
         }
       }
@@ -1110,13 +1110,13 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Mit diesem Link kann PrintShare nichts anfangen. Unterstützt: Printables, Thingiverse, direkte Datei-Links."
+            "value": "Mit diesem Link kann PocketPrint3D nichts anfangen. Unterstützt: Printables, Thingiverse, direkte Datei-Links."
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "PrintShare can’t use this link. Supported: Printables, Thingiverse, direct file links."
+            "value": "PocketPrint3D can’t use this link. Supported: Printables, Thingiverse, direct file links."
           }
         }
       }
@@ -1238,13 +1238,13 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Dein PrintShare-Server kennt diese Funktion noch nicht. Aktualisiere ihn auf die neueste Version."
+            "value": "Dein PocketPrint3D-Server kennt diese Funktion noch nicht. Aktualisiere ihn auf die neueste Version."
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Your PrintShare server does not have this feature yet. Update it to the latest version."
+            "value": "Your PocketPrint3D server does not have this feature yet. Update it to the latest version."
           }
         }
       }
@@ -1622,13 +1622,13 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Teile einen Printables-Link direkt aus Safari oder Chrome mit PrintShare – oder füge ihn hier ein."
+            "value": "Teile einen Printables-Link direkt aus Safari oder Chrome mit PocketPrint3D – oder füge ihn hier ein."
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Share a Printables link straight from Safari or Chrome with PrintShare – or paste it here."
+            "value": "Share a Printables link straight from Safari or Chrome with PocketPrint3D – or paste it here."
           }
         }
       }
@@ -1670,13 +1670,29 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Das ist kein PrintShare-Code."
+            "value": "Das ist kein PocketPrint3D-Code."
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "This is not a PrintShare code."
+            "value": "This is not a PocketPrint3D code."
+          }
+        }
+      }
+    },
+    "jobSlotsHint": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Welcher Slot des Druckers jede Farbe druckt. Material und Farbe kommen vom Drucker. Ändern geht ohne neu zu slicen."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Which slot of the printer prints each colour. Material and colour come from the printer. Changing it needs no re-slicing."
           }
         }
       }
@@ -1862,13 +1878,13 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Spur"
+            "value": "Slot"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Lane"
+            "value": "Slot"
           }
         }
       }
@@ -1894,13 +1910,13 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "{what}: Spur {lane} ist leer – Filament laden oder eine andere Spur wählen."
+            "value": "{what}: {lane} ist leer – Filament laden oder einen anderen Slot wählen."
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "{what}: lane {lane} is empty – load filament or choose another lane."
+            "value": "{what}: {lane} is empty – load filament or choose another slot."
           }
         }
       }
@@ -1926,13 +1942,13 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "{what}: Profil ist {want}, in Spur {lane} ist {have}."
+            "value": "{what}: Profil ist {want}, in {lane} ist {have}."
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "{what}: the profile is {want}, lane {lane} holds {have}."
+            "value": "{what}: the profile is {want}, {lane} holds {have}."
           }
         }
       }
@@ -1942,13 +1958,13 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Spuren"
+            "value": "Slots"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Lanes"
+            "value": "Slots"
           }
         }
       }
@@ -1958,13 +1974,13 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Aus welcher Spur des Druckers jede Farbe gedruckt wird. Ändern geht ohne neu zu slicen."
+            "value": "Aus welchem Slot des Druckers jede Farbe gedruckt wird. Ändern geht ohne neu zu slicen."
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Which lane of the printer prints each colour. Changing it needs no re-slicing."
+            "value": "Which slot of the printer prints each colour. Changing it needs no re-slicing."
           }
         }
       }
@@ -2822,13 +2838,13 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Verbinde die App einmalig mit deinem PrintShare-Server."
+            "value": "Verbinde die App einmalig mit deinem PocketPrint3D-Server."
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Connect the app to your PrintShare server once."
+            "value": "Connect the app to your PocketPrint3D server once."
           }
         }
       }
@@ -2941,6 +2957,54 @@
           "stringUnit": {
             "state": "translated",
             "value": "or"
+          }
+        }
+      }
+    },
+    "ownPresetsHelp": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Erscheinen beim Vorbereiten ganz oben unter „Eigene Profile“. Hochladen wie ein Druckerprofil (JSON oder Paket aus OrcaSlicer)."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Shown first under “Own profiles” when preparing a print. Upload them like a printer profile (JSON or bundle from OrcaSlicer)."
+          }
+        }
+      }
+    },
+    "ownPresetsTitle": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eigene Qualitäts- und Materialprofile"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Own quality and material profiles"
+          }
+        }
+      }
+    },
+    "ownProfiles": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eigene Profile"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Own profiles"
           }
         }
       }
@@ -3133,6 +3197,182 @@
           "stringUnit": {
             "state": "translated",
             "value": "Textured PEI"
+          }
+        }
+      }
+    },
+    "powerOff": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ausschalten"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Switch off"
+          }
+        }
+      }
+    },
+    "powerOffBusy": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Während eines Drucks nicht möglich."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Not possible during a print."
+          }
+        }
+      }
+    },
+    "powerOffQ": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "{printer} ausschalten? Die Steckdose wird abgeschaltet."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Switch {printer} off? The plug will be turned off."
+          }
+        }
+      }
+    },
+    "powerOn": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Einschalten"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Switch on"
+          }
+        }
+      }
+    },
+    "powerSlow": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Der Drucker meldet sich noch nicht. Ist die Steckdose in Home Assistant eingeschaltet?"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The printer doesn't answer yet. Is the plug switched on in Home Assistant?"
+          }
+        }
+      }
+    },
+    "powerStarting": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Drucker startet …"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Printer is starting …"
+          }
+        }
+      }
+    },
+    "powerState.off": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "aus"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "off"
+          }
+        }
+      }
+    },
+    "powerState.on": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "an"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "on"
+          }
+        }
+      }
+    },
+    "powerState.unavailable": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "nicht erreichbar"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "unreachable"
+          }
+        }
+      }
+    },
+    "powerState.unknown": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "unbekannt"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "unknown"
+          }
+        }
+      }
+    },
+    "powerTitle": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stromversorgung"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Power"
           }
         }
       }
@@ -3585,6 +3825,70 @@
         }
       }
     },
+    "profileKind.filament": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Material"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Material"
+          }
+        }
+      }
+    },
+    "profileKind.machine": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Drucker"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Printer"
+          }
+        }
+      }
+    },
+    "profileKind.process": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Qualität"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quality"
+          }
+        }
+      }
+    },
+    "profileStoredOther": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gespeichert: {names} – erscheint beim Vorbereiten unter „Eigene Profile“."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stored: {names} – shown under “Own profiles” when preparing a print."
+          }
+        }
+      }
+    },
     "profileUploaded": {
       "localizations": {
         "de": {
@@ -3878,13 +4182,13 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Den Code findest du im Protokoll des Containers bzw. Home-Assistant-Add-ons – oder mit diesem Befehl:"
+            "value": "Den Code zeigt die PocketPrint3D-Weboberfläche unter Einstellungen → „App verbinden“ (http://SERVER-IP:8484 im Browser). Alternativ im Protokoll des Containers bzw. Add-ons oder mit diesem Befehl:"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "The code is shown in the log of the container / Home Assistant add-on – or with this command:"
+            "value": "The PocketPrint3D web page shows the code under Settings → “Connect the app” (open http://SERVER-IP:8484 in a browser). It is also in the container / add-on log, or use this command:"
           }
         }
       }
@@ -4102,13 +4406,13 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "In PrintShare öffnen"
+            "value": "In PocketPrint3D öffnen"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Open in PrintShare"
+            "value": "Open in PocketPrint3D"
           }
         }
       }
@@ -4310,13 +4614,13 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Welcher Slot des Druckers jede Farbe druckt. Material und Farbe kommen vom Drucker. Ändern geht ohne neu zu slicen."
+            "value": "Material und Farbe kommen vom Drucker; das Material-Profil zum Slicen folgt dem Slot und lässt sich ändern."
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Which slot of the printer prints each colour. Material and colour come from the printer. Changing it needs no re-slicing."
+            "value": "Material and colour come from the printer; the material profile for slicing follows the slot and can be changed."
           }
         }
       }

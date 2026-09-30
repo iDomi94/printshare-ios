@@ -16,6 +16,8 @@ struct PrintersView: View {
     @State private var cancelTarget: Printer?
     @State private var camera: CameraTarget?
     @State private var cams: [String: Bool] = [:]
+    /// When the app switched a printer's plug on (issue #9): it needs 30-60 s before it answers.
+    @State private var poweredAt: [String: Date] = [:]
 
     var body: some View {
         let t = app.l10n
@@ -82,7 +84,7 @@ struct PrintersView: View {
                     }
                     .padding(.top, busy ? 14 : 0)
                 } else {
-                    Text(t(.errPrinterOffline)).font(.subheadline).foregroundStyle(Theme.sub)
+                    offline(t, p)
                 }
                 if busy {
                     HStack(spacing: 10) {
@@ -130,10 +132,10 @@ struct PrintersView: View {
     /// Filament lanes of an AFC unit (CANVAS on COSMOS), spec MA-02.
     private func laneChips(_ t: L10n, _ lanes: [Lane]) -> some View {
         FlowLayout(spacing: 8) {
-            ForEach(lanes) { l in
+            ForEach(LanePlan.bySlot(lanes)) { l in
                 HStack(spacing: 6) {
                     ColorDot(color: Color(hexString: l.color), size: 14)
-                    Text("T\(l.tool.map(String.init) ?? "?") · \(l.loaded ? (l.material ?? "?") : t(.laneEmpty))")
+                    Text("\(LanePlan.slotName(t, lane: l, lanes: lanes)) · \(l.loaded ? (l.material ?? "?") : t(.laneEmpty))")
                         .font(.footnote).foregroundStyle(Theme.text)
                 }
                 .padding(.horizontal, 10).padding(.vertical, 6)
@@ -142,6 +144,27 @@ struct PrintersView: View {
                 .opacity(l.loaded ? 1 : 0.5)
                 .accessibilityElement(children: .combine)
                 .accessibilityHint(l.inToolhead ? t(.laneInToolhead) : "")
+            }
+        }
+    }
+
+    /// No status: offline text, and for printers on a Home Assistant plug a switch-on button (issue #9).
+    @ViewBuilder
+    private func offline(_ t: L10n, _ p: Printer) -> some View {
+        let since = poweredAt[p.id].map { Date().timeIntervalSince($0) }
+        if p.power, let since, since < 120 {
+            HStack(spacing: 10) {
+                ProgressView()
+                Text(t(.powerStarting)).font(.subheadline).foregroundStyle(Theme.sub)
+            }
+        } else {
+            VStack(alignment: .leading, spacing: 12) {
+                Text(since != nil ? t(.powerSlow) : t(.errPrinterOffline)).font(.subheadline).foregroundStyle(Theme.sub)
+                if p.power {
+                    PSButton(title: t(.powerOn), icon: "power", loading: acting == "\(p.id):power") {
+                        Task { await powerOn(p) }
+                    }
+                }
             }
         }
     }
@@ -187,10 +210,21 @@ struct PrintersView: View {
                 out.append(Entry(printer: p, status: try? await api.status(printer: p.id)))
             }
             entries = out
+            for e in out where e.status != nil { poweredAt[e.id] = nil }
             error = ""
         } catch {
             self.error = error.localizedDescription
         }
+    }
+
+    private func powerOn(_ p: Printer) async {
+        guard let api = app.api else { return }
+        acting = "\(p.id):power"
+        do {
+            try await api.setPower(printer: p.id, on: true)
+            poweredAt[p.id] = Date()
+        } catch { self.error = error.localizedDescription }
+        acting = ""
     }
 
     private func run(_ p: Printer, _ action: String) async {

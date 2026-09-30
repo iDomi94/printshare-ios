@@ -45,11 +45,14 @@ struct Printer: Codable, Sendable, Identifiable, Hashable {
     var machine: String
     /// Non-nil when the printer can do bed leveling before a print; the value is the suggested default.
     var leveling: Bool?
+    /// A smart plug is set up on the server's web page (server 0.12.0, issue #9): offer "switch on" while offline.
+    var power: Bool
 
-    enum CodingKeys: String, CodingKey { case id, name, type, machine, leveling }
+    enum CodingKeys: String, CodingKey { case id, name, type, machine, leveling, power }
 
-    init(id: String, name: String, type: String = "", machine: String = "", leveling: Bool? = nil) {
+    init(id: String, name: String, type: String = "", machine: String = "", leveling: Bool? = nil, power: Bool = false) {
         self.id = id; self.name = name; self.type = type; self.machine = machine; self.leveling = leveling
+        self.power = power
     }
 
     init(from decoder: Decoder) throws {
@@ -63,6 +66,28 @@ struct Printer: Codable, Sendable, Identifiable, Hashable {
         } else {
             leveling = nil
         }
+        power = c.lenient(Bool.self, .power) ?? false
+    }
+}
+
+/// Smart plug of a printer through Home Assistant (`GET /api/printers/<id>/power`, server 0.12.0).
+struct PowerInfo: Codable, Sendable, Equatable {
+    var available: Bool
+    /// "on", "off", "unavailable", "unknown"; nil without a plug.
+    var state: String?
+    var error: String?
+
+    enum CodingKeys: String, CodingKey { case available, state, error }
+
+    init(available: Bool, state: String? = nil, error: String? = nil) {
+        self.available = available; self.state = state; self.error = error
+    }
+
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        available = c.lenient(Bool.self, .available) ?? false
+        state = c.lenient(String.self, .state)
+        error = c.lenient(String.self, .error)
     }
 }
 
@@ -387,6 +412,25 @@ struct Options: Codable, Sendable, Equatable {
     var supports: [String]
     var brims: [String]
     var defaults: Defaults
+    /// Uploaded quality/material presets among `materials` / `processes` (server 0.13.0); shown first as own profiles.
+    var own: OwnPresets?
+}
+
+struct OwnPresets: Codable, Sendable, Equatable {
+    var materials: [String]
+    var processes: [String]
+
+    enum CodingKeys: String, CodingKey { case materials, processes }
+
+    init(materials: [String] = [], processes: [String] = []) {
+        self.materials = materials; self.processes = processes
+    }
+
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        materials = c.lenient([String].self, .materials) ?? []
+        processes = c.lenient([String].self, .processes) ?? []
+    }
 }
 
 /// Per-job overrides sent to `POST /api/jobs` (nil = keep the profile value) and echoed back in `Job.request`.

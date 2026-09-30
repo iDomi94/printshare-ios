@@ -232,7 +232,7 @@ struct JobView: View {
             }
 
             if !done && !printerLanes.isEmpty {
-                PSSection(title: t(.slots), footer: t(.slotsHint)) {
+                PSSection(title: t(.slots), footer: t(.jobSlotsHint)) {
                     ForEach(Array(colours.enumerated()), id: \.element.index) { i, col in
                         if i > 0 { PSDivider() }
                         laneRow(t, col)

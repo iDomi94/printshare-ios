@@ -57,6 +57,24 @@ if it contradicts `printshare/api.py` the server wins; otherwise the simplest id
     delete via long press (context menu).
   - Texts from the 0.10.0 `i18n.ts`, including the name tables for heaters, fans, lights and speed modes.
 
+- **Server 0.13.1** (upstream `509c409`, 2026-09-30), ported from the Expo app and `docs/API.md` of the same commit:
+  - **Slots before slicing** (issue #12, 0.11): upstream took over the native design (`mobile/src/lib/lanes.ts`, "same
+    rules as LanePlan.swift"). Back-port of its `defaultSlots`: each loaded slot is used once if possible, a colour
+    without a colour value (single-colour model) gets the slot in the toolhead, the T(n-1) rule is gone. The printers
+    tab shows the lane chips as "Slot N · material" in physical order.
+  - **Power through Home Assistant** (issue #9, 0.12.0): `Printer.power`; the printers tab offers "Einschalten" for an
+    offline printer with a plug (`POST /power {"on": true}`), then "Drucker startet …" for 120 s, then the "meldet sich
+    noch nicht" hint and the button again. `ControlView` shows the plug state and "Ausschalten" (confirmation, locked
+    during a print; the server refuses it with 409 anyway). The plug settings (`/power/config`, `/test`, `/entities`)
+    are web-only, as upstream.
+  - **Own quality / material presets** (issue #7, 0.13.0): `/options` `own` → pickers group them as "Eigene Profile";
+    `PrinterProfileView` lists uploaded process / filament presets (long press deletes); an upload without a machine
+    preset says so (`profileStoredOther`).
+  - **Name PocketPrint3D** (0.13.1): visible texts, display name and usage descriptions. Kept on purpose, as upstream:
+    the `printshare://` scheme, bundle ids / App Group, the container name `PrintShare` in the pairing command, the
+    Swift target and module names.
+  - Texts from the 0.13.1 `i18n.ts`; the native-only key `slotsHint` became `jobSlotsHint` (upstream now has its own).
+
 - **Model files in 3D** (not in the Expo app): the file row on the model page opens a sheet with the files of
   `/api/files` (same order and index as the prepare screen). STL is read by `STLReader` (binary + ASCII; ModelIO returned no mesh for STL on CI), 3MF by `ThreeMFReader` (own zip reader: stored/deflate via `NSData.decompressed(.zlib)`, zip64; `XMLParser` for the
   model files incl. Orca/Bambu `3D/Objects/*.model` components and build transforms; colour per object/part from

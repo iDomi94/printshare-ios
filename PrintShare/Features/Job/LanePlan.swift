@@ -51,24 +51,36 @@ enum LanePlan {
         return zip(x, y).reduce(0) { $0 + ($1.0 - $1.1) * ($1.0 - $1.1) }
     }
 
-    /// Chosen tool per filament: the user's choice, else a loaded lane with the profile's material (closest colour),
-    /// else the lane for T(n-1), else any loaded lane, else the first lane.
+    /// Does a preset fit the material in a lane? Unknown on either side counts as fitting.
+    static func fits(_ preset: String?, _ lane: Lane) -> Bool {
+        guard let want = materialOf(preset) else { return true }
+        let have = (lane.material ?? "").uppercased()
+        return have.isEmpty || have.hasPrefix(want)
+    }
+
+    /// Chosen tool per filament: the user's choice, else a loaded lane with the profile's material (any loaded lane
+    /// if none has it), each lane once if possible: the closest colour, or without a colour (single-colour model)
+    /// the lane in the toolhead, else the first one. Same rules as upstream `defaultSlots` (mobile/src/lib/lanes.ts).
     static func tools(colours: [Colour], lanes: [Lane], choice: [Int: Int]) -> [Int: Int] {
         var out: [Int: Int] = [:]
+        var taken = Set(choice.values)
         let loaded = lanes.filter(\.loaded)
         for c in colours {
             if let chosen = choice[c.index] { out[c.index] = chosen; continue }
-            let want = materialOf(c.preset)
-            let same = loaded.filter { l in
-                guard let want else { return false }
-                return (l.material ?? "").uppercased().hasPrefix(want)
+            let candidates = loaded.filter { fits(c.preset, $0) }
+            let pool = candidates.isEmpty ? loaded : candidates
+            let free = pool.filter { $0.tool.map { !taken.contains($0) } ?? false }
+            let from = free.isEmpty ? pool : free
+            let pick: Lane?
+            if let color = c.color, !color.isEmpty {
+                pick = from.enumerated().min { a, b in
+                    let da = distance(a.element.color, color), db = distance(b.element.color, color)
+                    return da != db ? da < db : a.offset < b.offset
+                }?.element
+            } else {
+                pick = from.first(where: \.inToolhead) ?? from.first
             }
-            let best = same.enumerated().min { a, b in
-                let da = distance(a.element.color, c.color), db = distance(b.element.color, c.color)
-                return da != db ? da < db : a.offset < b.offset
-            }?.element
-            let pick = best ?? loaded.first { $0.tool == c.index - 1 } ?? loaded.first ?? lanes.first
-            if let tool = pick?.tool { out[c.index] = tool }
+            if let tool = (pick ?? lanes.first)?.tool { out[c.index] = tool; taken.insert(tool) }
         }
         return out
     }

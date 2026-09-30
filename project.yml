@@ -10,7 +10,7 @@ settings:
   base:
     SWIFT_VERSION: "6.0"
     SWIFT_STRICT_CONCURRENCY: complete
-    MARKETING_VERSION: "0.1.0"          # = version in mobile/app.json of the Expo app
+    MARKETING_VERSION: "0.2.0"          # = version in mobile/app.json of the Expo app
     CURRENT_PROJECT_VERSION: "100"      # above the EAS build numbers
     DEVELOPMENT_TEAM: ${DEVELOPMENT_TEAM}
     CODE_SIGN_STYLE: Automatic
@@ -41,7 +41,7 @@ targets:
         # XcodeGen writes 1.0 / 1 otherwise; App Store Connect needs the build settings (set per upload by testflight.yml)
         CFBundleShortVersionString: $(MARKETING_VERSION)
         CFBundleVersion: $(CURRENT_PROJECT_VERSION)
-        CFBundleDisplayName: PrintShare
+        CFBundleDisplayName: PocketPrint3D
         CFBundleLocalizations: [de, en]
         UILaunchScreen:
           UIColorName: LaunchBackground
@@ -58,8 +58,8 @@ targets:
         NSAppTransportSecurity:
           NSAllowsArbitraryLoads: true
           NSAllowsLocalNetworking: true
-        NSLocalNetworkUsageDescription: PrintShare connects to your own PrintShare server in your home network.
-        NSCameraUsageDescription: PrintShare uses the camera only to scan the pairing QR code of your server.
+        NSLocalNetworkUsageDescription: PocketPrint3D connects to your own PocketPrint3D server in your home network.
+        NSCameraUsageDescription: PocketPrint3D uses the camera only to scan the pairing QR code of your server.
         ITSAppUsesNonExemptEncryption: false
         CFBundleURLTypes:
           - CFBundleURLName: com.dominiqueherbrigpersonalteam.printshare
@@ -87,7 +87,7 @@ targets:
         # XcodeGen writes 1.0 / 1 otherwise; App Store Connect needs the build settings (set per upload by testflight.yml)
         CFBundleShortVersionString: $(MARKETING_VERSION)
         CFBundleVersion: $(CURRENT_PROJECT_VERSION)
-        CFBundleDisplayName: PrintShare
+        CFBundleDisplayName: PocketPrint3D
         NSExtension:
           NSExtensionPointIdentifier: com.apple.share-services
           NSExtensionPrincipalClass: $(PRODUCT_MODULE_NAME).ShareViewController

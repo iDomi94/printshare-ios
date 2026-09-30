@@ -3,20 +3,20 @@
   "strings" : {
     "CFBundleDisplayName" : {
       "localizations" : {
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "PrintShare" } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "PrintShare" } }
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "PocketPrint3D" } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "PocketPrint3D" } }
       }
     },
     "NSCameraUsageDescription" : {
       "localizations" : {
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "PrintShare nutzt die Kamera nur, um den Kopplungs-QR-Code deines Servers zu scannen." } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "PrintShare uses the camera only to scan the pairing QR code of your server." } }
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "PocketPrint3D nutzt die Kamera nur, um den Kopplungs-QR-Code deines Servers zu scannen." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "PocketPrint3D uses the camera only to scan the pairing QR code of your server." } }
       }
     },
     "NSLocalNetworkUsageDescription" : {
       "localizations" : {
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "PrintShare verbindet sich mit deinem eigenen PrintShare-Server im Heimnetz." } },
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "PrintShare connects to your own PrintShare server in your home network." } }
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "PocketPrint3D verbindet sich mit deinem eigenen PocketPrint3D-Server im Heimnetz." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "PocketPrint3D connects to your own PocketPrint3D server in your home network." } }
       }
     }
   },

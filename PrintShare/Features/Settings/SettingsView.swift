@@ -61,7 +61,7 @@ struct SettingsView: View {
                     if let u = URL(string: "https://github.com/halvar20000/printshare") { openURL(u) }
                 }
             }
-            Text("PrintShare · MIT").font(.caption).foregroundStyle(Theme.sub).frame(maxWidth: .infinity)
+            Text("PocketPrint3D · MIT").font(.caption).foregroundStyle(Theme.sub).frame(maxWidth: .infinity)
         }
         .navigationTitle(t(.tabSettings))
         .navigationBarTitleDisplayMode(.inline)
@@ -75,7 +75,7 @@ struct SettingsView: View {
 
     private func serverSub(_ t: L10n) -> String? {
         guard app.server != nil, !serverVersion.isEmpty else { return nil }
-        var parts = ["PrintShare \(serverVersion)"]
+        var parts = ["PocketPrint3D \(serverVersion)"]
         if let route { parts.append(t(route == .home ? .routeHome : .routeRemote)) }
         return parts.joined(separator: " · ")
     }

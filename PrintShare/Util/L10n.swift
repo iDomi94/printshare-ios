@@ -66,6 +66,8 @@ struct L10n: Sendable {
     func lightName(_ id: String) -> String { lookup("light.\(id)") ?? id }
     /// Centauri Carbon speed modes (50 = silent … 160 = ludicrous), else "130 %".
     func speedMode(_ value: Int) -> String { lookup("speedMode.\(value)") ?? "\(value) %" }
+    func powerState(_ state: String) -> String { lookup("powerState.\(state)") ?? state }
+    func profileKind(_ kind: String) -> String { lookup("profileKind.\(kind)") ?? kind }
     var suggestions: [String] { callAsFunction(.suggestionList).split(separator: "|").map(String.init) }
 
     /// Server log lines -> readable text (German only, like the Expo app).
