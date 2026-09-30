@@ -15,7 +15,12 @@ struct JobView: View {
     @State private var plateOk = false
     @State private var sending: SendMode?
     @State private var printers: [Printer] = []
+    @State private var printerStatus: PrinterStatus?
     @State private var printerKind: PrinterKind?
+    @State private var laneChoice: [Int: Int] = [:]
+    @State private var laneSheet: LaneSheet?
+    @State private var camera: CameraTarget?
+    @State private var hasCamera = false
     @State private var showLog = false
     @State private var elapsed = 0
     @State private var startedAt = Date()
@@ -33,6 +38,13 @@ struct JobView: View {
     }
     private var printerInfo: Printer? { printers.first { $0.id == printerId } }
     private var printerName: String { printerInfo?.name ?? printerId ?? "" }
+
+    private struct LaneSheet: Identifiable { var colour: Int; var id: Int { colour } }
+
+    // Lane selection (issue #6): which lane of the printer prints each filament of the model.
+    private var printerLanes: [Lane] { LanePlan.usable(printerStatus) }
+    private var colours: [LanePlan.Colour] { LanePlan.colours(job?.result) }
+    private var laneTools: [Int: Int] { LanePlan.tools(colours: colours, lanes: printerLanes, choice: laneChoice) }
 
     var body: some View {
         let t = app.l10n
@@ -53,6 +65,9 @@ struct JobView: View {
             Button(t(.start)) { Task { await send(start: true) } }
         }
         .sheet(item: $gcodeShare) { ActivitySheet(items: [$0.url]).ignoresSafeArea() }
+        .sheet(item: $laneSheet) { sheet in laneSheetView(t, sheet.colour) }
+        .sheet(item: $camera) { CameraView(printer: $0.printer, title: $0.name) }
+        .task(id: job?.state == .started) { await loadCamera() }
         .alert(t(.deleteJobQ), isPresented: $confirmDelete) {
             Button(t(.cancelBtn), role: .cancel) {}
             Button(t(.del), role: .destructive) { Task { await delete() } }
@@ -151,7 +166,8 @@ struct JobView: View {
         let uploaded = job.state == .uploaded
         let busy = printerKind?.isBusy ?? false
         let offline = printerKind == .offline
-        let canPrint = plateOk && !busy && !offline && sending == nil
+        let laneWarnings = done ? [] : LanePlan.warnings(t, colours: colours, lanes: printerLanes, tools: laneTools)
+        let canPrint = plateOk && !busy && !offline && sending == nil && !laneWarnings.contains(where: \.blocking)
         let material = Format.shortName(profiles["filament"])
         var shareAction: (() -> Void)?
         if !gcodeLoading { shareAction = { Task { await shareGcode(job) } } }
@@ -209,6 +225,18 @@ struct JobView: View {
                 }
             }
 
+            if !done && !printerLanes.isEmpty {
+                PSSection(title: t(.lanes), footer: t(.lanesHint)) {
+                    ForEach(Array(colours.enumerated()), id: \.element.index) { i, col in
+                        if i > 0 { PSDivider() }
+                        laneRow(t, col)
+                    }
+                }
+            }
+            if !done {
+                ForEach(laneWarnings, id: \.text) { PSBanner(kind: $0.blocking ? .error : .warn, text: $0.text) }
+            }
+
             if !done {
                 if busy { PSBanner(kind: .warn, text: t(.printerBusy, ["printer": printerName])) }
                 if offline { PSBanner(kind: .error, text: t(.printerOffline, ["printer": printerName])) }
@@ -242,6 +270,11 @@ struct JobView: View {
         } footer: {
             if done {
                 PSButton(title: t(.toPrinter), icon: "printer") { app.navigate(to: .printers) }
+                if hasCamera, let p = printerId {
+                    PSButton(title: t(.camera), kind: .secondary, icon: "video") {
+                        camera = CameraTarget(printer: p, name: printerName)
+                    }
+                }
                 PSButton(title: t(.newModel), kind: .secondary) { app.navigate(to: .print) }
             } else {
                 PSButton(title: t(.print), icon: "play.fill", loading: sending == .print || job.state == .sending,
@@ -253,6 +286,32 @@ struct JobView: View {
                     }
                 }
             }
+        }
+    }
+
+    private func laneRow(_ t: L10n, _ col: LanePlan.Colour) -> some View {
+        let lane = printerLanes.first { $0.tool == laneTools[col.index] }
+        return PSRow(label: colours.count > 1 ? t(.colorN, ["n": String(col.index)]) : t(.lane),
+                     value: LanePlan.label(t, lane: lane), sub: Format.shortName(col.preset),
+                     action: { laneSheet = LaneSheet(colour: col.index) }, right: {
+            HStack(spacing: 4) {
+                if let c = col.color { ColorDot(color: Color(hexString: c), size: 14) }
+                ColorDot(color: Color(hexString: lane?.color), size: 22)
+            }
+            .padding(.leading, 8)
+        })
+    }
+
+    private func laneSheetView(_ t: L10n, _ colour: Int) -> some View {
+        let choices = printerLanes.compactMap { l -> Choice? in
+            guard let tool = l.tool else { return nil }
+            let what = l.loaded ? [l.material, l.filament].compactMap { $0 }.joined(separator: " · ") : t(.laneEmpty)
+            let sub = [what.isEmpty ? nil : what, l.inToolhead ? t(.laneInToolhead) : nil].compactMap { $0 }
+            return Choice(value: String(tool), label: "\(l.id) (T\(tool))", sub: sub.isEmpty ? nil : sub.joined(separator: " · "))
+        }
+        return PickerSheet(title: colours.count > 1 ? t(.colorN, ["n": String(colour)]) : t(.lane), choices: choices,
+                           selected: laneTools[colour].map(String.init), searchLabel: t(.search), closeLabel: "OK") { v in
+            if let tool = Int(v) { laneChoice[colour] = tool }
         }
     }
 
@@ -335,7 +394,9 @@ struct JobView: View {
 
     private func refreshPrinter() async {
         guard let api = app.api, let p = printerId else { return }
-        printerKind = (try? await api.status(printer: p))?.kind ?? .offline
+        let st = try? await api.status(printer: p)
+        printerStatus = st
+        printerKind = st?.kind ?? .offline
         if !levelLoaded, let info = printers.first(where: { $0.id == p }), let def = info.leveling {
             level = app.loadLevel(p) ?? def
             levelLoaded = true
@@ -351,7 +412,8 @@ struct JobView: View {
         defer { sending = nil }
         do {
             let levelValue: Bool? = printerInfo?.leveling != nil ? level : nil
-            try await api.send(job: job.id, start: start, leveling: levelValue)
+            let lanes = printerLanes.isEmpty ? nil : laneTools
+            try await api.send(job: job.id, start: start, leveling: levelValue, lanes: lanes)
             var latest: Job?
             for _ in 0..<600 {
                 try await Task.sleep(for: .seconds(1))
@@ -368,6 +430,11 @@ struct JobView: View {
             actionError = error.localizedDescription
             await refreshPrinter()
         }
+    }
+
+    private func loadCamera() async {
+        guard job?.state == .started, let api = app.api, let p = printerId else { return }
+        hasCamera = (try? await api.cameraInfo(printer: p))?.available ?? false
     }
 
     /// SL-10: fetch the G-code and hand it to the share sheet (Files, AirDrop, another slicer app …).

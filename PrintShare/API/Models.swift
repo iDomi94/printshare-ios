@@ -92,9 +92,16 @@ struct PrinterStatus: Codable, Sendable, Equatable {
     var bed: Double?
     var bedTarget: Double?
     var camera: String?
+    /// Filament lanes of a multi-filament unit (AFC / CANVAS, server 0.8.0); empty without one.
+    var lanes: [Lane] = []
+    /// Printer control (server 0.10.0): temperatures per heater, fan speeds in %, lights, print speed in %.
+    var heaters: [String: HeaterState] = [:]
+    var fans: [String: Double] = [:]
+    var lights: [String: Bool] = [:]
+    var speed: Int?
 
     enum CodingKeys: String, CodingKey {
-        case state, kind, file, progress, layer, layers, nozzle, bed, camera
+        case state, kind, file, progress, layer, layers, nozzle, bed, camera, lanes, heaters, fans, lights, speed
         case printDurationS = "print_duration_s"
         case timeRemainingS = "time_remaining_s"
         case nozzleTarget = "nozzle_target"
@@ -116,10 +123,224 @@ struct PrinterStatus: Codable, Sendable, Equatable {
         bed = c.lenient(Double.self, .bed)
         bedTarget = c.lenient(Double.self, .bedTarget)
         camera = c.lenient(String.self, .camera)
+        lanes = c.lenient([Lane].self, .lanes) ?? []
+        heaters = c.lenient([String: HeaterState].self, .heaters) ?? [:]
+        fans = (c.lenient([String: Double?].self, .fans) ?? [:]).compactMapValues { $0 }
+        lights = (c.lenient([String: Bool?].self, .lights) ?? [:]).compactMapValues { $0 }
+        speed = c.lenient(Int.self, .speed) ?? c.lenient(Double.self, .speed).map { Int($0.rounded()) }
     }
 
-    init(kind: PrinterKind, state: String? = nil) {
-        self.kind = kind; self.state = state
+    init(kind: PrinterKind, state: String? = nil, lanes: [Lane] = []) {
+        self.kind = kind; self.state = state; self.lanes = lanes
+    }
+}
+
+struct HeaterState: Codable, Sendable, Equatable {
+    var actual: Double?
+    var target: Double?
+
+    init(actual: Double? = nil, target: Double? = nil) { self.actual = actual; self.target = target }
+
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        actual = c.lenient(Double.self, .actual)
+        target = c.lenient(Double.self, .target)
+    }
+
+    enum CodingKeys: String, CodingKey { case actual, target }
+}
+
+/// A filament lane of a multi-filament unit (AFC / CANVAS); `tool` is the T number it prints as.
+struct Lane: Codable, Sendable, Equatable, Identifiable {
+    var id: String
+    var tool: Int?
+    var unit: String?
+    var material: String?
+    var color: String?
+    var filament: String?
+    var weightG: Double?
+    var loaded: Bool
+    var inToolhead: Bool
+    var status: String?
+
+    enum CodingKeys: String, CodingKey {
+        case id, tool, unit, material, color, filament, loaded, status
+        case weightG = "weight_g"
+        case inToolhead = "in_toolhead"
+    }
+
+    init(id: String, tool: Int?, material: String? = nil, color: String? = nil, filament: String? = nil,
+         loaded: Bool = true, inToolhead: Bool = false) {
+        self.id = id; self.tool = tool; self.material = material; self.color = color; self.filament = filament
+        self.loaded = loaded; self.inToolhead = inToolhead
+    }
+
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        id = c.lenient(String.self, .id) ?? "?"
+        tool = c.lenient(Int.self, .tool)
+        unit = c.lenient(String.self, .unit)
+        material = c.lenient(String.self, .material).flatMap { $0.isEmpty ? nil : $0 }
+        color = c.lenient(String.self, .color).flatMap { $0.isEmpty ? nil : $0 }
+        filament = c.lenient(String.self, .filament).flatMap { $0.isEmpty ? nil : $0 }
+        weightG = c.lenient(Double.self, .weightG)
+        loaded = c.lenient(Bool.self, .loaded) ?? false
+        inToolhead = c.lenient(Bool.self, .inToolhead) ?? false
+        status = c.lenient(String.self, .status)
+    }
+}
+
+/// What a printer can be controlled with (`GET /api/printers/{id}/controls`, server 0.10.0).
+struct Controls: Codable, Sendable, Equatable {
+    struct Heater: Codable, Sendable, Equatable, Identifiable {
+        var id: String
+        var max: Double
+    }
+    struct Item: Codable, Sendable, Equatable, Identifiable {
+        var id: String
+    }
+    /// Either fixed modes (Centauri Carbon: 50/100/130/160) or a free range in %.
+    struct Speed: Codable, Sendable, Equatable {
+        var modes: [Int]?
+        var min: Int?
+        var max: Int?
+    }
+
+    var heaters: [Heater]
+    var fans: [Item]
+    var lights: [Item]
+    var speed: Speed?
+    var history: Bool
+
+    enum CodingKeys: String, CodingKey { case heaters, fans, lights, speed, history }
+
+    init(heaters: [Heater] = [], fans: [Item] = [], lights: [Item] = [], speed: Speed? = nil, history: Bool = false) {
+        self.heaters = heaters; self.fans = fans; self.lights = lights; self.speed = speed; self.history = history
+    }
+
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        heaters = c.lenient([Heater].self, .heaters) ?? []
+        fans = c.lenient([Item].self, .fans) ?? []
+        lights = c.lenient([Item].self, .lights) ?? []
+        speed = c.lenient(Speed.self, .speed)
+        history = c.lenient(Bool.self, .history) ?? false
+    }
+
+    /// Speed values offered in the app: the modes, else steps inside the printer's range.
+    var speedValues: [Int] {
+        guard let speed else { return [] }
+        if let modes = speed.modes, !modes.isEmpty { return modes }
+        return [50, 75, 100, 125, 150].filter { $0 >= (speed.min ?? 10) && $0 <= (speed.max ?? 300) }
+    }
+}
+
+/// Temperature history per heater: points `(seconds before now, actual, target)`.
+struct TempHistory: Codable, Sendable, Equatable {
+    struct Point: Sendable, Equatable {
+        var t: Double
+        var actual: Double?
+        var target: Double?
+    }
+
+    var series: [String: [Point]]
+    var source: String
+
+    enum CodingKeys: String, CodingKey { case series, source }
+
+    init(series: [String: [Point]], source: String = "") { self.series = series; self.source = source }
+
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        source = c.lenient(String.self, .source) ?? ""
+        let raw = c.lenient([String: [[Double?]]].self, .series) ?? [:]
+        series = raw.mapValues { rows in
+            rows.compactMap { r in
+                guard let t = r.first ?? nil else { return nil }
+                return Point(t: t, actual: r.count > 1 ? r[1] : nil, target: r.count > 2 ? r[2] : nil)
+            }
+        }
+    }
+
+    func encode(to encoder: Encoder) throws {
+        var c = encoder.container(keyedBy: CodingKeys.self)
+        try c.encode(series.mapValues { $0.map { [$0.t, $0.actual, $0.target] } }, forKey: .series)
+        try c.encode(source, forKey: .source)
+    }
+}
+
+/// `GET /api/printers/{id}/camera` (server 0.9.0).
+struct CameraInfo: Codable, Sendable, Equatable {
+    var available: Bool
+    var stream: Bool
+    var snapshot: Bool
+    var name: String?
+
+    init(available: Bool, stream: Bool = false, snapshot: Bool = false, name: String? = nil) {
+        self.available = available; self.stream = stream; self.snapshot = snapshot; self.name = name
+    }
+
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        available = c.lenient(Bool.self, .available) ?? false
+        stream = c.lenient(Bool.self, .stream) ?? false
+        snapshot = c.lenient(Bool.self, .snapshot) ?? false
+        name = c.lenient(String.self, .name)
+    }
+
+    enum CodingKeys: String, CodingKey { case available, stream, snapshot, name }
+}
+
+/// An OrcaSlicer preset uploaded to the server (issue #2, server 0.7.0).
+struct UserProfile: Codable, Sendable, Equatable, Identifiable {
+    var file: String
+    var kind: String
+    var name: String?
+    var inherits: String?
+    var printStart: Bool
+    var error: String?
+    var id: String { file }
+
+    enum CodingKeys: String, CodingKey {
+        case file, kind, name, inherits, error
+        case printStart = "print_start"
+    }
+
+    init(file: String, kind: String = "machine", name: String? = nil, inherits: String? = nil, printStart: Bool = false) {
+        self.file = file; self.kind = kind; self.name = name; self.inherits = inherits; self.printStart = printStart
+    }
+
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        file = try c.decode(String.self, forKey: .file)
+        kind = c.lenient(String.self, .kind) ?? "unknown"
+        name = c.lenient(String.self, .name)
+        inherits = c.lenient(String.self, .inherits)
+        printStart = c.lenient(Bool.self, .printStart) ?? false
+        error = c.lenient(String.self, .error)
+    }
+}
+
+/// Printer preset in use: uploaded (`machineFile`), set by hand in config.yaml (`configFile`) or the system preset.
+struct PrinterProfile: Codable, Sendable, Equatable {
+    var machine: String
+    var machineFile: String?
+    var configFile: String?
+    var machinePreset: String?
+
+    enum CodingKeys: String, CodingKey {
+        case machine
+        case machineFile = "machine_file"
+        case configFile = "config_file"
+        case machinePreset = "machine_preset"
+    }
+
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        machine = c.lenient(String.self, .machine) ?? ""
+        machineFile = c.lenient(String.self, .machineFile)
+        configFile = c.lenient(String.self, .configFile)
+        machinePreset = c.lenient(String.self, .machinePreset)
     }
 }
 

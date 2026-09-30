@@ -1,0 +1,37 @@
+{
+ "state": "printing",
+ "file": "cube.gcode",
+ "progress": 3.1,
+ "layer": 3,
+ "layers": 100,
+ "print_duration_s": 60,
+ "nozzle": 210.1,
+ "nozzle_target": 210,
+ "bed": 60.0,
+ "bed_target": 60,
+ "camera": "http://printer.local/webcam/?action=stream",
+ "lanes": [],
+ "heaters": {
+  "nozzle": {
+   "actual": 210.1,
+   "target": 210
+  },
+  "bed": {
+   "actual": 60.0,
+   "target": 60
+  },
+  "chamber": {
+   "actual": 31.5,
+   "target": null
+  }
+ },
+ "fans": {
+  "part": 50,
+  "aux_fan": 0
+ },
+ "lights": {
+  "case": true
+ },
+ "speed": 100,
+ "kind": "active"
+}

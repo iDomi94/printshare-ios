@@ -1,0 +1,30 @@
+{
+ "heaters": [
+  {
+   "id": "nozzle",
+   "max": 320.0
+  },
+  {
+   "id": "bed",
+   "max": 110.0
+  }
+ ],
+ "fans": [
+  {
+   "id": "part"
+  },
+  {
+   "id": "aux_fan"
+  }
+ ],
+ "lights": [
+  {
+   "id": "case"
+  }
+ ],
+ "speed": {
+  "min": 10,
+  "max": 300
+ },
+ "history": true
+}

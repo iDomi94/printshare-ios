@@ -1,0 +1,88 @@
+{
+ "state": null,
+ "file": null,
+ "progress": 0,
+ "layer": null,
+ "layers": null,
+ "print_duration_s": null,
+ "nozzle": null,
+ "nozzle_target": null,
+ "bed": null,
+ "bed_target": null,
+ "camera": "http://printer.local/webcam/?action=stream",
+ "lanes": [
+  {
+   "id": "CANVAS_4",
+   "tool": 0,
+   "unit": "CANVAS_1",
+   "material": "PLA",
+   "color": "#A18787",
+   "filament": null,
+   "weight_g": 768.8704470211608,
+   "loaded": true,
+   "in_toolhead": false,
+   "status": "None"
+  },
+  {
+   "id": "CANVAS_2",
+   "tool": 1,
+   "unit": "CANVAS_1",
+   "material": "PLA",
+   "color": "#000000",
+   "filament": null,
+   "weight_g": 999.4154174251656,
+   "loaded": true,
+   "in_toolhead": false,
+   "status": "None"
+  },
+  {
+   "id": "CANVAS_3",
+   "tool": 2,
+   "unit": "CANVAS_1",
+   "material": null,
+   "color": null,
+   "filament": null,
+   "weight_g": 0.0,
+   "loaded": false,
+   "in_toolhead": false,
+   "status": "None"
+  },
+  {
+   "id": "CANVAS_1",
+   "tool": 3,
+   "unit": "CANVAS_1",
+   "material": "PLA",
+   "color": "#FFFFFF",
+   "filament": null,
+   "weight_g": 988.1091686838932,
+   "loaded": true,
+   "in_toolhead": false,
+   "status": "None"
+  }
+ ],
+ "heaters": {
+  "nozzle": {
+   "actual": null,
+   "target": null
+  },
+  "bed": {
+   "actual": null,
+   "target": null
+  },
+  "chamber": {
+   "actual": null,
+   "target": null
+  }
+ },
+ "fans": {
+  "part": null,
+  "aux_fan": null,
+  "case_fan": null
+ },
+ "lights": {
+  "case": false,
+  "hotend": false
+ },
+ "speed": null,
+ "kind": "unknown"
+}

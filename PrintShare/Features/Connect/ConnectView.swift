@@ -34,7 +34,8 @@ struct ConnectView: View {
                     Text("docker exec PrintShare printshare pair --url http://SERVER-IP:8484")
                         .font(.system(size: 12, design: .monospaced)).foregroundStyle(Theme.text).textSelection(.enabled)
                 }
-                .padding(.top, 6).padding(.bottom, 28)
+                .padding(.top, 6).padding(.bottom, 8)
+                Text(t(.pairCmdHint)).font(.footnote).foregroundStyle(Theme.sub).padding(.horizontal, 4).padding(.bottom, 28)
 
                 PSSection(title: t(.manual)) {
                     field(t(.serverUrl), "http://192.168.1.10:8484", $url)

@@ -33,7 +33,49 @@ private struct CreateJobBody: Encodable {
     var options: JobOptions
 }
 /// `leveling`: bed leveling before the print (DO-01), nil = printer default. Only sent with a print start.
-private struct SendBody: Encodable { var start: Bool; var confirm: Bool; var leveling: Bool? }
+/// `lanes`: {"<model filament, 1-based>": <printer tool of the chosen lane>} (AFC, server 0.8.0).
+private struct SendBody: Encodable {
+    var start: Bool
+    var confirm: Bool
+    var leveling: Bool?
+    var lanes: [String: Int]?
+}
+private struct AdjustBody: Encodable {
+    var kind: String
+    var id: String
+    var value: AdjustValue
+    var confirm: Bool
+}
+private struct ProfileBody: Encodable {
+    var machineFile: String?
+
+    enum CodingKeys: String, CodingKey { case machineFile = "machine_file" }
+
+    // null means "back to the standard profile", so it must be sent, not left out
+    func encode(to encoder: Encoder) throws {
+        var c = encoder.container(keyedBy: CodingKeys.self)
+        try c.encode(machineFile, forKey: .machineFile)
+    }
+}
+
+/// What a printer control changes (`POST /api/printers/{id}/adjust`).
+enum AdjustKind: String, Sendable { case heater, fan, light, speed }
+
+/// A number (temperature, fan %, speed %) or on/off (light).
+enum AdjustValue: Encodable, Sendable, Equatable {
+    case number(Double)
+    case flag(Bool)
+
+    func encode(to encoder: Encoder) throws {
+        var c = encoder.singleValueContainer()
+        switch self {
+        case .number(let v): try c.encode(v)
+        case .flag(let v): try c.encode(v)
+        }
+    }
+}
+
+enum CameraKind: String, Sendable { case snapshot, stream }
 
 /// Client for the PrintShare server API (see printshare/api.py).
 actor APIClient {
@@ -205,6 +247,83 @@ actor APIClient {
                                        body: ControlBody(action: action, confirm: action == "cancel"))
     }
 
+    // MARK: printer control (server 0.10.0)
+
+    func controls(printer: String) async throws -> Controls {
+        try await request("/api/printers/\(enc(printer))/controls", timeout: 20)
+    }
+
+    /// `confirm`: the user agreed to change a heater / stop a fan while a print runs (else the server answers 409).
+    /// Never repeated automatically.
+    func adjust(printer: String, kind: AdjustKind, id: String, value: AdjustValue, confirm: Bool = false) async throws {
+        let _: Ack = try await request("/api/printers/\(enc(printer))/adjust", method: "POST",
+                                       body: AdjustBody(kind: kind.rawValue, id: id, value: value, confirm: confirm),
+                                       timeout: 20)
+    }
+
+    func temperatures(printer: String) async throws -> TempHistory {
+        try await request("/api/printers/\(enc(printer))/temperatures", timeout: 20)
+    }
+
+    // MARK: camera (server 0.9.0) - the picture comes through the server, so it works away from home too
+
+    func cameraInfo(printer: String) async throws -> CameraInfo {
+        try await request("/api/printers/\(enc(printer))/camera", timeout: 20)
+    }
+
+    /// URL + auth header for the camera image. Snapshots get a changing `t` so no cache answers.
+    func cameraRequest(printer: String, kind: CameraKind, width: Int? = nil, timeout: TimeInterval = 15) async -> URLRequest? {
+        var query: [String] = []
+        if let width { query.append("w=\(width)") }
+        if kind == .snapshot { query.append("t=\(Int(Date().timeIntervalSince1970 * 1000))") }
+        let path = "/api/printers/\(enc(printer))/camera/\(kind.rawValue)" + (query.isEmpty ? "" : "?" + query.joined(separator: "&"))
+        guard let url = URL(string: await base() + path) else { return nil }
+        var req = URLRequest(url: url)
+        req.timeoutInterval = timeout
+        req.allHTTPHeaderFields = headers(json: false)
+        req.cachePolicy = .reloadIgnoringLocalCacheData
+        return req
+    }
+
+    /// One camera image (JPEG).
+    func cameraSnapshot(printer: String, width: Int? = nil) async throws -> Data {
+        guard let req = await cameraRequest(printer: printer, kind: .snapshot, width: width) else {
+            throw APIError(message: l10n(.cameraOffline), status: 0, detail: "bad URL")
+        }
+        let (data, res): (Data, URLResponse)
+        do { (data, res) = try await session.data(for: req) } catch { throw networkError(error) }
+        let status = (res as? HTTPURLResponse)?.statusCode ?? 0
+        guard (200..<300).contains(status) else { throw failure(data, status: status) }
+        return data
+    }
+
+    // MARK: own printer profiles (server 0.7.0)
+
+    func profiles() async throws -> [UserProfile] { try await request("/api/profiles", timeout: 30) }
+
+    func deleteProfile(file: String) async throws {
+        let _: Ack = try await request("/api/profiles/\(enc(file))", method: "DELETE")
+    }
+
+    func printerProfile(printer: String) async throws -> PrinterProfile {
+        try await request("/api/printers/\(enc(printer))/profile")
+    }
+
+    /// nil = back to the standard (system) profile.
+    func setPrinterProfile(printer: String, machineFile: String?) async throws -> PrinterProfile {
+        try await request("/api/printers/\(enc(printer))/profile", method: "PUT",
+                          body: ProfileBody(machineFile: machineFile), timeout: 30)
+    }
+
+    /// Upload an OrcaSlicer preset (JSON) or preset bundle (zip) as raw body. Never retried on the other address.
+    func uploadProfile(fileURL: URL, name: String) async throws -> [UserProfile] {
+        let target = "\(await base())/api/profiles?filename=\(enc(name))"
+        let (data, res) = try await fetch(target, method: "POST", body: nil, timeout: 120, file: fileURL,
+                                          contentType: "application/octet-stream")
+        guard (200..<300).contains(res.statusCode) else { throw failure(data, status: res.statusCode) }
+        return try decode([UserProfile].self, data, status: res.statusCode)
+    }
+
     func files(link: String) async throws -> [ModelFile] {
         try await request("/api/files?link=\(enc(link))", timeout: 60)
     }
@@ -220,9 +339,15 @@ actor APIClient {
     func jobs() async throws -> [JobSummary] { try await request("/api/jobs") }
     func job(id: String) async throws -> Job { try await request("/api/jobs/\(enc(id))") }
 
-    func send(job id: String, start: Bool, leveling: Bool? = nil) async throws {
+    /// `lanes` only when the printer reports lanes; sent with uploads too, so the file on the printer matches.
+    func send(job id: String, start: Bool, leveling: Bool? = nil, lanes: [Int: Int]? = nil) async throws {
+        var mapping: [String: Int]?
+        if let lanes, !lanes.isEmpty {
+            mapping = Dictionary(uniqueKeysWithValues: lanes.map { (String($0.key), $0.value) })
+        }
         let _: Ack = try await request("/api/jobs/\(enc(id))/send", method: "POST",
-                                       body: SendBody(start: start, confirm: start, leveling: start ? leveling : nil))
+                                       body: SendBody(start: start, confirm: start, leveling: start ? leveling : nil,
+                                                      lanes: mapping))
     }
 
     /// Layer data for the G-code viewer. Format 2 (server 0.6.0) adds the filament per path; older servers ignore
@@ -241,7 +366,7 @@ actor APIClient {
         try await download("/api/jobs/\(enc(id))/gcode", folder: "gcode-\(id)", name: name)
     }
 
-    /// One file of a model (index as in `files(link:)`) for the 3D view, into a temporary file (server 0.8.1).
+    /// One file of a model (index as in `files(link:)`) for the 3D view, into a temporary file (server 0.10.1).
     func downloadModelFile(link: String, file: String?, name: String) async throws -> URL {
         let path = "/api/model-file?link=\(enc(link))" + (file.map { "&file=\(enc($0))" } ?? "")
         return try await download(path, folder: "model-\(UUID().uuidString)", name: name)

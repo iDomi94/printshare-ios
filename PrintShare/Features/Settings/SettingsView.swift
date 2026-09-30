@@ -7,6 +7,7 @@ struct SettingsView: View {
     @State private var serverVersion = ""
     @State private var route: Route?
     @State private var confirmDisconnect = false
+    @State private var printers: [Printer] = []
 
     private var appVersion: String {
         Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "–"
@@ -29,6 +30,17 @@ struct SettingsView: View {
                     PSDivider()
                     PSRow(icon: "rectangle.portrait.and.arrow.right", label: t(.disconnect), danger: true) {
                         confirmDisconnect = true
+                    }
+                }
+            }
+
+            if server != nil && !printers.isEmpty {
+                PSSection(title: t(.tabPrinters)) {
+                    ForEach(Array(printers.enumerated()), id: \.element.id) { i, p in
+                        if i > 0 { PSDivider() }
+                        PSRow(icon: "printer", label: p.name, sub: t(.printerProfile)) {
+                            app.push(.printerProfile(id: p.id, name: p.name))
+                        }
                     }
                 }
             }
@@ -77,7 +89,8 @@ struct SettingsView: View {
     }
 
     private func loadInfo() async {
-        guard let api = app.api else { online = nil; return }
+        guard let api = app.api else { online = nil; printers = []; return }
+        printers = (try? await api.printers()) ?? []
         do {
             let info = try await api.info()
             online = true
