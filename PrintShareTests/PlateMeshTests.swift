@@ -9,8 +9,8 @@ final class PlateMeshTests: XCTestCase {
     private let blue = SIMD3<Float>(0, 0, 1)
 
     /// Two layers on a 200×100 bed, unit 10: an L-shaped perimeter (type 0, tool 1) and a straight infill line (type 1, tool 0).
-    private func preview(bounds: [Double]? = nil) -> Preview {
-        Preview(version: 2, unit: 10, types: ["Outer wall", "Sparse infill"], bounds: bounds, bed: [200, 100], layers: [
+    private func preview(bounds: [Double]? = nil) -> PrintShare.Preview {
+        PrintShare.Preview(version: 2, unit: 10, types: ["Outer wall", "Sparse infill"], bounds: bounds, bed: [200, 100], layers: [
             .init(z: 0.2, paths: [[0, 1, 1000, 500, 1200, 500, 1200, 700], [1, 0, 1000, 600, 1100, 600]]),
             .init(z: 0.4, paths: [[0, 1, 1000, 500, 1200, 500]]),
         ], filamentColors: ["#FF0000", "#0000FF"])
@@ -93,7 +93,7 @@ final class PlateMeshTests: XCTestCase {
     }
 
     func testFormatOneAndMissingBed() {
-        let p = Preview(version: 1, unit: 10, types: ["Outer wall"], layers: [.init(z: 0.3, paths: [[0, 0, 0, 100, 0]])])
+        let p = PrintShare.Preview(version: 1, unit: 10, types: ["Outer wall"], layers: [.init(z: 0.3, paths: [[0, 0, 0, 100, 0]])])
         let mesh = PlateMesh.build(p, colors: [0: red], byTool: true)  // format 1: every path is filament 1 (key 0)
         XCTAssertEqual(mesh.bed, SIMD2(256, 256))
         XCTAssertEqual(mesh.layers[0].indices.count, 12)
