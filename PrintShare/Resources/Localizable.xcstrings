@@ -3537,6 +3537,22 @@
         }
       }
     },
+    "preview3dHint": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mit einem Finger drehen, mit zwei Fingern zoomen, doppelt tippen setzt die Ansicht zurück. Der Regler blendet die Schichten darüber aus."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Drag to rotate, pinch to zoom, double-tap to reset the view. The slider hides the layers above."
+          }
+        }
+      }
+    },
     "previewEmpty": {
       "localizations": {
         "de": {
@@ -5485,6 +5501,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Version"
+          }
+        }
+      }
+    },
+    "view3d": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "3D"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "3D"
           }
         }
       }

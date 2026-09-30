@@ -21,6 +21,11 @@ if it contradicts `printshare/api.py` the server wins; otherwise the simplest id
     `bounds` (model extent without start code) and `filament_colors`. Format 1 (servers 0.5.x, no `version` field)
     is still read. Colour mode (by filament) is the default when more than one filament is used, like the Expo app;
     the view opens on the last layer.
+  - **3D preview** (beyond the Expo app, 2026-09-30): third segment "3D" next to "Modell / Ganze Platte". Built from the
+    same preview paths (no G-code in the app): each path becomes a ridge (top at the layer's z, feet one layer height
+    lower, 0.42 mm wide, mitred corners), one SceneKit node per layer so the slider hides the layers above, vertex
+    colours by line type or filament. Above 300 000 visible segments it falls back to thin lines (memory). SCNView with
+    turntable orbit around the model centre; the page doesn't scroll in 3D so dragging rotates.
   - **Multicolour** (MA-04): for a chosen `.3mf` the prepare screen calls `/api/inspect`; with more than one used colour
     the single material row is replaced by one row per colour and `options.filaments` (one entry per project filament,
     `null` = the default material) is sent. Any inspect error falls back to the single-colour flow.

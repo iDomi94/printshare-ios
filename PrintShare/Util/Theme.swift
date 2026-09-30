@@ -13,10 +13,16 @@ extension Color {
 
     /// `#RRGGBB` (or `RRGGBB`) as sent by the server for filament colours; nil when it is not one.
     init?(hexString: String?) {
-        guard var h = hexString?.trimmingCharacters(in: .whitespaces) else { return nil }
+        guard let v = Self.hexValue(hexString) else { return nil }
+        self.init(hex: v)
+    }
+
+    /// `#RRGGBB` (or `RRGGBB`) as a number; nil when it is not one.
+    static func hexValue(_ s: String?) -> UInt32? {
+        guard var h = s?.trimmingCharacters(in: .whitespaces) else { return nil }
         if h.hasPrefix("#") { h.removeFirst() }
         guard h.count >= 6, let v = UInt32(h.prefix(6), radix: 16) else { return nil }
-        self.init(hex: v)
+        return v
     }
 
     static func dynamic(light: UInt32, dark: UInt32) -> Color {

@@ -10,7 +10,7 @@ server slices it with OrcaSlicer and uploads the G-code to the printer. This app
 
 - iOS 17+, iPhone and iPad, German and English (language can be switched in the app)
 - No third-party packages, only Apple frameworks
-- Share extension (links, text, files), QR pairing, home / away server address, 2D G-code preview (by line type or
+- Share extension (links, text, files), QR pairing, home / away server address, G-code preview in 2D and 3D (by line type or
   filament), multicolour 3MF projects (material per colour), G-code sharing, lane choice for AFC / CANVAS,
   printer camera, printer control (temperatures with history, fans, light, speed), power on/off through Home Assistant,
   own OrcaSlicer printer / quality / material profiles, model files in 3D
