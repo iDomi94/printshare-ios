@@ -1,6 +1,6 @@
 name: PrintShare
 options:
-  bundleIdPrefix: io.github.halvar20000
+  bundleIdPrefix: com.dominiqueherbrigpersonalteam
   deploymentTarget:
     iOS: "17.0"
   developmentLanguage: de
@@ -27,14 +27,14 @@ targets:
         embed: true
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: io.github.halvar20000.printshare
+        PRODUCT_BUNDLE_IDENTIFIER: com.dominiqueherbrigpersonalteam.printshare
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
     entitlements:
       path: PrintShare/PrintShare.entitlements
       properties:
         com.apple.security.application-groups:
-          - group.io.github.halvar20000.printshare
+          - group.com.dominiqueherbrigpersonalteam.printshare
     info:
       path: PrintShare/Info.plist
       properties:
@@ -59,7 +59,7 @@ targets:
         NSCameraUsageDescription: PrintShare uses the camera only to scan the pairing QR code of your server.
         ITSAppUsesNonExemptEncryption: false
         CFBundleURLTypes:
-          - CFBundleURLName: io.github.halvar20000.printshare
+          - CFBundleURLName: com.dominiqueherbrigpersonalteam.printshare
             CFBundleURLSchemes: [printshare]
   ShareExtension:
     type: app-extension
@@ -70,14 +70,14 @@ targets:
       - path: PrintShare/Storage/SharedInbox.swift
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: io.github.halvar20000.printshare.share-extension
+        PRODUCT_BUNDLE_IDENTIFIER: com.dominiqueherbrigpersonalteam.printshare.share-extension
         APPLICATION_EXTENSION_API_ONLY: YES
         SKIP_INSTALL: YES
     entitlements:
       path: ShareExtension/ShareExtension.entitlements
       properties:
         com.apple.security.application-groups:
-          - group.io.github.halvar20000.printshare
+          - group.com.dominiqueherbrigpersonalteam.printshare
     info:
       path: ShareExtension/Info.plist
       properties:
@@ -99,7 +99,7 @@ targets:
       - target: PrintShare
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: io.github.halvar20000.printshare.tests
+        PRODUCT_BUNDLE_IDENTIFIER: com.dominiqueherbrigpersonalteam.printshare.tests
         GENERATE_INFOPLIST_FILE: YES
         # test doubles (URLProtocol stub) share mutable state; the app itself builds in Swift 6 mode
         SWIFT_VERSION: "5.0"

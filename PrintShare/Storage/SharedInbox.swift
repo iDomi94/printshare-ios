@@ -11,7 +11,7 @@ struct SharedItem: Codable, Sendable, Equatable {
 
 /// Hand-over folder in the App Group container, used by the share extension (writer) and the app (reader).
 enum SharedInbox {
-    static let groupID = "group.io.github.halvar20000.printshare"
+    static let groupID = "group.com.dominiqueherbrigpersonalteam.printshare"
     private static let manifest = "inbox.json"
 
     static func container(_ override: URL? = nil) -> URL? {

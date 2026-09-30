@@ -109,6 +109,8 @@ if it contradicts `printshare/api.py` the server wins; otherwise the simplest id
   as a string, so it would have found nothing; fixed. `KeychainMigrationTests` writes an item the way Expo does, but
   the unsigned CI test host has no keychain access, so that test is skipped there (run it in Xcode with a team set).
   Still not tried on a phone that has the Expo build installed.
+  Since the bundle id changed to `com.dominiqueherbrigpersonalteam.printshare` (2026-09-30) the app can no longer read
+  the Expo build's keychain (another app id); the migration stays but finds nothing, users pair once more.
 - **Tests**: XCTest. The test target compiles in Swift 5 language mode (mutable URLProtocol test doubles); the app itself is
   Swift 6 with complete strict concurrency.
 - **Jobs list** has no swipe-to-delete, because the Expo list does not offer it either.

@@ -6,8 +6,8 @@ name: TestFlight
 #   ASC_KEY_ID         App Store Connect API key id        (Users and Access -> Integrations -> App Store Connect API,
 #   ASC_ISSUER_ID      issuer id of that key                role "App Manager" or "Admin", for cloud signing)
 #   ASC_KEY_P8         contents of the downloaded AuthKey_<id>.p8 file
-# The app id io.github.halvar20000.printshare (+ .share-extension) and the App Group
-# group.io.github.halvar20000.printshare must exist in the account; automatic signing creates the profiles.
+# The app id com.dominiqueherbrigpersonalteam.printshare (+ .share-extension) and the App Group
+# group.com.dominiqueherbrigpersonalteam.printshare must exist in the account; automatic signing creates the profiles.
 
 on:
   workflow_dispatch:

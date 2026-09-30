@@ -8,7 +8,8 @@ Native Swift 6 + SwiftUI port of the Expo app in `mobile/` of the PrintShare pro
 
 State (2026-09-30): all screens and flows of the Expo app are written (Home, Discover, Model detail,
 Prepare, Job with review and confirmation, Preview, Jobs, Printers, Settings, Connect/QR), plus the share extension.
-Same bundle id / App Group / URL scheme as the Expo build. Caught up with **server 0.10.0** (upstream `7c03c58`):
+Own bundle id `com.dominiqueherbrigpersonalteam.printshare` and App Group `group.com.dominiqueherbrigpersonalteam.printshare`
+(Dominique's account, since 2026-09-30; before: the Expo build's `io.github.halvar20000.printshare`), same URL scheme. Caught up with **server 0.10.0** (upstream `7c03c58`):
 bed leveling per print (`leveling`), multicolour 3MF projects (`/api/inspect`, `options.filaments`, grams per colour),
 preview format 2 (`?format=2`, filament per path, `bounds`, `filament_colors`), G-code sharing (`/api/jobs/<id>/gcode`),
 AFC lane choice (`status.lanes`, `send.lanes`, #6; shown as "Slot N", chosen already before slicing, see PORTING_NOTES), camera through the server (live MJPEG / stills, #3), printer control
