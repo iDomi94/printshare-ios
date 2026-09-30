@@ -104,7 +104,9 @@ struct PSScreen<Content: View, Footer: View>: View {
                 VStack(spacing: 10) { footer }
                     .padding(Theme.space).padding(.bottom, 4)
                     .frame(maxWidth: 640).frame(maxWidth: .infinity)
-                    .background(Theme.bg.overlay(alignment: .top) { Rectangle().fill(Theme.line).frame(height: 0.5) })
+                    .overlay(alignment: .top) { Rectangle().fill(Theme.line).frame(height: 0.5) }
+                    // a ShapeStyle background reaches under the home indicator, so nothing scrolls through below the buttons
+                    .background(Theme.bg, ignoresSafeAreaEdges: .bottom)
             }
         }
     }

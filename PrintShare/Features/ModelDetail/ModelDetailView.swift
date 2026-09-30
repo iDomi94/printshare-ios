@@ -12,6 +12,7 @@ struct ModelDetailView: View {
     @State private var slide = 0
     @State private var expanded = false
     @State private var attempt = 0
+    @State private var showFiles = false
 
     private static let sourceNames = ["printables": "Printables", "thingiverse": "Thingiverse"]
 
@@ -23,6 +24,14 @@ struct ModelDetailView: View {
         .navigationTitle("")
         .navigationBarTitleDisplayMode(.inline)
         .task(id: attempt) { await load() }
+        .sheet(isPresented: $showFiles) {
+            if let m = model {
+                ModelFilesSheet(link: m.hit.url) { f in
+                    showFiles = false
+                    app.push(.prepare(PrepareArgs(link: m.hit.url, edit: EditArgs(file: String(f.index)))))
+                }
+            }
+        }
     }
 
     private func placeholder(_ t: L10n) -> some View {
@@ -44,6 +53,8 @@ struct ModelDetailView: View {
         let text = [m.summary, m.description].filter { !$0.isEmpty }.joined(separator: "\n\n")
         let long = text.count > 400
         let srcName = Self.sourceNames[m.hit.source] ?? m.hit.source
+        var openFiles: (() -> Void)?
+        if sliceable > 0 { openFiles = { showFiles = true } }
         return PSScreen {
             if !m.images.isEmpty { gallery(m.images) }
 
@@ -58,7 +69,8 @@ struct ModelDetailView: View {
 
             PSSection {
                 PSRow(icon: "doc", label: sliceable == 1 ? t(.printableFile)
-                      : sliceable > 0 ? t(.printableFiles, ["n": String(sliceable)]) : t(.noPrintableFiles))
+                      : sliceable > 0 ? t(.printableFiles, ["n": String(sliceable)]) : t(.noPrintableFiles),
+                      action: openFiles)
                 if let l = m.hit.license, !l.isEmpty { PSDivider(); PSRow(icon: "rosette", label: t(.license), sub: l) }
                 if let c = m.category, !c.isEmpty { PSDivider(); PSRow(icon: "tag", label: t(.category), value: c) }
             }

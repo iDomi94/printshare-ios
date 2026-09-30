@@ -205,10 +205,14 @@ final class APIClientTests: XCTestCase {
         defer { try? FileManager.default.removeItem(at: file.deletingLastPathComponent()) }
         XCTAssertEqual(file.lastPathComponent, "benchy.gcode")
         XCTAssertEqual(try String(contentsOf: file, encoding: .utf8), "G1 X1\n")
+        let model = try await api.downloadModelFile(link: "https://www.printables.com/model/1-a", file: "3", name: "a/b.stl")
+        defer { try? FileManager.default.removeItem(at: model.deletingLastPathComponent()) }
+        XCTAssertEqual(model.lastPathComponent, "b.stl")  // no path from the name
         let urls = lock.withLock { seen.map(\.absoluteString) }
         XCTAssertEqual(urls, ["http://home.test:8484/api/jobs/j1/preview?format=2",
                               "http://home.test:8484/api/inspect?link=upload%3Aabc&file=2",
-                              "http://home.test:8484/api/jobs/j1/gcode"])
+                              "http://home.test:8484/api/jobs/j1/gcode",
+                              "http://home.test:8484/api/model-file?link=https%3A%2F%2Fwww.printables.com%2Fmodel%2F1-a&file=3"])
     }
 
     func testUploadIsRawBody() async throws {
