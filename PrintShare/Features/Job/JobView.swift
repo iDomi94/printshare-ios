@@ -167,6 +167,9 @@ struct JobView: View {
         let r = job.result
         let profiles = r?.profiles ?? [:]
         let changed = Self.changedValues(t, r?.overrides ?? [:])
+        // plate options only from servers that know them (0.14.0 reports copies_requested)
+        let arranged = r?.knowsPlate == true ? PlateOptions.summary(t, job.request.options, placed: r?.copies) : ""
+        let fewer = PlateOptions.fewerHint(t, r)
         let name = Format.jobName(file: r?.sourceFile, link: job.request.link)
         let done = job.state == .started
         let uploaded = job.state == .uploaded
@@ -194,6 +197,7 @@ struct JobView: View {
             Text(name).font(.subheadline).foregroundStyle(Theme.sub).lineLimit(2).padding(.bottom, 16)
 
             if !actionError.isEmpty { PSBanner(kind: .error, text: actionError) }
+            if let fewer { PSBanner(kind: .warn, text: fewer) }
 
             HStack(spacing: 10) {
                 PSStat(label: t(.printTime), value: Format.printTime(r?.printTime))
@@ -213,6 +217,10 @@ struct JobView: View {
                 PSRow(label: t(.plate), value: Format.plateName(t, profiles["bed_type"]))
                 PSDivider()
                 PSRow(label: t(.changed), sub: changed.isEmpty ? t(.changedNone) : changed.joined(separator: " · "))
+                if !arranged.isEmpty {
+                    PSDivider()
+                    PSRow(label: t(.arrange), sub: arranged)
+                }
                 PSDivider()
                 PSRow(icon: "eye", label: t(.showPreview)) { app.push(.preview(job.id)) }
                 PSDivider()

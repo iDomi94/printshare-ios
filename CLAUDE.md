@@ -9,7 +9,7 @@ Native Swift 6 + SwiftUI port of the Expo app in `mobile/` of the PrintShare pro
 State (2026-09-30): all screens and flows of the Expo app are written (Home, Discover, Model detail,
 Prepare, Job with review and confirmation, Preview, Jobs, Printers, Settings, Connect/QR), plus the share extension.
 Own bundle id `com.dominiqueherbrigpersonalteam.printshare` and App Group `group.com.dominiqueherbrigpersonalteam.printshare`
-(Dominique's account, since 2026-09-30; before: the Expo build's `io.github.halvar20000.printshare`), same URL scheme. Caught up with **server 0.13.1** (upstream `509c409`; 0.11-0.13 in PORTING_NOTES: slot defaults, power via Home Assistant #9, own quality/material presets #7, visible name **PocketPrint3D**):
+(Dominique's account, since 2026-09-30; before: the Expo build's `io.github.halvar20000.printshare`), same URL scheme. Caught up with **server 0.14.0** (upstream `509c409` + PR #14; 0.11-0.14 in PORTING_NOTES: slot defaults, power via Home Assistant #9, own quality/material presets #7, visible name **PocketPrint3D**, copies / tilt / size per print):
 bed leveling per print (`leveling`), multicolour 3MF projects (`/api/inspect`, `options.filaments`, grams per colour),
 preview format 2 (`?format=2`, filament per path, `bounds`, `filament_colors`), G-code sharing (`/api/jobs/<id>/gcode`),
 AFC lane choice (`status.lanes`, `send.lanes`, #6; shown as "Slot N", chosen already before slicing, see PORTING_NOTES), camera through the server (live MJPEG / stills, #3), printer control
@@ -17,7 +17,7 @@ AFC lane choice (`status.lanes`, `send.lanes`, #6; shown as "Slot N", chosen alr
 Beyond the Expo app: model files in 3D before slicing (tap "X printable files" on the model page; STL and 3MF via own
 readers (3MF: own zip reader + XMLParser, Orca/Bambu/Prusa object colours), OBJ via ModelIO, shown with SceneKit, needs
 server 0.10.1 `/api/model-file`, merged upstream), TestFlight workflow on release tags `vX.Y.Z` (version from the tag, `CHANGELOG.md` section as "What to Test", like iDomi94/Lademonitor-App).
-Texts are generated from the 0.13.1 `i18n.ts`. When upstream changes, compare `mobile/` and `printshare/api.py` since
+Texts are generated from the 0.14.0 `i18n.ts`. When upstream changes, compare `mobile/` and `printshare/api.py` since
 the commit above and port the difference.
 
 **Verified:** CI (macos-latest): builds without errors or warnings in Swift 6 mode, all unit tests green. Unit tests cover URL normalisation,

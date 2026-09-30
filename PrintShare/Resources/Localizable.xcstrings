@@ -97,6 +97,38 @@
         }
       }
     },
+    "arrange": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Auf der Platte"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "On the plate"
+          }
+        }
+      }
+    },
+    "arrangeHint": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mehrere Kopien ordnet der Slicer automatisch an – so viele, wie auf die Platte passen."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The slicer arranges several copies automatically – as many as fit on the plate."
+          }
+        }
+      }
+    },
     "authorSettings": {
       "localizations": {
         "de": {
@@ -877,6 +909,54 @@
           "stringUnit": {
             "state": "translated",
             "value": "Cool down"
+          }
+        }
+      }
+    },
+    "copies": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Anzahl"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copies"
+          }
+        }
+      }
+    },
+    "copiesFit": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nur {n} von {m} Kopien passen auf die Platte."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Only {n} of {m} copies fit on the plate."
+          }
+        }
+      }
+    },
+    "copiesV": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "{n}×"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "{n}×"
           }
         }
       }
@@ -4481,6 +4561,22 @@
         }
       }
     },
+    "size": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Größe"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Size"
+          }
+        }
+      }
+    },
     "slice": {
       "localizations": {
         "de": {
@@ -5101,6 +5197,134 @@
           "stringUnit": {
             "state": "translated",
             "value": "Thingiverse search: add a Thingiverse app token on the server (thingiverse.com/developers)."
+          }
+        }
+      }
+    },
+    "tilt": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lage"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Position"
+          }
+        }
+      }
+    },
+    "tiltAuto": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Automatisch hinlegen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lay flat automatically"
+          }
+        }
+      }
+    },
+    "tiltBack": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nach hinten kippen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tip backward"
+          }
+        }
+      }
+    },
+    "tiltForward": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nach vorne kippen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tip forward"
+          }
+        }
+      }
+    },
+    "tiltLeft": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nach links kippen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tip to the left"
+          }
+        }
+      }
+    },
+    "tiltNone": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wie im Modell"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "As in the model"
+          }
+        }
+      }
+    },
+    "tiltRight": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nach rechts kippen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tip to the right"
+          }
+        }
+      }
+    },
+    "tiltUpside": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Auf den Kopf stellen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Upside down"
           }
         }
       }

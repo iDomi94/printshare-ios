@@ -5,7 +5,7 @@ struct PrepareView: View {
     let args: PrepareArgs
 
     private enum SheetKind: Identifiable, Hashable {
-        case printer, filament, process, plate, file
+        case printer, filament, process, plate, file, tilt
         case color(Int)  // material for filament n of a multicolour model (or 1 with printer slots)
         case slot(Int)  // printer slot (AFC lane) for filament n
 
@@ -16,6 +16,7 @@ struct PrepareView: View {
             case .process: return "process"
             case .plate: return "plate"
             case .file: return "file"
+            case .tilt: return "tilt"
             case .color(let n): return "color\(n)"
             case .slot(let n): return "slot\(n)"
             }
@@ -42,6 +43,10 @@ struct PrepareView: View {
     @State private var brim = "auto"
     @State private var infill: Int?  // nil = profile default
     @State private var walls: Int?
+    // plate (server 0.14.0): kept when the printer changes, taken over when editing a job
+    @State private var copies: Int
+    @State private var tilt: PlateTilt
+    @State private var scale: Int
     @State private var showMore = false
     @State private var sheet: SheetKind?
     @State private var submitting = false
@@ -55,6 +60,9 @@ struct PrepareView: View {
         _link = State(initialValue: args.link)
         _name = State(initialValue: args.fileName ?? args.edit?.name ?? "")
         _file = State(initialValue: args.edit?.file)
+        _copies = State(initialValue: args.edit?.options?.copies ?? 1)
+        _tilt = State(initialValue: PlateTilt(options: args.edit?.options))
+        _scale = State(initialValue: args.edit?.options?.scale ?? 100)
     }
 
     private var files: [ModelFile]? {
@@ -235,6 +243,17 @@ struct PrepareView: View {
                 PSSegmented(values: opts.supports, selection: $supports) { supportLabel(t, $0) }
             }
         }
+        PSSection(title: t(.arrange), footer: copies > 1 ? t(.arrangeHint) : nil) {
+            PSField(label: t(.copies)) {
+                PSStepper(value: copies, range: 1...PlateOptions.maxCopies, format: { t(.copiesV, ["n": String($0)]) }) { copies = $0 }
+            }
+            PSDivider()
+            PSRow(icon: "cube", label: t(.tilt), value: t(tilt.label)) { sheet = .tilt }
+            PSDivider()
+            PSField(label: t(.size), hint: scale == 100 ? t(.standard) : nil) {
+                PSStepper(value: scale, range: PlateOptions.scaleRange, step: 25, format: { "\($0) %" }) { scale = $0 }
+            }
+        }
         Button { Haptics.tap(); withAnimation { showMore.toggle() } } label: {
             HStack {
                 Text(t(.more)).font(.body).foregroundStyle(Theme.accent)
@@ -329,6 +348,7 @@ struct PrepareView: View {
         case .process: return t(.quality)
         case .plate: return t(.plate)
         case .file: return t(.file)
+        case .tilt: return t(.tilt)
         case .color(let n): return multi ? t(.colorN, ["n": String(n)]) : t(.material)
         case .slot(let n): return multi ? t(.colorN, ["n": String(n)]) : t(.slot)
         }
@@ -341,6 +361,7 @@ struct PrepareView: View {
         case .process: return process
         case .plate: return plate
         case .file: return file
+        case .tilt: return tilt.rawValue
         case .color(let n): return material(for: n)
         case .slot(let n): return slotTools[n].map(String.init)
         }
@@ -367,6 +388,8 @@ struct PrepareView: View {
             return (files ?? []).map { Choice(value: String($0.index), label: $0.name, sub: $0.size.map(Format.mb)) }
         case .slot:
             return LanePlan.choices(t, lanes: lanes)
+        case .tilt:
+            return PlateTilt.allCases.map { Choice(value: $0.rawValue, label: t($0.label)) }
         }
     }
 
@@ -377,6 +400,7 @@ struct PrepareView: View {
         case .process: Task { await changeProcess(v) }
         case .plate: plate = v
         case .file: file = v
+        case .tilt: tilt = PlateTilt(rawValue: v) ?? .asModel
         case .color(let n): perColor[n] = v
         case .slot(let n):
             // a new slot brings its own material: drop an earlier material choice for this colour
@@ -522,6 +546,7 @@ struct PrepareView: View {
         if brim != d.brim { o.brim = brim }
         if let infill, infill != d.infill { o.infill = infill }
         if let walls, walls != d.walls { o.walls = walls }
+        PlateOptions.apply(copies: copies, tilt: tilt, scale: scale, to: &o)
         if multi, let colors {
             let used = Set(colors.usedFilaments.map(\.index))
             o.filaments = colors.filaments.map { f -> String? in
