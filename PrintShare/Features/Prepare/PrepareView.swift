@@ -6,7 +6,8 @@ struct PrepareView: View {
 
     private enum SheetKind: Identifiable, Hashable {
         case printer, filament, process, plate, file
-        case color(Int)  // material for filament n of a multicolour model
+        case color(Int)  // material for filament n of a multicolour model (or 1 with printer slots)
+        case slot(Int)  // printer slot (AFC lane) for filament n
 
         var id: String {
             switch self {
@@ -16,6 +17,7 @@ struct PrepareView: View {
             case .plate: return "plate"
             case .file: return "file"
             case .color(let n): return "color\(n)"
+            case .slot(let n): return "slot\(n)"
             }
         }
     }
@@ -28,6 +30,9 @@ struct PrepareView: View {
     @State private var file: String?
     @State private var printers: [Printer] = []
     @State private var kinds: [String: PrinterKind] = [:]
+    @State private var statuses: [String: PrinterStatus] = [:]
+    /// Printer slot (tool number) per model colour, chosen by the user; others follow `LanePlan.tools`.
+    @State private var slotChoice: [Int: Int] = [:]
     @State private var printer = ""
     @State private var opts: Options?
     @State private var filament = ""
@@ -79,6 +84,36 @@ struct PrepareView: View {
     private var colorsLoading: Bool { colorKey != nil && colorInfo?.key != colorKey }
     private var multi: Bool { colors?.isMulticolor ?? false }
 
+    // Printer slots (AFC lanes, issue #6): with a multi-slot printer the user picks the slot per colour; its
+    // material and colour come from the printer and the slicing material follows the slot.
+    private var lanes: [Lane] { LanePlan.usable(statuses[printer]) }
+    private var slotMode: Bool { !lanes.isEmpty }
+
+    private var modelColours: [LanePlan.Colour] {
+        if multi, let colors {
+            return colors.usedFilaments.map { LanePlan.Colour(index: $0.index, color: $0.color, preset: perColor[$0.index] ?? filament) }
+        }
+        return [LanePlan.Colour(index: 1, color: nil, preset: perColor[1] ?? filament)]
+    }
+
+    private var slotTools: [Int: Int] { LanePlan.tools(colours: modelColours, lanes: lanes, choice: slotChoice) }
+
+    private func lane(for index: Int) -> Lane? {
+        guard let tool = slotTools[index] else { return nil }
+        return lanes.first { $0.tool == tool }
+    }
+
+    /// Filament preset for colour `index`: the user's own choice, else the one matching the slot's material.
+    private func material(for index: Int) -> String {
+        if !multi && !slotMode { return filament }
+        if let own = perColor[index] { return own }
+        if slotMode, let p = LanePlan.preset(for: lane(for: index), materials: opts?.materials ?? [],
+                                             preferred: filament, fallback: opts?.defaults.filament) {
+            return p
+        }
+        return filament
+    }
+
     var body: some View {
         let t = app.l10n
         Group {
@@ -99,6 +134,7 @@ struct PrepareView: View {
         .task(id: link) { await listFiles() }
         .task { await loadPrinters() }
         .task(id: printer) { await loadOptions() }
+        .task(id: printer) { await refreshStatus() }
         .task(id: colorKey) { await inspectColors() }
     }
 
@@ -160,19 +196,32 @@ struct PrepareView: View {
     @ViewBuilder
     private func optionSections(_ t: L10n, _ opts: Options) -> some View {
         let d = opts.defaults
-        ForEach(Format.comboWarnings(t, filament: filament, plate: plate), id: \.self) { PSBanner(kind: .warn, text: $0) }
+        ForEach(Format.comboWarnings(t, filament: multi ? filament : material(for: 1), plate: plate), id: \.self) { PSBanner(kind: .warn, text: $0) }
         if multi, let colors {
-            PSSection(title: t(.colors), footer: t(colors.painted ? .colorsPainted : .colorsHint)) {
+            PSSection(title: t(.colors), footer: slotMode ? t(.slotsPrepareHint) : t(colors.painted ? .colorsPainted : .colorsHint)) {
                 ForEach(Array(colors.usedFilaments.enumerated()), id: \.element.index) { i, f in
                     if i > 0 { PSDivider() }
-                    PSRow(label: t(.colorN, ["n": String(f.index)]), value: Format.shortName(perColor[f.index] ?? filament),
-                          action: { sheet = .color(f.index) },
-                          right: { ColorDot(color: Color(hexString: f.color)).padding(.leading, 10) })
+                    if slotMode {
+                        slotRow(t, index: f.index, label: t(.colorN, ["n": String(f.index)]), modelColor: f.color)
+                    } else {
+                        PSRow(label: t(.colorN, ["n": String(f.index)]), value: Format.shortName(perColor[f.index] ?? filament),
+                              action: { sheet = .color(f.index) },
+                              right: { ColorDot(color: Color(hexString: f.color)).padding(.leading, 10) })
+                    }
                 }
             }
         }
+        if slotMode {
+            ForEach(slotWarnings(t), id: \.self) { PSBanner(kind: .warn, text: $0) }
+        }
         PSSection {
-            if !multi {
+            if !multi && slotMode {
+                slotRow(t, index: 1, label: t(.slot), modelColor: nil)
+                PSDivider()
+                PSRow(icon: "paintpalette", label: t(.material), value: Format.shortName(material(for: 1)),
+                      action: { sheet = .color(1) }, right: { if colorsLoading { ProgressView().padding(.leading, 8) } })
+                PSDivider()
+            } else if !multi {
                 PSRow(icon: "paintpalette", label: t(.material), value: Format.shortName(filament),
                       action: { sheet = .filament }, right: { if colorsLoading { ProgressView().padding(.leading, 8) } })
                 PSDivider()
@@ -210,6 +259,30 @@ struct PrepareView: View {
                 }
             }
         }
+    }
+
+    /// One colour's slot: "Slot 1 · PLA" with the printer's filament colour; long-press to choose the material.
+    private func slotRow(_ t: L10n, index: Int, label: String, modelColor: String?) -> some View {
+        let lane = lane(for: index)
+        return PSRow(icon: multi ? nil : "tray.2", label: label, value: LanePlan.label(t, lane: lane, lanes: lanes),
+                     sub: multi ? Format.shortName(material(for: index)) : nil,
+                     action: { sheet = .slot(index) }, right: {
+            HStack(spacing: 4) {
+                if let c = modelColor { ColorDot(color: Color(hexString: c), size: 14) }
+                ColorDot(color: Color(hexString: lane?.color), size: 22)
+            }
+            .padding(.leading, 8)
+        })
+        .contextMenu {
+            Button(t(.chooseMaterial), systemImage: "paintpalette") { sheet = .color(index) }
+        }
+    }
+
+    /// Empty slot or another material than the chosen preset. Not blocking here: filament can still be loaded
+    /// before printing, the job screen blocks the start.
+    private func slotWarnings(_ t: L10n) -> [String] {
+        let cols = modelColours.map { LanePlan.Colour(index: $0.index, color: $0.color, preset: material(for: $0.index)) }
+        return LanePlan.warnings(t, colours: cols, lanes: lanes, tools: slotTools).map(\.text)
     }
 
     private func supportLabel(_ t: L10n, _ v: String) -> String {
@@ -256,7 +329,8 @@ struct PrepareView: View {
         case .process: return t(.quality)
         case .plate: return t(.plate)
         case .file: return t(.file)
-        case .color(let n): return t(.colorN, ["n": String(n)])
+        case .color(let n): return multi ? t(.colorN, ["n": String(n)]) : t(.material)
+        case .slot(let n): return multi ? t(.colorN, ["n": String(n)]) : t(.slot)
         }
     }
 
@@ -267,7 +341,8 @@ struct PrepareView: View {
         case .process: return process
         case .plate: return plate
         case .file: return file
-        case .color(let n): return perColor[n] ?? filament
+        case .color(let n): return material(for: n)
+        case .slot(let n): return slotTools[n].map(String.init)
         }
     }
 
@@ -283,6 +358,8 @@ struct PrepareView: View {
             return (opts?.plates ?? []).map { Choice(value: $0, label: Format.plateName(t, $0)) }
         case .file:
             return (files ?? []).map { Choice(value: String($0.index), label: $0.name, sub: $0.size.map(Format.mb)) }
+        case .slot:
+            return LanePlan.choices(t, lanes: lanes)
         }
     }
 
@@ -294,6 +371,9 @@ struct PrepareView: View {
         case .plate: plate = v
         case .file: file = v
         case .color(let n): perColor[n] = v
+        case .slot(let n):
+            // a new slot brings its own material: drop an earlier material choice for this colour
+            if let tool = Int(v) { slotChoice[n] = tool; perColor[n] = nil }
         }
     }
 
@@ -340,13 +420,24 @@ struct PrepareView: View {
             printer = list.first { $0.id == last }?.id ?? list.first?.id ?? ""
             for p in list {
                 Task {
-                    let kind = (try? await api.status(printer: p.id))?.kind ?? .offline
-                    kinds[p.id] = kind
+                    let st = try? await api.status(printer: p.id)
+                    kinds[p.id] = st?.kind ?? .offline
+                    if let st { statuses[p.id] = st }
                 }
             }
         } catch {
             self.error = error.localizedDescription
         }
+    }
+
+    /// 3b. fresh state of the chosen printer: its slots and what is loaded in them
+    private func refreshStatus() async {
+        slotChoice = [:]
+        guard let api = app.api, !printer.isEmpty else { return }
+        let chosen = printer
+        guard let st = try? await api.status(printer: chosen) else { return }
+        statuses[chosen] = st
+        kinds[chosen] = st.kind
     }
 
     /// 4. presets for the chosen printer, preselected with the last choices (spec 4)
@@ -418,12 +509,19 @@ struct PrepareView: View {
         let d = opts.defaults
         if needsFile { error = app.l10n(.chooseFile); return }
         var o = JobOptions(process: process, bedType: plate)
-        if filament != d.filament { o.filament = filament }
+        let single = multi ? filament : material(for: 1)
+        if single != d.filament { o.filament = single }
         if supports != d.supports { o.supports = supports }
         if brim != d.brim { o.brim = brim }
         if let infill, infill != d.infill { o.infill = infill }
         if let walls, walls != d.walls { o.walls = walls }
-        if multi, let colors { o.filaments = colors.filaments.map { perColor[$0.index] } }
+        if multi, let colors {
+            let used = Set(colors.usedFilaments.map(\.index))
+            o.filaments = colors.filaments.map { f -> String? in
+                slotMode && used.contains(f.index) ? material(for: f.index) : perColor[f.index]
+            }
+        }
+        let slots = slotMode ? slotTools : [:]
         submitting = true
         error = ""
         defer { submitting = false }
@@ -431,6 +529,7 @@ struct PrepareView: View {
             app.saveLastPrinter(printer)
             app.savePrefs(printer, PrinterPrefs(filament: filament, process: process, bedType: plate))
             let job = try await api.createJob(link: link, printer: printer, file: file, options: o)
+            if !slots.isEmpty { app.plannedSlots[job] = slots }
             app.replaceTop(with: .job(job))
         } catch {
             self.error = error.localizedDescription

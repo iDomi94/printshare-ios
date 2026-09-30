@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// Live status and control of every printer (DR-04, DR-05, DR-06).
+/// Live status and control of every printer (DR-04, DR-05, DR-06); details in ControlView (issue #5).
 struct PrintersView: View {
     private struct Entry: Identifiable {
         var printer: Printer
@@ -10,18 +10,12 @@ struct PrintersView: View {
 
     @Environment(AppModel.self) private var app
     @Environment(\.scenePhase) private var scenePhase
-    @Environment(\.openURL) private var openURL
     @State private var entries: [Entry]?
     @State private var error = ""
     @State private var acting = ""
     @State private var cancelTarget: Printer?
     @State private var camera: CameraTarget?
-
-    private struct CameraTarget: Identifiable {
-        var url: URL
-        var name: String
-        var id: String { url.absoluteString }
-    }
+    @State private var cams: [String: Bool] = [:]
 
     var body: some View {
         let t = app.l10n
@@ -35,8 +29,9 @@ struct PrintersView: View {
         .navigationTitle(t(.tabPrinters))
         .navigationBarTitleDisplayMode(.inline)
         .toolbar(.visible, for: .navigationBar)
-        .sheet(item: $camera) { CameraView(url: $0.url, title: $0.name) }
+        .sheet(item: $camera) { CameraView(printer: $0.printer, title: $0.name) }
         .task(id: scenePhase == .active) { await pollWhileVisible() }
+        .task { await loadCameras() }
         .alert(t(.cancelPrint), isPresented: Binding(get: { cancelTarget != nil }, set: { if !$0 { cancelTarget = nil } }),
                presenting: cancelTarget) { p in
             Button(t(.cancelBtn), role: .cancel) {}
@@ -104,15 +99,51 @@ struct PrintersView: View {
                     }
                     .padding(.top, 16)
                 }
-                if let cam = s?.camera, let url = URL(string: cam) {
-                    PSButton(title: t(.camera), kind: .plain, icon: "video") {
-                        camera = CameraTarget(url: url, name: p.name)
+                if let lanes = s?.lanes, !lanes.isEmpty { laneChips(t, lanes).padding(.top, 14) }
+                if s != nil {
+                    PSButton(title: t(.control), kind: .secondary, icon: "slider.horizontal.3") {
+                        app.push(.control(id: p.id, name: p.name))
                     }
-                    .padding(.top, 6)
+                    .padding(.top, 14)
+                }
+                if cams[p.id] == true {
+                    Button { Haptics.tap(); camera = CameraTarget(printer: p.id, name: p.name) } label: {
+                        CameraImage(printer: p.id, width: 640, interval: 5)
+                            .aspectRatio(16 / 9, contentMode: .fit)
+                            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+                            .overlay(alignment: .bottomTrailing) {
+                                Label(t(.camera), systemImage: "arrow.up.left.and.arrow.down.right")
+                                    .font(.caption).foregroundStyle(.white)
+                                    .padding(.horizontal, 10).padding(.vertical, 4)
+                                    .background(Color.black.opacity(0.55)).clipShape(Capsule()).padding(8)
+                            }
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel(t(.camera))
+                    .padding(.top, 14)
                 }
             }
         }
         .padding(.bottom, 16)
+    }
+
+    /// Filament lanes of an AFC unit (CANVAS on COSMOS), spec MA-02.
+    private func laneChips(_ t: L10n, _ lanes: [Lane]) -> some View {
+        FlowLayout(spacing: 8) {
+            ForEach(lanes) { l in
+                HStack(spacing: 6) {
+                    ColorDot(color: Color(hexString: l.color), size: 14)
+                    Text("T\(l.tool.map(String.init) ?? "?") · \(l.loaded ? (l.material ?? "?") : t(.laneEmpty))")
+                        .font(.footnote).foregroundStyle(Theme.text)
+                }
+                .padding(.horizontal, 10).padding(.vertical, 6)
+                .background(Theme.input).clipShape(Capsule())
+                .overlay(Capsule().stroke(Theme.accent, lineWidth: l.inToolhead ? 2 : 0))
+                .opacity(l.loaded ? 1 : 0.5)
+                .accessibilityElement(children: .combine)
+                .accessibilityHint(l.inToolhead ? t(.laneInToolhead) : "")
+            }
+        }
     }
 
     private func temperature(_ label: String, _ value: String) -> some View {
@@ -136,6 +167,14 @@ struct PrintersView: View {
         while !Task.isCancelled {
             await load()
             try? await Task.sleep(for: .seconds(5))
+        }
+    }
+
+    /// Which printers have a camera (asked once per visit, not with every status refresh).
+    private func loadCameras() async {
+        guard let api = app.api, let list = try? await api.printers() else { return }
+        for p in list {
+            if let info = try? await api.cameraInfo(printer: p.id) { cams[p.id] = info.available }
         }
     }
 

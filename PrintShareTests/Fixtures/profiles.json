@@ -1,0 +1,6 @@
+[
+ {"file": "machine-AFC COSMOS.json", "kind": "machine", "name": "AFC COSMOS - Elegoo Centauri Carbon 0.4 nozzle - Cosmos AFC",
+  "inherits": "Elegoo Centauri Carbon 0.4 nozzle", "print_start": true, "nozzle": "0.4"},
+ {"file": "filament-My PLA.json", "kind": "filament", "name": "My PLA", "inherits": "Elegoo PLA @ECC"},
+ {"file": "broken.json", "kind": "unknown", "error": "not an OrcaSlicer preset"}
+]

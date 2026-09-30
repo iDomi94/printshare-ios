@@ -25,6 +25,10 @@ enum Screen: Hashable {
     case job(String)
     case model(source: String, id: String)
     case preview(String)
+    /// Temperatures, fans, light, speed of one printer (issue #5).
+    case control(id: String, name: String)
+    /// Own OrcaSlicer printer profile (issue #2).
+    case printerProfile(id: String, name: String)
 }
 
 /// Request to show the connect sheet, optionally prefilled from a pairing link.

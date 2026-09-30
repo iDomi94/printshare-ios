@@ -14,6 +14,9 @@ final class AppModel {
     var path: [Screen] = []
     var tab: AppTab = .print
     var connectRequest: ConnectRequest?
+    /// Printer slot (tool) per model colour chosen on the prepare screen, per job id: the job screen's default.
+    /// Kept in memory only; after a restart the job screen picks the default slots again.
+    @ObservationIgnored var plannedSlots: [String: [Int: Int]] = [:]
 
     @ObservationIgnored private let keychain: Keychain
 

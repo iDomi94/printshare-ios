@@ -29,14 +29,38 @@ if it contradicts `printshare/api.py` the server wins; otherwise the simplest id
 - Pairing hint on the connect screen uses the container name `PrintShare`
   (`docker exec PrintShare printshare pair --url http://SERVER-IP:8484`).
 
-- **Camera** (issue #3): the status `camera` URL is an MJPEG stream served by the printer itself; the app shows it
-  in a sheet (`CameraView`, frames cut out of the stream by JPEG markers) instead of opening Safari. It only works in
-  the home network, the sheet says so and still offers "open in browser".
+- **Server 0.10.0** (upstream `7c03c58`, 2026-09-30), ported from the Expo app of the same commit:
+  - **Lanes** (issue #6, 0.8.0): `status.lanes` (AFC / CANVAS). The job screen has a section "Spuren" with one row per
+    colour; default and warnings follow `job/[id].tsx` (`LanePlan`): loaded lane with the profile's material and the
+    closest colour, else T(n-1), else any loaded lane. An empty lane blocks "Print" (red), another material warns
+    (yellow). `send` carries `lanes {"<colour>": <tool>}` when the printer has lanes, for uploads too.
+  - **Slots before slicing** (native only, Dominique's feedback 2026-09-30): the Expo app picks a material per colour
+    and the lane only after slicing. Here, when the chosen printer reports lanes, the prepare screen shows "Slot N" per
+    colour instead (N = the physical number from the lane id, `CANVAS_1` = Slot 1, not the tool: on his CANVAS Slot 1
+    is T3; lane ids when the numbers are missing or repeat). Material and colour come from the printer; the slicing
+    preset follows the slot's material (`LanePlan.preset`: preset named like the lane's filament, else the last choice,
+    else the default, else the first of that material). Long-press a colour (or the material row for one colour) to
+    pick the preset by hand. The chosen tools go to the job screen as its default (`AppModel.plannedSlots`, memory
+    only) and are still changeable there without re-slicing. The upstream wording "Spur/Lane" is shown as "Slot".
+  - **Camera** (issue #3, 0.9.0): no longer straight from the printer. `CameraView` shows live MJPEG from
+    `/api/printers/<id>/camera/stream` (our own parser, token as header - no WebView needed) or still images from
+    `/camera/snapshot?w=`; away (route "remote") it starts with still images (every 3 s) to save mobile data. The
+    printers tab shows a thumbnail (every 5 s) for printers whose `/camera` says `available`; the job screen offers
+    the camera after a start.
+  - **Printer control** (issue #5, 0.10.0): `ControlView` (button "Steuerung" on the printers tab): heaters with a
+    target picker and PLA / PETG / cool-down presets, history chart (Swift Charts, status every 3 s, history every
+    10 s), fans in 25 % steps, lights, speed modes or 50-150 %. Heater changes and fan off during a print, and high
+    targets (nozzle ≥ 260, bed ≥ 100, chamber ≥ 50 °C), are confirmed first. A 409 from the server (print started
+    since the last poll) turns into the same question; the change is only sent again after the user agrees.
+  - **Own printer profile** (issue #2, 0.7.0): Settings → printer → `PrinterProfileView`: standard or uploaded
+    profile, upload via the document picker (JSON or preset bundle zip, raw body, used for this printer right away),
+    delete via long press (context menu).
+  - Texts from the 0.10.0 `i18n.ts`, including the name tables for heaters, fans, lights and speed modes.
 
 - **Model files in 3D** (not in the Expo app): the file row on the model page opens a sheet with the files of
   `/api/files` (same order and index as the prepare screen). STL is read by `STLReader` (binary + ASCII; ModelIO returned no mesh for STL on CI), OBJ with ModelIO (`MDLAsset`), and shown
   in a SceneKit `SceneView` (rotated from Z-up, centred, one material); 3MF/STEP show a note instead. "Prepare print"
-  opens the prepare screen with that file preselected. The file comes from `GET /api/model-file` (server 0.8.1); older
+  opens the prepare screen with that file preselected. The file comes from `GET /api/model-file` (server 0.10.1, upstream PR #11); older
   servers answer 404 and the app says the server is too old.
 
 ## Verification

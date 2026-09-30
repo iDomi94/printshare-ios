@@ -8,9 +8,11 @@ import json, re, sys, pathlib
 
 src = pathlib.Path(sys.argv[1]).read_text(encoding="utf-8")
 STR = r'"((?:[^"\\]|\\.)*)"'
-TABLES = ["jobStates", "printerKinds", "rawStates", "plates", "lineTypes"]
+TABLES = ["jobStates", "printerKinds", "rawStates", "plates", "lineTypes", "heaterNames", "fanNames", "lightNames",
+          "speedModes"]
 PREFIX = {"jobStates": "jobState", "printerKinds": "printerKind", "rawStates": "rawState", "plates": "plate",
-          "lineTypes": "lineType"}
+          "lineTypes": "lineType", "heaterNames": "heater", "fanNames": "fan", "lightNames": "light",
+          "speedModes": "speedMode"}
 
 
 def block(name_re: str) -> str:
@@ -76,14 +78,24 @@ EXTRA = {
     "shareOpen": ("In PrintShare öffnen", "Open in PrintShare"),
     "serverVersionLabel": ("Server-Version", "Server version"),
     "shareGcode": ("G-Code teilen", "Share G-code"),
-    "cameraUnreachable": ("Kamera nicht erreichbar. Das Bild kommt direkt vom Drucker und geht nur im Heimnetz.",
-                          "Camera not reachable. The picture comes straight from the printer and only works at home."),
-    "openInBrowser": ("Im Browser öffnen", "Open in browser"),
     "model3dUnsupported": ("Für {ext}-Dateien gibt es keine 3D-Ansicht. Drucken kannst du sie trotzdem.",
                            "There is no 3D view for {ext} files. You can still print them."),
     "model3dHint": ("Mit einem Finger drehen, mit zwei Fingern zoomen.", "Drag to rotate, pinch to zoom."),
-    "errServerOld": ("Dein PrintShare-Server kennt diese Funktion noch nicht. Aktualisiere ihn auf Version 0.6.0 oder neuer.",
-                     "Your PrintShare server does not have this feature yet. Update it to version 0.6.0 or newer."),
+    # AFC/CANVAS: the user picks the printer's slot (as printed on the unit) instead of the upstream "lane" wording
+    "slot": ("Slot", "Slot"),
+    "slots": ("Slots", "Slots"),
+    "slotN": ("Slot {n}", "Slot {n}"),
+    "slotsHint": ("Welcher Slot des Druckers jede Farbe druckt. Material und Farbe kommen vom Drucker. Ändern geht ohne neu zu slicen.",
+                  "Which slot of the printer prints each colour. Material and colour come from the printer. Changing it needs no re-slicing."),
+    "slotsPrepareHint": ("Material und Farbe kommen vom Drucker, das Material zum Slicen folgt dem Slot. Gedrückt halten, um das Material selbst zu wählen.",
+                         "Material and colour come from the printer; the slicing material follows the slot. Long-press to choose the material yourself."),
+    "slotEmptyWarn": ("{what}: {slot} ist leer – Filament laden oder einen anderen Slot wählen.",
+                      "{what}: {slot} is empty – load filament or choose another slot."),
+    "slotMaterialWarn": ("{what}: Profil ist {want}, in {slot} ist {have}.",
+                         "{what}: the profile is {want}, {slot} holds {have}."),
+    "chooseMaterial": ("Material wählen", "Choose material"),
+    "errServerOld": ("Dein PrintShare-Server kennt diese Funktion noch nicht. Aktualisiere ihn auf die neueste Version.",
+                     "Your PrintShare server does not have this feature yet. Update it to the latest version."),
 }
 for k, (d_, e_) in EXTRA.items():
     if k not in de:

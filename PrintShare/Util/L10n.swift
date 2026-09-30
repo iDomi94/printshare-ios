@@ -60,6 +60,12 @@ struct L10n: Sendable {
     func plate(_ name: String) -> String { lookup("plate.\(name)") ?? name }
     /// OrcaSlicer line type (`;TYPE:` name) in the app language.
     func lineType(_ name: String) -> String { lookup("lineType.\(name)") ?? name }
+    /// Printer control names (heater / fan / light ids from the server); unknown ids are shown as they are.
+    func heaterName(_ id: String) -> String { lookup("heater.\(id)") ?? id }
+    func fanName(_ id: String) -> String { lookup("fan.\(id)") ?? id }
+    func lightName(_ id: String) -> String { lookup("light.\(id)") ?? id }
+    /// Centauri Carbon speed modes (50 = silent … 160 = ludicrous), else "130 %".
+    func speedMode(_ value: Int) -> String { lookup("speedMode.\(value)") ?? "\(value) %" }
     var suggestions: [String] { callAsFunction(.suggestionList).split(separator: "|").map(String.init) }
 
     /// Server log lines -> readable text (German only, like the Expo app).

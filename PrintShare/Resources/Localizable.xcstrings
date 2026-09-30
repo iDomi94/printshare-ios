@@ -33,6 +33,22 @@
         }
       }
     },
+    "actual": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ist"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Actual"
+          }
+        }
+      }
+    },
     "ago": {
       "localizations": {
         "de": {
@@ -93,6 +109,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Author’s recommendation"
+          }
+        }
+      }
+    },
+    "basedOn": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "basiert auf {name}"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "based on {name}"
           }
         }
       }
@@ -177,6 +209,22 @@
         }
       }
     },
+    "builtInCosmos": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "mit eingebautem COSMOS-Startcode"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "with built-in COSMOS start code"
+          }
+        }
+      }
+    },
     "by": {
       "localizations": {
         "de": {
@@ -241,6 +289,22 @@
         }
       }
     },
+    "cameraDataHint": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unterwegs werden Standbilder gezeigt, um Datenvolumen zu sparen (Live ≈ 1 GB pro Stunde)."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Away from home still images are shown to save mobile data (live ≈ 1 GB per hour)."
+          }
+        }
+      }
+    },
     "cameraDenied": {
       "localizations": {
         "de": {
@@ -253,6 +317,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Camera access is turned off. You can allow it in Settings."
+          }
+        }
+      }
+    },
+    "cameraLive": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Live"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Live"
           }
         }
       }
@@ -273,18 +353,34 @@
         }
       }
     },
-    "cameraUnreachable": {
+    "cameraOffline": {
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Kamera nicht erreichbar. Das Bild kommt direkt vom Drucker und geht nur im Heimnetz."
+            "value": "Kamerabild nicht verfügbar"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Camera not reachable. The picture comes straight from the printer and only works at home."
+            "value": "Camera image not available"
+          }
+        }
+      }
+    },
+    "cameraStill": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Standbild"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Still"
           }
         }
       }
@@ -353,6 +449,22 @@
         }
       }
     },
+    "change": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ändern"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Change"
+          }
+        }
+      }
+    },
     "changeServer": {
       "localizations": {
         "de": {
@@ -413,6 +525,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Please choose a file first."
+          }
+        }
+      }
+    },
+    "chooseMaterial": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Material wählen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choose material"
           }
         }
       }
@@ -545,6 +673,54 @@
         }
       }
     },
+    "configFile": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "aus config.yaml: {name}"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "from config.yaml: {name}"
+          }
+        }
+      }
+    },
+    "confirmDuringPrint": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Es läuft ein Druck. Diese Änderung kann ihn beeinflussen. Trotzdem ändern?"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A print is running. This change can affect it. Change anyway?"
+          }
+        }
+      }
+    },
+    "confirmHigh": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "{name} auf {v} °C setzen?"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Set {name} to {v} °C?"
+          }
+        }
+      }
+    },
     "confirmPlate": {
       "localizations": {
         "de": {
@@ -673,6 +849,38 @@
         }
       }
     },
+    "control": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Steuerung"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Control"
+          }
+        }
+      }
+    },
+    "coolDown": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abkühlen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cool down"
+          }
+        }
+      }
+    },
     "del": {
       "localizations": {
         "de": {
@@ -717,6 +925,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Delete this job?"
+          }
+        }
+      }
+    },
+    "deleteProfileQ": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Profil „{name}“ löschen?"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Delete profile “{name}”?"
           }
         }
       }
@@ -1014,13 +1238,13 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Dein PrintShare-Server kennt diese Funktion noch nicht. Aktualisiere ihn auf Version 0.6.0 oder neuer."
+            "value": "Dein PrintShare-Server kennt diese Funktion noch nicht. Aktualisiere ihn auf die neueste Version."
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Your PrintShare server does not have this feature yet. Update it to version 0.6.0 or newer."
+            "value": "Your PrintShare server does not have this feature yet. Update it to the latest version."
           }
         }
       }
@@ -1153,6 +1377,102 @@
         }
       }
     },
+    "fan.aux": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hilfslüfter"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Auxiliary fan"
+          }
+        }
+      }
+    },
+    "fan.aux_fan": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hilfslüfter"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Auxiliary fan"
+          }
+        }
+      }
+    },
+    "fan.case_fan": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gehäuselüfter"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chamber fan"
+          }
+        }
+      }
+    },
+    "fan.chamber": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gehäuselüfter"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chamber fan"
+          }
+        }
+      }
+    },
+    "fan.part": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bauteillüfter"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Part cooling fan"
+          }
+        }
+      }
+    },
+    "fans": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lüfter"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fans"
+          }
+        }
+      }
+    },
     "filament": {
       "localizations": {
         "de": {
@@ -1229,6 +1549,70 @@
           "stringUnit": {
             "state": "translated",
             "value": "Model"
+          }
+        }
+      }
+    },
+    "heater.bed": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bett"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bed"
+          }
+        }
+      }
+    },
+    "heater.chamber": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kammer"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chamber"
+          }
+        }
+      }
+    },
+    "heater.nozzle": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Düse"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nozzle"
+          }
+        }
+      }
+    },
+    "historyEmpty": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Noch keine Verlaufsdaten – der Verlauf füllt sich, solange diese Ansicht offen ist."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No history yet – it fills up while this view is open."
           }
         }
       }
@@ -1473,6 +1857,118 @@
         }
       }
     },
+    "lane": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spur"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lane"
+          }
+        }
+      }
+    },
+    "laneEmpty": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "leer"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "empty"
+          }
+        }
+      }
+    },
+    "laneEmptyWarn": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "{what}: Spur {lane} ist leer – Filament laden oder eine andere Spur wählen."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "{what}: lane {lane} is empty – load filament or choose another lane."
+          }
+        }
+      }
+    },
+    "laneInToolhead": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "im Druckkopf"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "in the toolhead"
+          }
+        }
+      }
+    },
+    "laneMaterialWarn": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "{what}: Profil ist {want}, in Spur {lane} ist {have}."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "{what}: the profile is {want}, lane {lane} holds {have}."
+          }
+        }
+      }
+    },
+    "lanes": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spuren"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lanes"
+          }
+        }
+      }
+    },
+    "lanesHint": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aus welcher Spur des Druckers jede Farbe gedruckt wird. Ändern geht ohne neu zu slicen."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Which lane of the printer prints each colour. Changing it needs no re-slicing."
+          }
+        }
+      }
+    },
     "langAuto": {
       "localizations": {
         "de": {
@@ -1629,6 +2125,70 @@
           "stringUnit": {
             "state": "translated",
             "value": "License"
+          }
+        }
+      }
+    },
+    "light.case": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Innenraumlicht"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chamber light"
+          }
+        }
+      }
+    },
+    "light.hotend": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Druckkopf-LED"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Toolhead LED"
+          }
+        }
+      }
+    },
+    "light.light": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Innenraumlicht"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chamber light"
+          }
+        }
+      }
+    },
+    "lights": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Licht"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Light"
           }
         }
       }
@@ -1953,6 +2513,22 @@
         }
       }
     },
+    "longPressDelete": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zum Löschen ein Profil lange drücken."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Long-press a profile to delete it."
+          }
+        }
+      }
+    },
     "makes": {
       "localizations": {
         "de": {
@@ -1997,6 +2573,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Material"
+          }
+        }
+      }
+    },
+    "minutesAgo": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "vor {m} min"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "{m} min ago"
           }
         }
       }
@@ -2257,6 +2849,22 @@
         }
       }
     },
+    "off": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aus"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Off"
+          }
+        }
+      }
+    },
     "offline": {
       "localizations": {
         "de": {
@@ -2269,22 +2877,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "Offline"
-          }
-        }
-      }
-    },
-    "openInBrowser": {
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Im Browser öffnen"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Open in browser"
           }
         }
       }
@@ -2333,6 +2925,38 @@
           "stringUnit": {
             "state": "translated",
             "value": "or"
+          }
+        }
+      }
+    },
+    "ownStartCode": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "eigener Startcode"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "own start code"
+          }
+        }
+      }
+    },
+    "pairCmdHint": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„PrintShare“ ist der Container-Name aus der Unraid-Vorlage – bei Docker Compose heißt er „printshare“."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "“PrintShare” is the container name from the Unraid template – with Docker Compose it is “printshare”."
           }
         }
       }
@@ -2497,6 +3121,38 @@
         }
       }
     },
+    "preheatPetg": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PETG heizen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Heat PETG"
+          }
+        }
+      }
+    },
+    "preheatPla": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PLA heizen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Heat PLA"
+          }
+        }
+      }
+    },
     "prepareTitle": {
       "localizations": {
         "de": {
@@ -2589,6 +3245,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Print"
+          }
+        }
+      }
+    },
+    "printRunningHint": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Es läuft ein Druck – Änderungen an Temperaturen und Lüftern werden vorher bestätigt."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A print is running – temperature and fan changes ask for confirmation first."
           }
         }
       }
@@ -2845,6 +3517,70 @@
           "stringUnit": {
             "state": "translated",
             "value": "{printer} is not reachable."
+          }
+        }
+      }
+    },
+    "printerProfile": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Druckerprofil"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Printer profile"
+          }
+        }
+      }
+    },
+    "profileHelp": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eigenes Druckerprofil aus OrcaSlicer, z. B. für COSMOS mit AFC: in OrcaSlicer den Drucker wählen, dann Datei → Exportieren → Voreinstellungs-Paket (.zip) oder die JSON-Datei des Profils. Der Server prüft das Profil vor der Verwendung."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your own printer profile from OrcaSlicer, e.g. for COSMOS with AFC: select the printer in OrcaSlicer, then File → Export → preset bundle (.zip) or the profile's JSON file. The server checks the profile before using it."
+          }
+        }
+      }
+    },
+    "profileInUse": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Verwendet"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "In use"
+          }
+        }
+      }
+    },
+    "profileUploaded": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„{name}“ wird ab jetzt für {printer} verwendet."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "“{name}” is now used for {printer}."
           }
         }
       }
@@ -3249,6 +3985,22 @@
         }
       }
     },
+    "sensorOnly": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "nur Anzeige"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "display only"
+          }
+        }
+      }
+    },
     "server": {
       "localizations": {
         "de": {
@@ -3293,6 +4045,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Server version"
+          }
+        }
+      }
+    },
+    "setTarget": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zieltemperatur"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Target temperature"
           }
         }
       }
@@ -3441,6 +4209,118 @@
         }
       }
     },
+    "slot": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Slot"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Slot"
+          }
+        }
+      }
+    },
+    "slotEmptyWarn": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "{what}: {slot} ist leer – Filament laden oder einen anderen Slot wählen."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "{what}: {slot} is empty – load filament or choose another slot."
+          }
+        }
+      }
+    },
+    "slotMaterialWarn": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "{what}: Profil ist {want}, in {slot} ist {have}."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "{what}: the profile is {want}, {slot} holds {have}."
+          }
+        }
+      }
+    },
+    "slotN": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Slot {n}"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Slot {n}"
+          }
+        }
+      }
+    },
+    "slots": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Slots"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Slots"
+          }
+        }
+      }
+    },
+    "slotsHint": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Welcher Slot des Druckers jede Farbe druckt. Material und Farbe kommen vom Drucker. Ändern geht ohne neu zu slicen."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Which slot of the printer prints each colour. Material and colour come from the printer. Changing it needs no re-slicing."
+          }
+        }
+      }
+    },
+    "slotsPrepareHint": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Material und Farbe kommen vom Drucker, das Material zum Slicen folgt dem Slot. Gedrückt halten, um das Material selbst zu wählen."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Material and colour come from the printer; the slicing material follows the slot. Long-press to choose the material yourself."
+          }
+        }
+      }
+    },
     "sortMakes": {
       "localizations": {
         "de": {
@@ -3505,6 +4385,86 @@
         }
       }
     },
+    "speedMode.100": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Normal"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Normal"
+          }
+        }
+      }
+    },
+    "speedMode.130": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sport"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sport"
+          }
+        }
+      }
+    },
+    "speedMode.160": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ludicrous"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ludicrous"
+          }
+        }
+      }
+    },
+    "speedMode.50": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Leise"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Silent"
+          }
+        }
+      }
+    },
+    "speedTitle": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Geschwindigkeit"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Speed"
+          }
+        }
+      }
+    },
     "standard": {
       "localizations": {
         "de": {
@@ -3517,6 +4477,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Default"
+          }
+        }
+      }
+    },
+    "standardProfileSub": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "OrcaSlicer: {name}"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "OrcaSlicer: {name}"
           }
         }
       }
@@ -3761,6 +4737,38 @@
         }
       }
     },
+    "target": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Soll"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Target"
+          }
+        }
+      }
+    },
+    "temperatures": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Temperaturen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Temperatures"
+          }
+        }
+      }
+    },
     "thingiverseHint": {
       "localizations": {
         "de": {
@@ -3841,6 +4849,22 @@
         }
       }
     },
+    "uploadProfile": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Druckerprofil hochladen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Upload printer profile"
+          }
+        }
+      }
+    },
     "uploadedSub": {
       "localizations": {
         "de": {
@@ -3885,6 +4909,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Uploading file …"
+          }
+        }
+      }
+    },
+    "useStandardProfile": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Standardprofil verwenden"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Use the standard profile"
           }
         }
       }
