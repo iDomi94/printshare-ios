@@ -11,6 +11,14 @@ extension UIColor {
 extension Color {
     init(hex: UInt32) { self.init(uiColor: UIColor(hex: hex)) }
 
+    /// `#RRGGBB` (or `RRGGBB`) as sent by the server for filament colours; nil when it is not one.
+    init?(hexString: String?) {
+        guard var h = hexString?.trimmingCharacters(in: .whitespaces) else { return nil }
+        if h.hasPrefix("#") { h.removeFirst() }
+        guard h.count >= 6, let v = UInt32(h.prefix(6), radix: 16) else { return nil }
+        self.init(hex: v)
+    }
+
     static func dynamic(light: UInt32, dark: UInt32) -> Color {
         Color(uiColor: UIColor { $0.userInterfaceStyle == .dark ? UIColor(hex: dark) : UIColor(hex: light) })
     }
@@ -37,4 +45,15 @@ enum Theme {
     static let dangerSoft = Color.dynamic(light: 0xFDE6E6, dark: 0x3A1717)
     static let input = Color.dynamic(light: 0xF2F2F7, dark: 0x2C2C2E)
     static let track = Color.dynamic(light: 0xE5E5EA, dark: 0x3A3A3C)
+}
+
+/// Round colour swatch of a filament, with an outline so white stays visible.
+struct ColorDot: View {
+    var color: Color?
+    var size: CGFloat = 22
+
+    var body: some View {
+        Circle().fill(color ?? Theme.track).frame(width: size, height: size)
+            .overlay(Circle().stroke(Theme.line, lineWidth: 1))
+    }
 }

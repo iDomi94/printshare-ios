@@ -193,6 +193,38 @@
         }
       }
     },
+    "byColor": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Farbe"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Colour"
+          }
+        }
+      }
+    },
+    "byLineType": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Linientyp"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Line type"
+          }
+        }
+      }
+    },
     "camera": {
       "localizations": {
         "de": {
@@ -397,6 +429,102 @@
           "stringUnit": {
             "state": "translated",
             "value": "Close"
+          }
+        }
+      }
+    },
+    "colorMode": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Darstellung"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show"
+          }
+        }
+      }
+    },
+    "colorN": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Farbe {n}"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Colour {n}"
+          }
+        }
+      }
+    },
+    "colors": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Farben"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Colours"
+          }
+        }
+      }
+    },
+    "colorsChecking": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Farben werden geprüft …"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Checking colours …"
+          }
+        }
+      }
+    },
+    "colorsHint": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Das Modell ist mehrfarbig. Wähle für jede Farbe das Material."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This model has several colours. Choose the material for each colour."
+          }
+        }
+      }
+    },
+    "colorsPainted": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Das Modell enthält bemalte Flächen – alle Farben des Projekts werden verwendet."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The model has painted areas – all colours of the project are used."
           }
         }
       }
@@ -1057,6 +1185,22 @@
         }
       }
     },
+    "fitModel": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Modell"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Model"
+          }
+        }
+      }
+    },
     "homeSub": {
       "localizations": {
         "de": {
@@ -1409,6 +1553,38 @@
         }
       }
     },
+    "leveling": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bett vor dem Druck nivellieren"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Level the bed before printing"
+          }
+        }
+      }
+    },
+    "levelingSub": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Empfohlen nach Plattenwechsel oder Umbau; dauert einige Minuten."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Recommended after changing the plate or the printer; takes a few minutes."
+          }
+        }
+      }
+    },
     "license": {
       "localizations": {
         "de": {
@@ -1437,6 +1613,278 @@
           "stringUnit": {
             "state": "translated",
             "value": "Likes"
+          }
+        }
+      }
+    },
+    "lineType.Bottom surface": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unterseite"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bottom surface"
+          }
+        }
+      }
+    },
+    "lineType.Bridge": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Brücke"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bridge"
+          }
+        }
+      }
+    },
+    "lineType.Brim": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Brim"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Brim"
+          }
+        }
+      }
+    },
+    "lineType.Custom": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Start-/Endcode"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Start/end code"
+          }
+        }
+      }
+    },
+    "lineType.Gap infill": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lückenfüllung"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gap infill"
+          }
+        }
+      }
+    },
+    "lineType.Inner wall": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Innenwand"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Inner wall"
+          }
+        }
+      }
+    },
+    "lineType.Internal solid infill": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Massive Füllung"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Internal solid infill"
+          }
+        }
+      }
+    },
+    "lineType.Ironing": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Glätten"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ironing"
+          }
+        }
+      }
+    },
+    "lineType.Outer wall": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Außenwand"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Outer wall"
+          }
+        }
+      }
+    },
+    "lineType.Overhang wall": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Überhangwand"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Overhang wall"
+          }
+        }
+      }
+    },
+    "lineType.Prime tower": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reinigungsturm"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prime tower"
+          }
+        }
+      }
+    },
+    "lineType.Skirt": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Skirt"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Skirt"
+          }
+        }
+      }
+    },
+    "lineType.Sparse infill": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Füllung"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sparse infill"
+          }
+        }
+      }
+    },
+    "lineType.Support": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stützen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Support"
+          }
+        }
+      }
+    },
+    "lineType.Support interface": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stützen-Kontaktfläche"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Support interface"
+          }
+        }
+      }
+    },
+    "lineType.Support transition": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stützen-Übergang"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Support transition"
+          }
+        }
+      }
+    },
+    "lineType.Top surface": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Oberfläche"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Top surface"
           }
         }
       }
@@ -2022,13 +2470,29 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Keine Vorschau verfügbar."
+            "value": "Keine Druckbewegungen gefunden."
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "No preview available."
+            "value": "No print moves found."
+          }
+        }
+      }
+    },
+    "previewTitle": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vorschau"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Preview"
           }
         }
       }
@@ -2753,6 +3217,22 @@
         }
       }
     },
+    "shareGcode": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "G-Code teilen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Share G-code"
+          }
+        }
+      }
+    },
     "shareOpen": {
       "localizations": {
         "de": {
@@ -2813,6 +3293,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Show more"
+          }
+        }
+      }
+    },
+    "showPreview": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vorschau ansehen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show preview"
           }
         }
       }
@@ -3453,6 +3949,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Weight"
+          }
+        }
+      }
+    },
+    "wholePlate": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ganze Platte"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Whole plate"
           }
         }
       }

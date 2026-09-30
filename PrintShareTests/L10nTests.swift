@@ -32,6 +32,10 @@ final class L10nTests: XCTestCase {
         XCTAssertEqual(de.rawState("preheating"), "Aufheizen")
         XCTAssertEqual(en.jobState("brand-new"), "brand-new")
         XCTAssertEqual(en.suggestions.count, 6)
+        XCTAssertEqual(de.lineType("Outer wall"), "Außenwand")
+        XCTAssertEqual(en.lineType("Outer wall"), "Outer wall")
+        XCTAssertEqual(en.lineType("Custom"), "Start/end code")
+        XCTAssertEqual(de.lineType("Wipe tower 2"), "Wipe tower 2")
     }
 
     func testResolve() {

@@ -1,0 +1,82 @@
+name: TestFlight
+
+# Manual: Actions -> TestFlight -> Run workflow. Archives a signed Release build and uploads it to App Store Connect.
+# Needs these repository secrets (Settings -> Secrets and variables -> Actions):
+#   APPLE_TEAM_ID      team id of the Apple developer account (10 characters)
+#   ASC_KEY_ID         App Store Connect API key id        (Users and Access -> Integrations -> App Store Connect API,
+#   ASC_ISSUER_ID      issuer id of that key                role "App Manager" or "Admin", for cloud signing)
+#   ASC_KEY_P8         contents of the downloaded AuthKey_<id>.p8 file
+# The app id io.github.halvar20000.printshare (+ .share-extension) and the App Group
+# group.io.github.halvar20000.printshare must exist in the account; automatic signing creates the profiles.
+
+on:
+  workflow_dispatch:
+
+jobs:
+  testflight:
+    runs-on: macos-latest
+    env:
+      DEVELOPMENT_TEAM: ${{ secrets.APPLE_TEAM_ID }}
+      ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+      ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+      # EAS used build numbers below 100; every run gets a new, higher one
+      BUILD_NUMBER: ${{ github.run_number }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check secrets
+        env:
+          ASC_KEY_P8: ${{ secrets.ASC_KEY_P8 }}
+        run: |
+          missing=""
+          for v in DEVELOPMENT_TEAM ASC_KEY_ID ASC_ISSUER_ID ASC_KEY_P8; do [ -n "${!v}" ] || missing="$missing $v"; done
+          if [ -n "$missing" ]; then echo "::error::missing secrets:$missing (see the top of testflight.yml)"; exit 1; fi
+      - name: API key
+        env:
+          ASC_KEY_P8: ${{ secrets.ASC_KEY_P8 }}
+        run: |
+          mkdir -p "$RUNNER_TEMP/keys"
+          printf '%s\n' "$ASC_KEY_P8" > "$RUNNER_TEMP/keys/AuthKey.p8"
+          echo "ASC_KEY_PATH=$RUNNER_TEMP/keys/AuthKey.p8" >> "$GITHUB_ENV"
+      - name: Install XcodeGen
+        run: brew install xcodegen
+      - name: Generate project
+        run: xcodegen generate
+      - name: Archive
+        run: |
+          set -o pipefail
+          xcodebuild -project PrintShare.xcodeproj -scheme PrintShare -configuration Release \
+            -destination 'generic/platform=iOS' -archivePath "$RUNNER_TEMP/PrintShare.xcarchive" \
+            CURRENT_PROJECT_VERSION=$((100 + BUILD_NUMBER)) \
+            -allowProvisioningUpdates -authenticationKeyPath "$ASC_KEY_PATH" \
+            -authenticationKeyID "$ASC_KEY_ID" -authenticationKeyIssuerID "$ASC_ISSUER_ID" \
+            archive 2>&1 | tee archive.log | tail -n 80
+      - name: Upload to TestFlight
+        run: |
+          set -o pipefail
+          cat > "$RUNNER_TEMP/ExportOptions.plist" <<PLIST
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+            <key>method</key><string>app-store-connect</string>
+            <key>destination</key><string>upload</string>
+            <key>teamID</key><string>${DEVELOPMENT_TEAM}</string>
+            <key>signingStyle</key><string>automatic</string>
+          </dict>
+          </plist>
+          PLIST
+          xcodebuild -exportArchive -archivePath "$RUNNER_TEMP/PrintShare.xcarchive" \
+            -exportOptionsPlist "$RUNNER_TEMP/ExportOptions.plist" -exportPath "$RUNNER_TEMP/export" \
+            -allowProvisioningUpdates -authenticationKeyPath "$ASC_KEY_PATH" \
+            -authenticationKeyID "$ASC_KEY_ID" -authenticationKeyIssuerID "$ASC_ISSUER_ID" 2>&1 | tee export.log | tail -n 60
+          echo "Build $((100 + BUILD_NUMBER)) uploaded; it shows up in TestFlight after Apple's processing." >> "$GITHUB_STEP_SUMMARY"
+      - name: Remove API key
+        if: always()
+        run: rm -rf "$RUNNER_TEMP/keys"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: testflight-logs
+          path: |
+            archive.log
+            export.log

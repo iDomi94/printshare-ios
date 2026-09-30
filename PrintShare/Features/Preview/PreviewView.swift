@@ -1,31 +1,38 @@
 import SwiftUI
 
-/// One layer of the preview, ready to draw: a path per line type, in millimetres (y up).
+/// One layer of the preview, ready to draw: paths grouped by line type and by filament, in millimetres (y up).
 private struct PreviewLayer {
     var z: Double
-    var paths: [Int: Path]
+    var byType: [Int: Path]
+    var byTool: [Int: Path]
 }
 
 private struct PreviewScene {
     var layers: [PreviewLayer]
     var typeCount: Int
+    /// Filaments (tools) used anywhere in the print, ascending. Empty for format 1.
+    var tools: [Int]
     var minX: Double, minY: Double, maxX: Double, maxY: Double
     var bed: (w: Double, h: Double)
 }
 
 private enum ViewMode: Hashable { case model, bed }
+/// Colour the lines by line type or by filament; filament only makes sense with more than one.
+private enum ColorMode: Hashable { case type, color }
 
-/// 2D G-code preview: layer slider, colours per line type, types on/off, model or whole bed.
+/// 2D G-code preview (SL-06/07): layer slider, colours per line type or filament, legend toggles, model or whole bed.
 struct PreviewView: View {
     let id: String
 
     @Environment(AppModel.self) private var app
     @State private var preview: Preview?
     @State private var scene: PreviewScene?
+    @State private var loaded = false
     @State private var error = ""
     @State private var layer = 0
-    @State private var hidden: Set<Int> = []
+    @State private var hidden: Set<String> = []  // "type:3" / "color:1"
     @State private var mode: ViewMode = .model
+    @State private var colorPref: ColorMode?
 
     var body: some View {
         let t = app.l10n
@@ -37,13 +44,20 @@ struct PreviewView: View {
                     PSButton(title: t(.tryAgain), kind: .secondary) { Task { await load() } }
                 }
                 .frame(maxHeight: .infinity).background(Theme.bg)
+            } else if loaded {
+                PSEmpty(icon: "square.3.layers.3d", title: t(.previewEmpty))
+                    .frame(maxHeight: .infinity).background(Theme.bg)
             } else {
                 ProgressView().controlSize(.large).frame(maxWidth: .infinity, maxHeight: .infinity).background(Theme.bg)
             }
         }
-        .navigationTitle(t(.preview))
+        .navigationTitle(t(.previewTitle))
         .navigationBarTitleDisplayMode(.inline)
         .task { await load() }
+    }
+
+    private func colorMode(_ scene: PreviewScene) -> ColorMode {
+        colorPref ?? (scene.tools.count > 1 ? .color : .type)
     }
 
     // MARK: viewer
@@ -51,42 +65,51 @@ struct PreviewView: View {
     private func viewer(_ t: L10n, _ scene: PreviewScene, _ preview: Preview) -> some View {
         let last = max(scene.layers.count - 1, 0)
         let current = min(layer, last)
-        return VStack(spacing: 12) {
-            Picker("", selection: $mode) {
-                Text(t(.viewModel)).tag(ViewMode.model)
-                Text(t(.viewBed)).tag(ViewMode.bed)
-            }
-            .pickerStyle(.segmented).labelsHidden()
-
-            canvas(scene, current)
-                .aspectRatio(1, contentMode: .fit)
-                .frame(maxWidth: 640)
-                .background(Theme.card)
-                .clipShape(RoundedRectangle(cornerRadius: Theme.radius, style: .continuous))
-                .accessibilityHidden(true)
-
-            VStack(spacing: 4) {
-                HStack {
-                    Text(t(.layerOf, ["n": String(current + 1), "total": String(scene.layers.count)]))
-                        .font(.headline).foregroundStyle(Theme.text)
-                    Spacer()
-                    Text(t(.zHeight, ["z": String(format: "%.2f", scene.layers.isEmpty ? 0 : scene.layers[current].z)]))
-                        .font(.subheadline).foregroundStyle(Theme.sub)
+        let cmode = colorMode(scene)
+        return ScrollView {
+            VStack(spacing: 12) {
+                Picker("", selection: $mode) {
+                    Text(t(.fitModel)).tag(ViewMode.model)
+                    Text(t(.wholePlate)).tag(ViewMode.bed)
                 }
-                HStack(spacing: 12) {
-                    stepButton("minus", t(.prevLayer), disabled: current <= 0) { layer = max(0, current - 1) }
-                    Slider(value: Binding(get: { Double(current) }, set: { layer = Int($0.rounded()) }),
-                           in: 0...Double(max(last, 1)), step: 1)
-                        .disabled(last == 0)
-                        .accessibilityLabel(t(.layer))
-                    stepButton("plus", t(.nextLayer), disabled: current >= last) { layer = min(last, current + 1) }
+                .pickerStyle(.segmented).labelsHidden()
+                if scene.tools.count > 1 {
+                    Picker(t(.colorMode), selection: Binding(get: { cmode }, set: { colorPref = $0 })) {
+                        Text(t(.byColor)).tag(ColorMode.color)
+                        Text(t(.byLineType)).tag(ColorMode.type)
+                    }
+                    .pickerStyle(.segmented).labelsHidden()
                 }
+
+                canvas(scene, preview, current, cmode)
+                    .aspectRatio(1, contentMode: .fit)
+                    .frame(maxWidth: 640)
+                    .background(Theme.card)
+                    .clipShape(RoundedRectangle(cornerRadius: Theme.radius, style: .continuous))
+                    .accessibilityHidden(true)
+
+                VStack(spacing: 4) {
+                    HStack {
+                        Text(t(.layerOf, ["n": String(current + 1), "total": String(scene.layers.count)]))
+                            .font(.headline).foregroundStyle(Theme.text)
+                        Spacer()
+                        Text(t(.zHeight, ["z": String(format: "%.2f", scene.layers.isEmpty ? 0 : scene.layers[current].z)]))
+                            .font(.subheadline).foregroundStyle(Theme.sub)
+                    }
+                    HStack(spacing: 12) {
+                        stepButton("minus", t(.prevLayer), disabled: current <= 0) { layer = max(0, current - 1) }
+                        Slider(value: Binding(get: { Double(current) }, set: { layer = Int($0.rounded()) }),
+                               in: 0...Double(max(last, 1)), step: 1)
+                            .disabled(last == 0)
+                            .accessibilityLabel(t(.layerOf, ["n": String(current + 1), "total": String(scene.layers.count)]))
+                        stepButton("plus", t(.nextLayer), disabled: current >= last) { layer = min(last, current + 1) }
+                    }
+                }
+                legend(t, scene, preview, current, cmode)
             }
-            legend(t, scene, preview)
-            Spacer(minLength: 0)
+            .padding(Theme.space)
+            .frame(maxWidth: .infinity)
         }
-        .padding(Theme.space)
-        .frame(maxWidth: .infinity)
         .background(Theme.bg)
     }
 
@@ -99,23 +122,31 @@ struct PreviewView: View {
         .buttonStyle(.plain).disabled(disabled).opacity(disabled ? 0.35 : 1).accessibilityLabel(label)
     }
 
-    private func legend(_ t: L10n, _ scene: PreviewScene, _ preview: Preview) -> some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text(t(.lineTypes)).textCase(.uppercase).font(.footnote).foregroundStyle(Theme.sub)
+    private func legend(_ t: L10n, _ scene: PreviewScene, _ preview: Preview, _ current: Int,
+                        _ cmode: ColorMode) -> some View {
+        let keys: [Int] = cmode == .color ? scene.tools : Array(0..<scene.typeCount)
+        let layerPaths: [Int: Path] = scene.layers.isEmpty ? [:] : (cmode == .color ? scene.layers[current].byTool : scene.layers[current].byType)
+        return VStack(alignment: .leading, spacing: 8) {
+            Text(t(cmode == .color ? .colors : .lineTypes)).textCase(.uppercase).font(.footnote).foregroundStyle(Theme.sub)
             FlowLayout(spacing: 8) {
-                ForEach(0..<scene.typeCount, id: \.self) { i in
-                    let on = !hidden.contains(i)
-                    let color = PreviewColors.color(name: typeName(preview, i), index: i)
+                ForEach(keys, id: \.self) { k in
+                    let key = Self.hiddenKey(cmode, k)
+                    let on = !hidden.contains(key)
+                    let here = layerPaths[k] != nil
+                    let label = cmode == .color ? t(.colorN, ["n": String(k + 1)]) : t.lineType(typeName(preview, k))
                     Button {
                         Haptics.tap()
-                        if on { hidden.insert(i) } else { hidden.remove(i) }
+                        if on { hidden.insert(key) } else { hidden.remove(key) }
                     } label: {
                         HStack(spacing: 6) {
-                            Circle().fill(color).frame(width: 10, height: 10).opacity(on ? 1 : 0.3)
-                            Text(typeName(preview, i)).font(.footnote).foregroundStyle(on ? Theme.text : Theme.sub)
+                            RoundedRectangle(cornerRadius: 3).fill(Self.color(preview, cmode, k))
+                                .overlay(RoundedRectangle(cornerRadius: 3).stroke(Theme.line, lineWidth: 1))
+                                .frame(width: 12, height: 12)
+                            Text(label).font(.footnote).foregroundStyle(Theme.text).strikethrough(!on)
                         }
                         .padding(.horizontal, 10).padding(.vertical, 6)
                         .background(Theme.card).clipShape(Capsule())
+                        .opacity(on ? (here ? 1 : 0.65) : 0.4)
                     }
                     .buttonStyle(.plain).accessibilityAddTraits(on ? .isSelected : [])
                 }
@@ -128,13 +159,24 @@ struct PreviewView: View {
         i < preview.types.count ? preview.types[i] : "Type \(i + 1)"
     }
 
+    nonisolated private static func hiddenKey(_ mode: ColorMode, _ k: Int) -> String { mode == .color ? "color:\(k)" : "type:\(k)" }
+
+    nonisolated private static func color(_ preview: Preview, _ mode: ColorMode, _ k: Int) -> Color {
+        if mode == .color {
+            return k < preview.filamentColors.count ? (Color(hexString: preview.filamentColors[k]) ?? PreviewColors.fallback(k))
+                                                    : PreviewColors.fallback(k)
+        }
+        return PreviewColors.color(name: k < preview.types.count ? preview.types[k] : "", index: k)
+    }
+
     // MARK: drawing
 
-    private func canvas(_ scene: PreviewScene, _ current: Int) -> some View {
-        let hiddenTypes = hidden
-        let types = preview?.types ?? []
+    private func canvas(_ scene: PreviewScene, _ preview: Preview, _ current: Int, _ cmode: ColorMode) -> some View {
+        let hiddenKeys = hidden
         let mode = self.mode
-        let dark = Theme.line
+        let line = Theme.line
+        let text = Theme.text
+        let sub = Theme.sub
         return Canvas { ctx, size in
             let view = PreviewView.viewport(scene, mode)
             let w = view.maxX - view.minX, h = view.maxY - view.minY
@@ -153,23 +195,32 @@ struct PreviewView: View {
             while gy <= view.maxY {
                 grid.move(to: CGPoint(x: view.minX, y: gy)); grid.addLine(to: CGPoint(x: view.maxX, y: gy)); gy += 10
             }
-            ctx.stroke(grid.applying(transform), with: .color(dark.opacity(0.7)), lineWidth: 0.5)
+            ctx.stroke(grid.applying(transform), with: .color(line.opacity(0.7)), lineWidth: 0.5)
 
-            if mode == .bed {
-                let bed = Path(CGRect(x: 0, y: 0, width: scene.bed.w, height: scene.bed.h)).applying(transform)
-                ctx.stroke(bed, with: .color(dark), lineWidth: 1.5)
+            let bed = Path(CGRect(x: 0, y: 0, width: scene.bed.w, height: scene.bed.h)).applying(transform)
+            ctx.stroke(bed, with: .color(line), lineWidth: 1.5)
+
+            let width = max(1, 0.4 * s)
+            let style = StrokeStyle(lineWidth: width, lineCap: .round, lineJoin: .round)
+            func groups(_ index: Int) -> [Int: Path] {
+                guard index >= 0, index < scene.layers.count else { return [:] }
+                return cmode == .color ? scene.layers[index].byTool : scene.layers[index].byType
             }
-
-            func draw(_ index: Int, opacity: Double) {
-                guard index >= 0, index < scene.layers.count else { return }
-                for (type, path) in scene.layers[index].paths where !hiddenTypes.contains(type) {
-                    let name = type < types.count ? types[type] : ""
-                    ctx.stroke(path.applying(transform), with: .color(PreviewColors.color(name: name, index: type).opacity(opacity)),
-                               style: StrokeStyle(lineWidth: max(1, 0.4 * s), lineCap: .round, lineJoin: .round))
+            // the layer below, faded
+            for (_, path) in groups(current - 1) {
+                ctx.stroke(path.applying(transform), with: .color(sub.opacity(0.25)), style: style)
+            }
+            let visible = groups(current).filter { !hiddenKeys.contains(PreviewView.hiddenKey(cmode, $0.key)) }
+            if cmode == .color {
+                // thin dark outline, so white or very light filament stays visible on the plate
+                for (_, path) in visible {
+                    ctx.stroke(path.applying(transform), with: .color(text.opacity(0.45)),
+                               style: StrokeStyle(lineWidth: width * 1.7, lineCap: .round, lineJoin: .round))
                 }
             }
-            draw(current - 1, opacity: 0.25)  // the layer below, faded
-            draw(current, opacity: 1)
+            for (k, path) in visible {
+                ctx.stroke(path.applying(transform), with: .color(PreviewView.color(preview, cmode, k)), style: style)
+            }
         }
     }
 
@@ -191,9 +242,11 @@ struct PreviewView: View {
         error = ""
         do {
             let p = try await api.preview(job: id)
+            let built = await Self.buildScene(p)
             preview = p
-            scene = await Self.buildScene(p)
-            layer = 0
+            scene = built
+            layer = max(0, (built?.layers.count ?? 1) - 1)  // the finished part first, like the Expo app
+            loaded = true
         } catch {
             self.error = error.localizedDescription
         }
@@ -204,34 +257,42 @@ struct PreviewView: View {
         var layers: [PreviewLayer] = []
         var minX = Double.infinity, minY = Double.infinity, maxX = -Double.infinity, maxY = -Double.infinity
         var typeCount = p.types.count
+        var tools = Set<Int>()
+        let off = p.hasTools ? 2 : 1  // first coordinate in a path
         for (n, l) in p.layers.enumerated() {
-            var paths: [Int: Path] = [:]
-            for raw in l.paths where raw.count >= 5 {
+            var byType: [Int: Path] = [:]
+            var byTool: [Int: Path] = [:]
+            for raw in l.paths where raw.count >= off + 4 {
                 let type = max(0, Int(raw[0]))
+                let tool = p.hasTools ? max(0, Int(raw[1])) : 0
                 typeCount = max(typeCount, type + 1)
-                var path = paths[type] ?? Path()
-                var i = 1
-                var first = true
+                if p.hasTools { tools.insert(tool) }
+                var path = Path()
+                var i = off
                 while i + 1 < raw.count {
                     let pt = CGPoint(x: raw[i] / p.unit, y: raw[i + 1] / p.unit)
                     minX = min(minX, pt.x); maxX = max(maxX, pt.x); minY = min(minY, pt.y); maxY = max(maxY, pt.y)
-                    if first { path.move(to: pt); first = false } else { path.addLine(to: pt) }
+                    if i == off { path.move(to: pt) } else { path.addLine(to: pt) }
                     i += 2
                 }
-                paths[type] = path
+                byType[type, default: Path()].addPath(path)
+                byTool[tool, default: Path()].addPath(path)
             }
-            layers.append(PreviewLayer(z: l.z, paths: paths))
+            layers.append(PreviewLayer(z: l.z, byType: byType, byTool: byTool))
             if n % 20 == 19 { await Task.yield() }
         }
         guard !layers.isEmpty, minX.isFinite else { return nil }
+        // the server's bounds leave out start/end code such as the purge line at the edge of the plate
+        if let b = p.bounds, b[2] > b[0], b[3] > b[1] { (minX, minY, maxX, maxY) = (b[0], b[1], b[2], b[3]) }
         let bed = (p.bed?.count ?? 0) >= 2 ? (w: p.bed![0], h: p.bed![1]) : (w: 256.0, h: 256.0)
-        return PreviewScene(layers: layers, typeCount: typeCount, minX: minX, minY: minY, maxX: maxX, maxY: maxY, bed: bed)
+        return PreviewScene(layers: layers, typeCount: typeCount, tools: tools.sorted(), minX: minX, minY: minY,
+                            maxX: maxX, maxY: maxY, bed: bed)
     }
 }
 
 /// Colours per G-code line type (Orca's feature names), with a fallback palette for unknown names.
 enum PreviewColors {
-    private static let fallback: [Color] = [
+    private static let palette: [Color] = [
         Color(hex: 0xE4572E), Color(hex: 0xF3A712), Color(hex: 0x29B6F6), Color(hex: 0x66BB6A),
         Color(hex: 0xAB47BC), Color(hex: 0x26A69A), Color(hex: 0xFF7043), Color(hex: 0x8D6E63),
     ]
@@ -249,6 +310,8 @@ enum PreviewColors {
         if n.contains("gap") { return Color(hex: 0xFFFFFF) }
         if n.contains("support") { return Color(hex: 0x66BB6A) }
         if n.contains("skirt") || n.contains("brim") { return Color(hex: 0x00ACC1) }
-        return fallback[abs(index) % fallback.count]
+        return fallback(index)
     }
+
+    static func fallback(_ index: Int) -> Color { palette[abs(index) % palette.count] }
 }

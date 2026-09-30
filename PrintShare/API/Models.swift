@@ -169,6 +169,7 @@ struct Options: Codable, Sendable, Equatable {
 }
 
 /// Per-job overrides sent to `POST /api/jobs` (nil = keep the profile value) and echoed back in `Job.request`.
+/// `filaments`: multicolour, one preset per filament of the model (index 0 = filament 1, nil = `filament`).
 struct JobOptions: Codable, Sendable, Equatable, Hashable {
     var filament: String?
     var process: String?
@@ -177,16 +178,17 @@ struct JobOptions: Codable, Sendable, Equatable, Hashable {
     var brim: String?
     var infill: Int?
     var walls: Int?
+    var filaments: [String?]?
 
     enum CodingKeys: String, CodingKey {
-        case filament, process, supports, brim, infill, walls
+        case filament, process, supports, brim, infill, walls, filaments
         case bedType = "bed_type"
     }
 
     init(filament: String? = nil, process: String? = nil, bedType: String? = nil, supports: String? = nil,
-         brim: String? = nil, infill: Int? = nil, walls: Int? = nil) {
+         brim: String? = nil, infill: Int? = nil, walls: Int? = nil, filaments: [String?]? = nil) {
         self.filament = filament; self.process = process; self.bedType = bedType; self.supports = supports
-        self.brim = brim; self.infill = infill; self.walls = walls
+        self.brim = brim; self.infill = infill; self.walls = walls; self.filaments = filaments
     }
 
     init(from decoder: Decoder) throws {
@@ -198,7 +200,58 @@ struct JobOptions: Codable, Sendable, Equatable, Hashable {
         brim = c.lenient(String.self, .brim)
         infill = c.lenient(Int.self, .infill)
         walls = c.lenient(Int.self, .walls)
+        filaments = c.lenient([String?].self, .filaments)
     }
+}
+
+/// Filaments (colours) of a model from its 3MF project (`GET /api/inspect`); `used` = indices printed with,
+/// `painted` = painted areas, so every filament of the project counts as used.
+struct ModelColors: Codable, Sendable, Equatable {
+    struct Filament: Codable, Sendable, Equatable, Identifiable {
+        var index: Int
+        var color: String
+        var type: String?
+        var name: String?
+        var id: Int { index }
+
+        enum CodingKeys: String, CodingKey { case index, color, type, name }
+
+        init(index: Int, color: String, type: String? = nil, name: String? = nil) {
+            self.index = index; self.color = color; self.type = type; self.name = name
+        }
+
+        init(from decoder: Decoder) throws {
+            let c = try decoder.container(keyedBy: CodingKeys.self)
+            index = try c.decode(Int.self, forKey: .index)
+            color = c.lenient(String.self, .color) ?? "#808080"
+            type = c.lenient(String.self, .type)
+            name = c.lenient(String.self, .name)
+        }
+    }
+
+    var file: String?
+    var filaments: [Filament]
+    var used: [Int]
+    var painted: Bool
+
+    enum CodingKeys: String, CodingKey { case file, filaments, used, painted }
+
+    init(file: String? = nil, filaments: [Filament], used: [Int], painted: Bool = false) {
+        self.file = file; self.filaments = filaments; self.used = used; self.painted = painted
+    }
+
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        file = c.lenient(String.self, .file)
+        filaments = c.lenient([Filament].self, .filaments) ?? []
+        used = c.lenient([Int].self, .used) ?? []
+        painted = c.lenient(Bool.self, .painted) ?? false
+    }
+
+    /// More than one colour is actually printed: the app offers a material per colour.
+    var isMulticolor: Bool { filaments.count > 1 && used.count > 1 }
+    /// The filaments that are printed with, in project order.
+    var usedFilaments: [Filament] { filaments.filter { used.contains($0.index) } }
 }
 
 struct ModelFile: Codable, Sendable, Equatable, Identifiable {
@@ -229,9 +282,33 @@ struct JobResult: Codable, Sendable, Equatable {
     var layers: Int?
     var profiles: [String: String]
     var overrides: [String: String]
+    /// Multicolour: preset, colour and grams per filament.
+    var filaments: [FilamentUse]
+
+    struct FilamentUse: Codable, Sendable, Equatable, Identifiable {
+        var index: Int
+        var color: String?
+        var preset: String
+        var grams: Double?
+        var id: Int { index }
+
+        enum CodingKeys: String, CodingKey { case index, color, preset, grams }
+
+        init(index: Int, color: String? = nil, preset: String = "", grams: Double? = nil) {
+            self.index = index; self.color = color; self.preset = preset; self.grams = grams
+        }
+
+        init(from decoder: Decoder) throws {
+            let c = try decoder.container(keyedBy: CodingKeys.self)
+            index = try c.decode(Int.self, forKey: .index)
+            color = c.lenient(String.self, .color)
+            preset = c.lenient(String.self, .preset) ?? ""
+            grams = c.lenient(Double.self, .grams)
+        }
+    }
 
     enum CodingKeys: String, CodingKey {
-        case printer, layers, profiles, overrides
+        case printer, layers, profiles, overrides, filaments
         case sourceFile = "source_file"
         case printTime = "print_time"
         case filamentG = "filament_g"
@@ -248,14 +325,15 @@ struct JobResult: Codable, Sendable, Equatable {
         layers = c.lenient(Int.self, .layers)
         profiles = c.lenient([String: String].self, .profiles) ?? [:]
         overrides = c.lenient([String: String].self, .overrides) ?? [:]
+        filaments = c.lenient([FilamentUse].self, .filaments) ?? []
     }
 
     init(printer: String, sourceFile: String? = nil, printTime: String? = nil, filamentG: Double? = nil,
          filamentM: Double? = nil, layers: Int? = nil, profiles: [String: String] = [:],
-         overrides: [String: String] = [:]) {
+         overrides: [String: String] = [:], filaments: [FilamentUse] = []) {
         self.printer = printer; self.sourceFile = sourceFile; self.printTime = printTime
         self.filamentG = filamentG; self.filamentM = filamentM; self.layers = layers
-        self.profiles = profiles; self.overrides = overrides
+        self.profiles = profiles; self.overrides = overrides; self.filaments = filaments
     }
 }
 
@@ -459,7 +537,8 @@ struct SearchPage: Codable, Sendable, Equatable {
     }
 }
 
-/// 2D G-code preview of a sliced job. Each layer holds paths as `[typeIndex, x0, y0, x1, y1, …]` with
+/// 2D G-code preview of a sliced job (`GET /api/jobs/{id}/preview?format=2`). Each layer holds paths as
+/// `[typeIndex, tool, x0, y0, x1, y1, …]` (format 2) or `[typeIndex, x0, y0, …]` (format 1, servers before 0.6.0),
 /// coordinates in 1/`unit` mm.
 struct Preview: Codable, Sendable, Equatable {
     struct Layer: Codable, Sendable, Equatable {
@@ -477,24 +556,40 @@ struct Preview: Codable, Sendable, Equatable {
         enum CodingKeys: String, CodingKey { case z, paths }
     }
 
+    var version: Int
     var unit: Double
     var types: [String]
+    /// Model extent in mm `[minX, minY, maxX, maxY]` without start/end code (e.g. the purge line), when reported.
+    var bounds: [Double]?
     /// Bed size in mm (x, y) when the server reports it.
     var bed: [Double]?
     var layers: [Layer]
+    /// Colour per filament (tool) as `#RRGGBB`, format 2 only.
+    var filamentColors: [String]
 
-    enum CodingKeys: String, CodingKey { case unit, types, bed, layers }
+    enum CodingKeys: String, CodingKey {
+        case version, unit, types, bounds, bed, layers
+        case filamentColors = "filament_colors"
+    }
 
-    init(unit: Double = 10, types: [String] = [], bed: [Double]? = nil, layers: [Layer]) {
-        self.unit = unit; self.types = types; self.bed = bed; self.layers = layers
+    init(version: Int = 1, unit: Double = 10, types: [String] = [], bounds: [Double]? = nil, bed: [Double]? = nil,
+         layers: [Layer], filamentColors: [String] = []) {
+        self.version = version; self.unit = unit; self.types = types; self.bounds = bounds; self.bed = bed
+        self.layers = layers; self.filamentColors = filamentColors
     }
 
     init(from decoder: Decoder) throws {
         let c = try decoder.container(keyedBy: CodingKeys.self)
+        version = c.lenient(Int.self, .version) ?? 1
         let u = c.lenient(Double.self, .unit) ?? 10
         unit = u > 0 ? u : 10
         types = c.lenient([String].self, .types) ?? []
+        bounds = c.lenient([Double].self, .bounds).flatMap { $0.count == 4 ? $0 : nil }
         bed = c.lenient([Double].self, .bed)
         layers = c.lenient([Layer].self, .layers) ?? []
+        filamentColors = c.lenient([String].self, .filamentColors) ?? []
     }
+
+    /// Paths carry the filament (tool) as second entry.
+    var hasTools: Bool { version >= 2 }
 }

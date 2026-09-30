@@ -23,6 +23,8 @@ struct JobView: View {
     @State private var confirmDelete = false
     @State private var level = true
     @State private var levelLoaded = false
+    @State private var gcodeShare: SharedFile?
+    @State private var gcodeLoading = false
 
     private var working: Bool { job?.state.isWorking ?? false }
     private var printerId: String? {
@@ -50,6 +52,7 @@ struct JobView: View {
             Button(t(.cancelBtn), role: .cancel) {}
             Button(t(.start)) { Task { await send(start: true) } }
         }
+        .sheet(item: $gcodeShare) { ActivitySheet(items: [$0.url]).ignoresSafeArea() }
         .alert(t(.deleteJobQ), isPresented: $confirmDelete) {
             Button(t(.cancelBtn), role: .cancel) {}
             Button(t(.del), role: .destructive) { Task { await delete() } }
@@ -150,6 +153,8 @@ struct JobView: View {
         let offline = printerKind == .offline
         let canPrint = plateOk && !busy && !offline && sending == nil
         let material = Format.shortName(profiles["filament"])
+        var shareAction: (() -> Void)?
+        if !gcodeLoading { shareAction = { Task { await shareGcode(job) } } }
         return PSScreen {
             if done || uploaded {
                 VStack(spacing: 6) {
@@ -187,7 +192,21 @@ struct JobView: View {
                 PSDivider()
                 PSRow(label: t(.changed), sub: changed.isEmpty ? t(.changedNone) : changed.joined(separator: " · "))
                 PSDivider()
-                PSRow(icon: "eye", label: t(.preview)) { app.push(.preview(job.id)) }
+                PSRow(icon: "eye", label: t(.showPreview)) { app.push(.preview(job.id)) }
+                PSDivider()
+                PSRow(icon: "square.and.arrow.up", label: t(.shareGcode), chevron: false, action: shareAction,
+                      right: { if gcodeLoading { ProgressView() } })
+            }
+
+            if let fil = r?.filaments, fil.count > 1 {
+                PSSection(title: t(.colors)) {
+                    ForEach(Array(fil.enumerated()), id: \.element.index) { i, f in
+                        if i > 0 { PSDivider() }
+                        PSRow(label: t(.colorN, ["n": String(f.index)]), value: f.grams.map { String(format: "%.1f g", $0) } ?? "–",
+                              sub: Format.shortName(f.preset),
+                              right: { ColorDot(color: Color(hexString: f.color)).padding(.leading, 10) })
+                    }
+                }
             }
 
             if !done {
@@ -203,7 +222,12 @@ struct JobView: View {
                 }
                 if printerInfo?.leveling != nil {
                     PSCard(padding: 16) {
-                        Toggle(isOn: $level) { Text(t(.levelBed)).font(.body).foregroundStyle(Theme.text) }
+                        Toggle(isOn: $level) {
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(t(.leveling)).font(.body).foregroundStyle(Theme.text)
+                                Text(t(.levelingSub)).font(.footnote).foregroundStyle(Theme.sub)
+                            }
+                        }
                             .tint(Theme.accent)
                             .onChange(of: level) { _, on in
                                 if levelLoaded, let p = printerId { app.saveLevel(p, on) }
@@ -327,7 +351,7 @@ struct JobView: View {
         defer { sending = nil }
         do {
             let levelValue: Bool? = printerInfo?.leveling != nil ? level : nil
-            try await api.send(job: job.id, start: start, level: levelValue)
+            try await api.send(job: job.id, start: start, leveling: levelValue)
             var latest: Job?
             for _ in 0..<600 {
                 try await Task.sleep(for: .seconds(1))
@@ -343,6 +367,22 @@ struct JobView: View {
         } catch {
             actionError = error.localizedDescription
             await refreshPrinter()
+        }
+    }
+
+    /// SL-10: fetch the G-code and hand it to the share sheet (Files, AirDrop, another slicer app …).
+    private func shareGcode(_ job: Job) async {
+        guard let api = app.api else { return }
+        gcodeLoading = true
+        actionError = ""
+        defer { gcodeLoading = false }
+        let source = ((job.result?.sourceFile ?? "") as NSString).lastPathComponent
+        let stem = (source as NSString).deletingPathExtension
+        do {
+            let url = try await api.downloadGcode(job: job.id, name: (stem.isEmpty ? "print" : stem) + ".gcode")
+            gcodeShare = SharedFile(url: url)
+        } catch {
+            actionError = error.localizedDescription
         }
     }
 
@@ -364,4 +404,21 @@ struct JobView: View {
             actionError = error.localizedDescription
         }
     }
+}
+
+/// A local file handed to the share sheet.
+struct SharedFile: Identifiable {
+    let url: URL
+    var id: String { url.path }
+}
+
+/// UIActivityViewController for SwiftUI (ShareLink needs the file before the button is shown).
+struct ActivitySheet: UIViewControllerRepresentable {
+    let items: [Any]
+
+    func makeUIViewController(context: Context) -> UIActivityViewController {
+        UIActivityViewController(activityItems: items, applicationActivities: nil)
+    }
+
+    func updateUIViewController(_ controller: UIActivityViewController, context: Context) {}
 }

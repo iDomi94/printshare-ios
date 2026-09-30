@@ -67,4 +67,28 @@ final class PairingTests: XCTestCase {
         SharedInbox.clear(in: root)
         XCTAssertNil(SharedInbox.peek(in: root))
     }
+
+    func testSharedInboxCleanup() throws {
+        let root = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: root) }
+        let src = root.appendingPathComponent("in.stl")
+        try Data("solid".utf8).write(to: src)
+        let done = try SharedInbox.stage(fileAt: src, name: "done.stl", in: root)
+        let old = try SharedInbox.stage(fileAt: src, name: "old.stl", in: root)
+        let waiting = try SharedInbox.stage(fileAt: src, name: "waiting.stl", in: root)
+        try SharedInbox.write(SharedItem(file: waiting, fileName: "waiting.stl"), in: root)
+        func exists(_ rel: String) -> Bool {
+            FileManager.default.fileExists(atPath: root.appendingPathComponent(rel).path)
+        }
+
+        SharedInbox.removeStaged(root.appendingPathComponent(done), in: root)
+        XCTAssertFalse(exists(done))
+        SharedInbox.removeStaged(src, in: root)  // outside the inbox: untouched
+        XCTAssertTrue(FileManager.default.fileExists(atPath: src.path))
+
+        SharedInbox.purge(olderThan: 60, now: Date().addingTimeInterval(3600), in: root)
+        XCTAssertFalse(exists(old))
+        XCTAssertTrue(exists(waiting))
+    }
 }

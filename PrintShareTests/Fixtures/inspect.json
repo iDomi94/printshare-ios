@@ -1,0 +1,3 @@
+{"file": "two colours.3mf", "filaments": [{"index": 1, "color": "#FF0000", "type": "PLA", "name": "Red PLA"},
+ {"index": 2, "color": "#00AE42", "type": "PLA", "name": null}, {"index": 3, "color": "#FFFFFF", "type": null, "name": null}],
+ "used": [1, 2], "painted": false, "source": "orca"}

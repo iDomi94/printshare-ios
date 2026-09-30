@@ -8,8 +8,9 @@ import json, re, sys, pathlib
 
 src = pathlib.Path(sys.argv[1]).read_text(encoding="utf-8")
 STR = r'"((?:[^"\\]|\\.)*)"'
-TABLES = ["jobStates", "printerKinds", "rawStates", "plates"]
-PREFIX = {"jobStates": "jobState", "printerKinds": "printerKind", "rawStates": "rawState", "plates": "plate"}
+TABLES = ["jobStates", "printerKinds", "rawStates", "plates", "lineTypes"]
+PREFIX = {"jobStates": "jobState", "printerKinds": "printerKind", "rawStates": "rawState", "plates": "plate",
+          "lineTypes": "lineType"}
 
 
 def block(name_re: str) -> str:
@@ -50,9 +51,13 @@ def parse(body: str) -> dict:
 
 de = parse(block(r"const de = \{"))
 en = parse(block(r"const en: Strings = \{"))
+# English line types are OrcaSlicer's own names: i18n.ts only lists the ones it renames
+for k in de:
+    if k.startswith("lineType.") and k not in en:
+        en[k] = k.split(".", 1)[1]
 assert set(de) == set(en), (set(de) ^ set(en))
 
-# Texts of screens that are newer than the i18n.ts this was generated from (preview, bed leveling, share sheet).
+# Texts only the native app has (share sheet, camera permission …). Keys that i18n.ts has by now are taken from there.
 EXTRA = {
     "preview": ("Vorschau", "Preview"),
     "previewEmpty": ("Keine Vorschau verfügbar.", "No preview available."),
@@ -70,10 +75,11 @@ EXTRA = {
                      "Camera access is turned off. You can allow it in Settings."),
     "shareOpen": ("In PrintShare öffnen", "Open in PrintShare"),
     "serverVersionLabel": ("Server-Version", "Server version"),
+    "shareGcode": ("G-Code teilen", "Share G-code"),
 }
 for k, (d_, e_) in EXTRA.items():
-    assert k not in de, k
-    de[k], en[k] = d_, e_
+    if k not in de:
+        de[k], en[k] = d_, e_
 
 strings = {}
 for k in sorted(de):
