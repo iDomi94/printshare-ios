@@ -14,16 +14,19 @@ final class ThreeMFTests: XCTestCase {
             let method = deflate ? 8 : 0
             let offset = out.count
             let n = Data(name.utf8)
-            out += le32(0x0403_4b50) + le16(20) + le16(0) + le16(method) + le16(0) + le16(0) + le32(0)
-                + le32(body.count) + le32(raw.count) + le16(n.count) + le16(0) + n + body
-            central += le32(0x0201_4b50) + le16(20) + le16(20) + le16(0) + le16(method) + le16(0) + le16(0) + le32(0)
-                + le32(body.count) + le32(raw.count) + le16(n.count) + le16(0) + le16(0) + le16(0) + le16(0)
-                + le32(0) + le32(offset) + n
+            let local: [Data] = [le32(0x0403_4b50), le16(20), le16(0), le16(method), le16(0), le16(0), le32(0),
+                                 le32(body.count), le32(raw.count), le16(n.count), le16(0), n, body]
+            let entry: [Data] = [le32(0x0201_4b50), le16(20), le16(20), le16(0), le16(method), le16(0), le16(0), le32(0),
+                                 le32(body.count), le32(raw.count), le16(n.count), le16(0), le16(0), le16(0), le16(0),
+                                 le32(0), le32(offset), n]
+            for d in local { out.append(d) }
+            for d in entry { central.append(d) }
         }
         let cd = out.count
-        out += central
-        out += le32(0x0605_4b50) + le16(0) + le16(0) + le16(files.count) + le16(files.count)
-            + le32(central.count) + le32(cd) + le16(0)
+        out.append(central)
+        let end: [Data] = [le32(0x0605_4b50), le16(0), le16(0), le16(files.count), le16(files.count),
+                           le32(central.count), le32(cd), le16(0)]
+        for d in end { out.append(d) }
         return out
     }
 
