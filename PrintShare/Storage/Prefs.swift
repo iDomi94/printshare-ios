@@ -19,4 +19,6 @@ enum StoreKey {
     static let lastPrinter = "ps_printer"
     static func prefs(_ printer: String) -> String { "ps_prefs_\(printer)" }
     static func level(_ printer: String) -> String { "ps_level_\(printer)" }
+    /// Wi-Fi addresses of the cloud printers, per account (`printerAccess.ts`).
+    static func lan(_ account: String) -> String { "ps_lan_\(account)" }
 }

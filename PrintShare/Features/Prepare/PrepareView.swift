@@ -451,7 +451,7 @@ struct PrepareView: View {
             printer = list.first { $0.id == last }?.id ?? list.first?.id ?? ""
             for p in list {
                 Task {
-                    let st = try? await api.status(printer: p.id)
+                    let st = try? await app.printerStatus(p)  // cloud: the app asks the printer on the Wi-Fi
                     kinds[p.id] = st?.kind ?? .offline
                     if let st { statuses[p.id] = st }
                 }
@@ -464,9 +464,9 @@ struct PrepareView: View {
     /// 3b. fresh state of the chosen printer: its slots and what is loaded in them
     private func refreshStatus() async {
         slotChoice = [:]
-        guard let api = app.api, !printer.isEmpty else { return }
+        guard !printer.isEmpty, let p = printers.first(where: { $0.id == printer }) else { return }
         let chosen = printer
-        guard let st = try? await api.status(printer: chosen) else { return }
+        guard let st = try? await app.printerStatus(p) else { return }
         statuses[chosen] = st
         kinds[chosen] = st.kind
     }

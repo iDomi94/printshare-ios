@@ -4,6 +4,17 @@ Jeder Abschnitt `## X.Y.Z` wird beim Tag `vX.Y.Z` automatisch als „Was testen�
 (`.github/workflows/testflight.yml`). Text auf Deutsch, höchstens 4000 Zeichen. Fehlt der Abschnitt, stehen dort
 die Commit-Titel seit dem letzten Tag.
 
+## 0.6.0
+
+Aufgeholt mit Server 0.15.1: PocketPrint3D Cloud.
+
+- Verbinden: neue Wahl „PocketPrint3D Cloud / Eigener Server“. Cloud = Anmeldung mit E-Mail-Adresse und 6-stelligem Code, kein eigener Server nötig
+- Einstellungen in der Cloud: Konto mit „x von 30 Slices heute“, Abmelden, Konto löschen (zweimal bestätigen) und die Drucker des Kontos
+- Drucker hinzufügen: Name, Typ (Centauri Carbon oder Klipper/COSMOS), COSMOS-Schalter und die Adresse im WLAN mit „Verbindung testen“. Die Adresse bleibt nur auf dem Handy
+- Drucken in der Cloud: die App holt den G-Code aus der Cloud und schickt ihn selbst über das WLAN an den Drucker (Fortschritt wird angezeigt); Status, Pause, Fortsetzen und Abbrechen laufen ebenfalls direkt über das WLAN
+- Bitte testen: Centauri (Original-Firmware) und COSMOS über WLAN, jeweils „Nur hochladen“ und Drucken
+- Mit eigenem Server ändert sich nichts
+
 ## 0.4.0
 
 - Vorschau: neuer Umschalter oben „Modell / Ganze Platte / 3D“. „3D“ zeigt die geslicte Platte räumlich (jede Linie mit Breite und Schichthöhe), mit einem Finger drehen, mit zwei Fingern zoomen, doppelt tippen setzt die Ansicht zurück

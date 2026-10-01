@@ -5,6 +5,8 @@ struct PrintersView: View {
     private struct Entry: Identifiable {
         var printer: Printer
         var status: PrinterStatus?
+        /// Cloud: the app has no Wi-Fi address for this printer yet.
+        var noAddress = false
         var id: String { printer.id }
     }
 
@@ -24,7 +26,15 @@ struct PrintersView: View {
         PSScreen(refresh: { await load() }) {
             if !error.isEmpty { PSBanner(kind: .error, text: error) }
             if let entries {
-                if entries.isEmpty { PSEmpty(icon: "printer", title: t(.noPrinters)) }
+                if entries.isEmpty {
+                    if app.isCloud {
+                        PSEmpty(icon: "printer", title: t(.noPrinters), sub: t(.noPrintersCloud)) {
+                            PSButton(title: t(.addPrinter), icon: "plus") { app.push(.cloudPrinter(id: CloudPrinterView.new)) }
+                        }
+                    } else {
+                        PSEmpty(icon: "printer", title: t(.noPrinters))
+                    }
+                }
                 ForEach(entries) { card(t, $0) }
             }
         }
@@ -83,6 +93,11 @@ struct PrintersView: View {
                         temperature(t(.bed), Format.temp(s.bed, s.bedTarget))
                     }
                     .padding(.top, busy ? 14 : 0)
+                } else if e.noAddress {
+                    VStack(alignment: .leading, spacing: 12) {
+                        Text(t(.needLanAddress)).font(.subheadline).foregroundStyle(Theme.sub)
+                        PSButton(title: t(.lanAddress), kind: .secondary, icon: "wifi") { app.push(.cloudPrinter(id: p.id)) }
+                    }
                 } else {
                     offline(t, p)
                 }
@@ -102,13 +117,14 @@ struct PrintersView: View {
                     .padding(.top, 16)
                 }
                 if let lanes = s?.lanes, !lanes.isEmpty { laneChips(t, lanes).padding(.top, 14) }
-                if s != nil {
+                // the cloud reaches the printer only for status and pause / resume / cancel so far
+                if s != nil && !app.isCloud {
                     PSButton(title: t(.control), kind: .secondary, icon: "slider.horizontal.3") {
                         app.push(.control(id: p.id, name: p.name))
                     }
                     .padding(.top, 14)
                 }
-                if cams[p.id] == true {
+                if cams[p.id] == true && !app.isCloud {
                     Button { Haptics.tap(); camera = CameraTarget(printer: p.id, name: p.name) } label: {
                         CameraImage(printer: p.id, width: 640, interval: 5)
                             .aspectRatio(16 / 9, contentMode: .fit)
@@ -159,7 +175,7 @@ struct PrintersView: View {
             }
         } else {
             VStack(alignment: .leading, spacing: 12) {
-                Text(since != nil ? t(.powerSlow) : t(.errPrinterOffline)).font(.subheadline).foregroundStyle(Theme.sub)
+                Text(since != nil ? t(.powerSlow) : t(app.isCloud ? .errPrinterOfflineLan : .errPrinterOffline)).font(.subheadline).foregroundStyle(Theme.sub)
                 if p.power {
                     PSButton(title: t(.powerOn), icon: "power", loading: acting == "\(p.id):power") {
                         Task { await powerOn(p) }
@@ -195,7 +211,7 @@ struct PrintersView: View {
 
     /// Which printers have a camera (asked once per visit, not with every status refresh).
     private func loadCameras() async {
-        guard let api = app.api, let list = try? await api.printers() else { return }
+        guard !app.isCloud, let api = app.api, let list = try? await api.printers() else { return }
         for p in list {
             if let info = try? await api.cameraInfo(printer: p.id) { cams[p.id] = info.available }
         }
@@ -207,7 +223,11 @@ struct PrintersView: View {
             let list = try await api.printers()
             var out: [Entry] = []
             for p in list {
-                out.append(Entry(printer: p, status: try? await api.status(printer: p.id)))
+                do {
+                    out.append(Entry(printer: p, status: try await app.printerStatus(p)))
+                } catch {
+                    out.append(Entry(printer: p, status: nil, noAddress: error is NoLanAddress))
+                }
             }
             entries = out
             for e in out where e.status != nil { poweredAt[e.id] = nil }
@@ -228,9 +248,8 @@ struct PrintersView: View {
     }
 
     private func run(_ p: Printer, _ action: String) async {
-        guard let api = app.api else { return }
         acting = "\(p.id):\(action)"
-        do { try await api.control(printer: p.id, action: action) }
+        do { try await app.printerControl(p, action: action) }
         catch { self.error = error.localizedDescription }
         acting = ""
         try? await Task.sleep(for: .milliseconds(800))

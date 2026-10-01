@@ -11,10 +11,73 @@ extension KeyedDecodingContainer {
 }
 
 /// `remoteUrl`: optional second address for use away from home (e.g. Tailscale).
+/// `cloud`: the hosted PocketPrint3D service (server 0.15.0) - `token` is the session of `email`, and the app reaches
+/// the printers itself on the home Wi-Fi.
 struct Server: Codable, Sendable, Equatable {
     var url: String
     var token: String
     var remoteUrl: String?
+    var cloud: Bool?
+    var email: String?
+
+    init(url: String, token: String, remoteUrl: String? = nil, cloud: Bool? = nil, email: String? = nil) {
+        self.url = url; self.token = token; self.remoteUrl = remoteUrl; self.cloud = cloud; self.email = email
+    }
+
+    var isCloud: Bool { cloud == true }
+}
+
+/// The hosted service (docs/CLOUD.md).
+enum Cloud {
+    static let url = "https://api.pocketprint3d.com"
+}
+
+/// Cloud account (`GET /api/auth/me`).
+struct Me: Codable, Sendable, Equatable {
+    struct Limits: Codable, Sendable, Equatable {
+        var slicesPerDay: Int
+        var slicesToday: Int
+        var uploadMb: Int
+
+        enum CodingKeys: String, CodingKey {
+            case slicesPerDay = "slices_per_day"
+            case slicesToday = "slices_today"
+            case uploadMb = "upload_mb"
+        }
+
+        init(slicesPerDay: Int, slicesToday: Int, uploadMb: Int) {
+            self.slicesPerDay = slicesPerDay; self.slicesToday = slicesToday; self.uploadMb = uploadMb
+        }
+
+        init(from decoder: Decoder) throws {
+            let c = try decoder.container(keyedBy: CodingKeys.self)
+            slicesPerDay = c.lenient(Int.self, .slicesPerDay) ?? 0
+            slicesToday = c.lenient(Int.self, .slicesToday) ?? 0
+            uploadMb = c.lenient(Int.self, .uploadMb) ?? 0
+        }
+    }
+
+    var id: String
+    var email: String
+    var printers: Int
+    var limits: Limits
+
+    enum CodingKeys: String, CodingKey { case id, email, printers, limits }
+
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        id = c.lenient(String.self, .id) ?? ""
+        email = c.lenient(String.self, .email) ?? ""
+        printers = c.lenient(Int.self, .printers) ?? 0
+        limits = c.lenient(Limits.self, .limits) ?? Limits(slicesPerDay: 0, slicesToday: 0, uploadMb: 0)
+    }
+}
+
+/// A printer of the cloud account (`POST /api/printers`, `PATCH /api/printers/{id}`). The address is never sent.
+struct PrinterSettings: Encodable, Sendable, Equatable {
+    var name: String
+    var type: String
+    var cosmos: Bool
 }
 
 enum Route: String, Sendable { case home, remote }
@@ -47,12 +110,15 @@ struct Printer: Codable, Sendable, Identifiable, Hashable {
     var leveling: Bool?
     /// A smart plug is set up on the server's web page (server 0.12.0, issue #9): offer "switch on" while offline.
     var power: Bool
+    /// Cloud printers (server 0.15.0): a Klipper printer with the OpenCentauri COSMOS firmware.
+    var cosmos: Bool
 
-    enum CodingKeys: String, CodingKey { case id, name, type, machine, leveling, power }
+    enum CodingKeys: String, CodingKey { case id, name, type, machine, leveling, power, cosmos }
 
-    init(id: String, name: String, type: String = "", machine: String = "", leveling: Bool? = nil, power: Bool = false) {
+    init(id: String, name: String, type: String = "", machine: String = "", leveling: Bool? = nil, power: Bool = false,
+         cosmos: Bool = false) {
         self.id = id; self.name = name; self.type = type; self.machine = machine; self.leveling = leveling
-        self.power = power
+        self.power = power; self.cosmos = cosmos
     }
 
     init(from decoder: Decoder) throws {
@@ -67,6 +133,7 @@ struct Printer: Codable, Sendable, Identifiable, Hashable {
             leveling = nil
         }
         power = c.lenient(Bool.self, .power) ?? false
+        cosmos = c.lenient(Bool.self, .cosmos) ?? false
     }
 }
 

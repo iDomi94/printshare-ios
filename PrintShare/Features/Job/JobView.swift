@@ -30,6 +30,9 @@ struct JobView: View {
     @State private var levelLoaded = false
     @State private var gcodeShare: SharedFile?
     @State private var gcodeLoading = false
+    /// Cloud: the app sends the G-code itself, so the server's job stays "sliced"; this remembers what happened.
+    @State private var relayed: SendMode?
+    @State private var relay: (step: SendStep, part: Double)?
 
     /// `slots`: tool per model colour chosen on the prepare screen (the default until changed here).
     init(id: String, slots: [Int: Int] = [:]) {
@@ -82,7 +85,8 @@ struct JobView: View {
 
     private var statusKey: String {
         guard let job, job.state == .sliced || job.state == .uploaded else { return "" }
-        return printerId ?? ""
+        // the cloud needs the printer list (type) before it can ask the printer on the Wi-Fi
+        return (printerId ?? "") + (app.isCloud && printerInfo == nil ? "?" : "")
     }
 
     private func placeholder(_ t: L10n) -> some View {
@@ -171,8 +175,8 @@ struct JobView: View {
         let arranged = r?.knowsPlate == true ? PlateOptions.summary(t, job.request.options, placed: r?.copies) : ""
         let fewer = PlateOptions.fewerHint(t, r)
         let name = Format.jobName(file: r?.sourceFile, link: job.request.link)
-        let done = job.state == .started
-        let uploaded = job.state == .uploaded
+        let done = job.state == .started || relayed == .print
+        let uploaded = job.state == .uploaded || relayed == .upload
         let busy = printerKind?.isBusy ?? false
         let offline = printerKind == .offline
         let laneWarnings = done ? [] : LanePlan.warnings(t, colours: colours, lanes: printerLanes, tools: laneTools)
@@ -197,6 +201,10 @@ struct JobView: View {
             Text(name).font(.subheadline).foregroundStyle(Theme.sub).lineLimit(2).padding(.bottom, 16)
 
             if !actionError.isEmpty { PSBanner(kind: .error, text: actionError) }
+            if let relay {
+                PSBanner(kind: .info, text: relay.step == .upload ? t(.relayUpload, ["pct": String(Int((relay.part * 100).rounded()))])
+                                                                  : t(relay.step == .download ? .relayDownload : .relayStart))
+            }
             if let fewer { PSBanner(kind: .warn, text: fewer) }
 
             HStack(spacing: 10) {
@@ -284,7 +292,7 @@ struct JobView: View {
         } footer: {
             if done {
                 PSButton(title: t(.toPrinter), icon: "printer") { app.navigate(to: .printers) }
-                if hasCamera, let p = printerId {
+                if hasCamera, !app.isCloud, let p = printerId {
                     PSButton(title: t(.camera), kind: .secondary, icon: "video") {
                         camera = CameraTarget(printer: p, name: printerName)
                     }
@@ -402,8 +410,14 @@ struct JobView: View {
     }
 
     private func refreshPrinter() async {
-        guard let api = app.api, let p = printerId else { return }
-        let st = try? await api.status(printer: p)
+        guard let p = printerId else { return }
+        let st: PrinterStatus?
+        if app.isCloud {
+            guard let info = printerInfo else { return }  // printer list not loaded yet
+            st = try? await app.printerStatus(info)
+        } else {
+            st = try? await app.api?.status(printer: p)
+        }
         printerStatus = st
         printerKind = st?.kind ?? .offline
         if !levelLoaded, let info = printers.first(where: { $0.id == p }), let def = info.leveling {
@@ -419,9 +433,13 @@ struct JobView: View {
         actionError = ""
         sending = start ? .print : .upload
         defer { sending = nil }
+        let levelValue: Bool? = printerInfo?.leveling != nil ? level : nil
+        let lanes = printerLanes.isEmpty ? nil : laneTools
+        if app.isCloud, let info = printerInfo {
+            await relaySend(job, info, start: start, leveling: levelValue, lanes: lanes)
+            return
+        }
         do {
-            let levelValue: Bool? = printerInfo?.leveling != nil ? level : nil
-            let lanes = printerLanes.isEmpty ? nil : laneTools
             try await api.send(job: job.id, start: start, leveling: levelValue, lanes: lanes)
             var latest: Job?
             for _ in 0..<600 {
@@ -441,8 +459,37 @@ struct JobView: View {
         }
     }
 
+    /// Cloud: the phone is on the home Wi-Fi - G-code from the cloud (slots already mapped) straight to the printer.
+    /// Called once per confirmed start or upload; nothing is repeated automatically.
+    private func relaySend(_ job: Job, _ printer: Printer, start: Bool, leveling: Bool?, lanes: [Int: Int]?) async {
+        // the printer clients report from their own actor; the banner follows through a stream on the main actor
+        let (steps, feed) = AsyncStream.makeStream(of: SendProgress.self)
+        let options = SendOptions(start: start, leveling: start ? leveling : nil,
+                                  onStep: { feed.yield(SendProgress(step: $0, part: 0)) },
+                                  onProgress: { feed.yield(SendProgress(step: .upload, part: $0)) })
+        let banner = Task {
+            for await p in steps where !Task.isCancelled { relay = (p.step, p.part) }
+        }
+        defer {
+            feed.finish()
+            banner.cancel()
+            relay = nil
+        }
+        do {
+            try await app.relay(job: job.id, printer: printer, fileName: Lan.fileName(source: job.result?.sourceFile, job: job.id),
+                                lanes: lanes, options: options)
+            relayed = start ? .print : .upload
+            Haptics.success()
+        } catch is NoLanAddress {
+            actionError = app.l10n(.needLanAddress)
+        } catch {
+            actionError = "\(app.l10n(.errRelay)) \(error.localizedDescription)"
+        }
+        await refreshPrinter()
+    }
+
     private func loadCamera() async {
-        guard job?.state == .started, let api = app.api, let p = printerId else { return }
+        guard job?.state == .started, !app.isCloud, let api = app.api, let p = printerId else { return }
         hasCamera = (try? await api.cameraInfo(printer: p))?.available ?? false
     }
 

@@ -87,6 +87,28 @@ if it contradicts `printshare/api.py` the server wins; otherwise the simplest id
   / lay flat, copies 1-50, size 25-400 % in 25 steps). No Z rotation: OrcaSlicer's auto-arrange turns objects anyway.
   Texts from the 0.14.0 `i18n.ts`.
 
+- **Server 0.15.1 / cloud mode** (upstream `bfee81d` = 0.15.2, 2026-10-01), ported from the Expo app of the same commit
+  (`connect.tsx`, `cloud-printer/[id].tsx`, `lib/printerAccess.ts`, `lib/lan/*`):
+  - **Login**: the connect sheet has "PocketPrint3D Cloud / Eigener Server". Cloud = e-mail code (`POST
+    /api/auth/code` with `lang`, `POST /api/auth/login` with `device: "ios app"`) against `https://api.pocketprint3d.com`;
+    the session token is stored like a pairing token, `Server` got `cloud` + `email` (older stored servers decode
+    unchanged). Error texts in the order of `cloudError`; a 401 from a cloud request reads `errSession`.
+  - **Settings in the cloud**: account (e-mail, slices today from `/api/auth/me`), change, log out (confirm),
+    printers of the account (`CloudPrinterView`: name, type Centauri / Klipper, COSMOS switch, Wi-Fi address with a
+    connection test, profile, remove with confirm), delete account (two confirmations, `DELETE
+    /api/auth/account?confirm=true`).
+  - **Printers on the Wi-Fi**: the Wi-Fi address stays on the phone (Keychain `ps_lan_<account>`, as the Expo key) and
+    is never sent to the cloud. `LAN/SDCPPrinter.swift` (Centauri stock firmware: SDCP over `URLSessionWebSocketTask`
+    :3030, chunked multipart upload :80 with MD5 from CryptoKit, file listing + start check + one more start like the
+    server's finding 11) and `LAN/MoonrakerPrinter.swift` (address, then :7125; AFC lanes as on the server). Without
+    a concurrent receive loop: each command sends and reads messages until its answer; a watchdog closes the socket
+    on timeout, the next command opens a new one.
+  - **Screens**: printers tab, prepare and job screen ask the printer directly in the cloud (`AppModel.printerStatus`);
+    no address → "Adresse im Heimnetz" button. Print / upload in the cloud downloads `/api/jobs/<id>/gcode?lanes=…`
+    (slots mapped by the server) and sends it from the phone with a progress banner; the server job stays "sliced",
+    the screen remembers the result. Camera, control and power are hidden in the cloud, as upstream.
+  - Texts from the 0.15.2 `i18n.ts`. The 0.15.2 infill pattern is in a separate PR (#15).
+
 - **Model files in 3D** (not in the Expo app): the file row on the model page opens a sheet with the files of
   `/api/files` (same order and index as the prepare screen). STL is read by `STLReader` (binary + ASCII; ModelIO returned no mesh for STL on CI), 3MF by `ThreeMFReader` (own zip reader: stored/deflate via `NSData.decompressed(.zlib)`, zip64; `XMLParser` for the
   model files incl. Orca/Bambu `3D/Objects/*.model` components and build transforms; colour per object/part from
