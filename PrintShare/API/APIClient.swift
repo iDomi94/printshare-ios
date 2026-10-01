@@ -399,6 +399,9 @@ actor APIClient {
 
     func me() async throws -> Me { try await request("/api/auth/me") }
 
+    /// OrcaSlicer printer models for the model choice (server 0.15.3, ~1000 entries).
+    func machines() async throws -> [Machine] { try await request("/api/machines", timeout: 30) }
+
     func logout() async throws {
         let _: Ack = try await request("/api/auth/logout", method: "POST")
     }

@@ -161,8 +161,14 @@ final class CloudTests: XCTestCase {
         XCTAssertEqual(Lan.fileName(source: String(repeating: "a", count: 80) + ".stl", job: "j").count, 60 + 6)
         XCTAssertEqual(Lan.host(" http://192.168.1.5:7125/x "), "192.168.1.5:7125")
         XCTAssertTrue(Lan.canRelay("moonraker"))
-        XCTAssertFalse(Lan.canRelay("prusalink"))
-        XCTAssertThrowsError(try Lan.printer(type: "octoprint", address: "1.2.3.4"))
+        XCTAssertTrue(Lan.canRelay("prusalink"))
+        XCTAssertTrue(Lan.canRelay("octoprint"))
+        XCTAssertFalse(Lan.canRelay("bambu"))
+        XCTAssertThrowsError(try Lan.printer(type: "bambu", access: LanAccess(address: "1.2.3.4")))
+        // PrusaLink needs a password or API key, OctoPrint an API key
+        XCTAssertThrowsError(try Lan.printer(type: "prusalink", access: LanAccess(address: "1.2.3.4")))
+        XCTAssertThrowsError(try Lan.printer(type: "octoprint", access: LanAccess(address: "1.2.3.4", apiKey: "")))
+        XCTAssertNoThrow(try Lan.printer(type: "prusalink", access: LanAccess(address: "1.2.3.4", password: "pw")))
     }
 
     func testSDCPStatusMapping() {
@@ -199,12 +205,12 @@ final class CloudTests: XCTestCase {
             "display_status": ["progress": 0.1234], "extruder": ["temperature": 210.2, "target": 210],
             "heater_bed": ["temperature": 60, "target": 60], "gcode_move": ["speed_factor": 1.5],
         ]
-        let s = MoonrakerPrinter.status(from: st, base: "http://192.168.0.95")
+        let s = MoonrakerPrinter.status(from: st, base: "http://192.168.1.60")
         XCTAssertEqual(s.kind, .active)
         XCTAssertEqual(s.progress, 12.3)
         XCTAssertEqual(s.layer, 10)
         XCTAssertEqual(s.speed, 150)
-        XCTAssertEqual(s.camera, "http://192.168.0.95/webcam/?action=stream")
+        XCTAssertEqual(s.camera, "http://192.168.1.60/webcam/?action=stream")
 
         // Dominique's COSMOS: tools not in lane order, empty lane without material
         let lanes = MoonrakerPrinter.lanes(objects: ["AFC_lane CANVAS_1", "AFC_lane CANVAS_2", "AFC_lane CANVAS_4"], status: [
@@ -233,7 +239,7 @@ final class CloudTests: XCTestCase {
             default: return StubResponse(status: 404)
             }
         }
-        XCTAssertEqual(MoonrakerPrinter(address: "192.168.0.95:80").candidates, ["http://192.168.0.95:80"])
+        XCTAssertEqual(MoonrakerPrinter(address: "192.168.1.60:80").candidates, ["http://192.168.1.60:80"])
         let printer = MoonrakerPrinter(address: "printer.test/", session: StubProtocol.session())
         XCTAssertEqual(printer.candidates, ["http://printer.test", "http://printer.test:7125"])
         let file = FileManager.default.temporaryDirectory.appendingPathComponent("m-\(UUID().uuidString).gcode")
@@ -285,6 +291,118 @@ final class CloudTests: XCTestCase {
                        "--B\r\nContent-Disposition: form-data; name=\"Check\"\r\n\r\n1\r\n"
                        + "--B\r\nContent-Disposition: form-data; name=\"File\"; filename=\"a_b.gcode\"\r\n"
                        + "Content-Type: application/octet-stream\r\n\r\nG1\r\n--B--\r\n")
+    }
+
+    // MARK: server 0.15.3 - PrusaLink and OctoPrint in the cloud
+
+    func testAccessStoredAsPlainAddressStillLoads() throws {
+        let old = try JSONDecoder().decode([String: LanAccess].self, from: Data(#"{"p1": "192.168.1.50"}"#.utf8))
+        XCTAssertEqual(old["p1"], LanAccess(address: "192.168.1.50"))
+        let full = LanAccess(address: " 10.0.0.2 ", password: "", apiKey: " key ").cleaned
+        XCTAssertEqual(full, LanAccess(address: "10.0.0.2", apiKey: "key"))
+        XCTAssertNil(LanAccess(address: "  ").cleaned)
+        let back = try JSONDecoder().decode(LanAccess.self, from: JSONEncoder().encode(LanAccess(address: "a", password: "p")))
+        XCTAssertEqual(back.password, "p")
+    }
+
+    func testDigestMatchesRFC2617Example() {
+        var d = DigestAuth(user: "Mufasa", password: "Circle Of Life")
+        XCTAssertTrue(d.learn(#"Digest realm="testrealm@host.com", qop="auth,auth-int", nonce="dcd98b7102dd2f0e8b11d0f600bfb0c093", opaque="5ccc069c403ebaf9f0171e9517f40e41""#))
+        let h = d.header(method: "GET", uri: "/dir/index.html", cnonce: "0a4f113b")
+        XCTAssertTrue(h.contains(#"response="6629fae49393a05397450978507c4ef1""#), h)
+        XCTAssertTrue(h.contains("nc=00000001"))
+        XCTAssertTrue(d.header(method: "GET", uri: "/", cnonce: "x").contains("nc=00000002"))
+        var none = DigestAuth(user: "maker", password: "pw")
+        XCTAssertFalse(none.learn("Basic realm=x"))
+    }
+
+    func testPrusaLinkStatusAndFileName() {
+        let s = PrusaLinkPrinter.status(status: [
+            "printer": ["state": "PRINTING", "temp_nozzle": 215.1, "target_nozzle": 215, "temp_bed": 60, "target_bed": 60,
+                        "speed": 100],
+            "job": ["id": 7, "progress": 42.04, "time_printing": 600, "time_remaining": 1200],
+        ], job: ["file": ["display_name": "Benchy.gcode", "name": "BENCHY~1.GCO"]])
+        XCTAssertEqual(s.state, "printing")
+        XCTAssertEqual(s.kind, .active)
+        XCTAssertEqual(s.file, "Benchy.gcode")
+        XCTAssertEqual(s.progress, 42)
+        XCTAssertEqual(s.timeRemainingS, 1200)
+        XCTAssertEqual(s.speed, 100)
+        XCTAssertEqual(PrusaLinkPrinter.status(status: ["printer": ["state": "FINISHED"]], job: [:]).kind, .done)
+        XCTAssertEqual(PrusaLinkPrinter.status(status: ["printer": ["state": "IDLE"]], job: [:]).kind, .idle)
+        XCTAssertEqual(PrusaLinkPrinter.remoteName("3D Benchy (v2).GCODE"), "3D_Benchy_v2.gcode")
+        XCTAssertEqual(PrusaLinkPrinter.remoteName("..."), "print.gcode")
+    }
+
+    func testPrusaLinkDigestHandshakeAndUpload() async throws {
+        var seen: [URLRequest] = []
+        let lock = NSLock()
+        StubProtocol.install { req in
+            lock.lock(); seen.append(req); lock.unlock()
+            guard req.value(forHTTPHeaderField: "Authorization")?.hasPrefix("Digest ") == true else {
+                return StubResponse(status: 401, headers: ["WWW-Authenticate": #"Digest realm="Printer API", nonce="abc", qop="auth""#])
+            }
+            if req.url?.path == "/api/v1/storage" {
+                return StubResponse(body: Data(#"{"storage_list": [{"path": "/usb/", "available": true, "read_only": false}]}"#.utf8))
+            }
+            return StubResponse(status: 201)
+        }
+        let printer = try PrusaLinkPrinter(address: "printer.test", password: "pw", apiKey: nil, session: StubProtocol.session())
+        let file = FileManager.default.temporaryDirectory.appendingPathComponent("p-\(UUID().uuidString).gcode")
+        try Data("G28\n".utf8).write(to: file)
+        defer { try? FileManager.default.removeItem(at: file) }
+        try await printer.send(file: file, name: "benchy.gcode", options: SendOptions(start: false))
+        // first contact: 401 with the challenge, the same GET once more with the digest, then the upload
+        XCTAssertEqual(seen.map { $0.url?.path ?? "" }, ["/api/v1/storage", "/api/v1/storage", "/api/v1/files/usb/benchy.gcode"])
+        XCTAssertEqual(seen[2].httpMethod, "PUT")
+        XCTAssertEqual(seen[2].value(forHTTPHeaderField: "Print-After-Upload"), "?0")
+        XCTAssertTrue(seen[2].value(forHTTPHeaderField: "Authorization")?.contains("nc=00000002") == true)
+        XCTAssertTrue(seen[2].value(forHTTPHeaderField: "Authorization")?.contains(#"uri="/api/v1/files/usb/benchy.gcode""#) == true)
+    }
+
+    func testOctoPrintStateAndNoStart() async throws {
+        XCTAssertEqual(OctoPrintPrinter.state(printer: nil, job: [:]), "offline")
+        XCTAssertEqual(OctoPrintPrinter.state(printer: ["state": ["flags": ["printing": true]]], job: [:]), "printing")
+        XCTAssertEqual(OctoPrintPrinter.state(printer: ["state": ["flags": ["paused": true]]], job: [:]), "paused")
+        XCTAssertEqual(OctoPrintPrinter.state(printer: ["state": ["flags": [:]]], job: ["progress": ["completion": 100]]),
+                       "complete")
+        let s = OctoPrintPrinter.status(printer: ["temperature": ["tool0": ["actual": 200.5, "target": 200], "bed": ["actual": 55]]],
+                                        job: ["job": ["file": ["display": "cube.gcode"]], "progress": ["completion": 12.34]])
+        XCTAssertEqual(s.nozzle, 200.5)
+        XCTAssertEqual(s.bed, 55)
+        XCTAssertEqual(s.file, "cube.gcode")
+        XCTAssertEqual(s.progress, 12.3)
+
+        var keys: [String?] = []
+        let lock = NSLock()
+        StubProtocol.install { req in
+            lock.lock(); keys.append(req.value(forHTTPHeaderField: "X-Api-Key")); lock.unlock()
+            return StubResponse(status: 201, body: Data(#"{"done": true, "effectivePrint": false}"#.utf8))
+        }
+        let printer = try OctoPrintPrinter(address: "octopi.test/", apiKey: "k1", session: StubProtocol.session())
+        XCTAssertEqual(printer.base, "http://octopi.test")
+        let file = FileManager.default.temporaryDirectory.appendingPathComponent("o-\(UUID().uuidString).gcode")
+        try Data("G28\n".utf8).write(to: file)
+        defer { try? FileManager.default.removeItem(at: file) }
+        do {
+            try await printer.send(file: file, name: "cube.gcode", options: SendOptions(start: true))
+            XCTFail("expected: OctoPrint did not start it")
+        } catch let e as LanError {
+            XCTAssertTrue(e.message.contains("did not start"))
+        }
+        XCTAssertEqual(keys, ["k1"])
+        XCTAssertEqual(StubProtocol.requests, [LoggedRequest(method: "POST", host: "octopi.test", path: "/api/files/local")])
+    }
+
+    func testPrinterSettingsSendMachineOnlyWhenSet() throws {
+        let plain = try JSONSerialization.jsonObject(with: JSONEncoder().encode(
+            PrinterSettings(name: "CC", type: "elegoo_sdcp", cosmos: false))) as? [String: Any]
+        XCTAssertNil(plain?["machine"])
+        let prusa = try JSONSerialization.jsonObject(with: JSONEncoder().encode(
+            PrinterSettings(name: "MK4S", type: "prusalink", cosmos: false, machine: "Prusa MK4S 0.4 nozzle"))) as? [String: Any]
+        XCTAssertEqual(prusa?["machine"] as? String, "Prusa MK4S 0.4 nozzle")
+        let list = try JSONDecoder().decode([Machine].self, from: Data(#"[{"name": "Prusa MK4S 0.4 nozzle", "vendor": "Prusa"}]"#.utf8))
+        XCTAssertEqual(list.first?.vendor, "Prusa")
     }
 }
 

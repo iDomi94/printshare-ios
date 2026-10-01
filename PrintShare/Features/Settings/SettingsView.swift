@@ -102,7 +102,7 @@ struct SettingsView: View {
         PSSection(title: t(.tabPrinters)) {
             ForEach(Array(printers.enumerated()), id: \.element.id) { i, p in
                 if i > 0 { PSDivider() }
-                PSRow(icon: "printer", label: p.name, sub: p.type == "moonraker" ? t(.typeKlipper) : t(.typeCentauri)) {
+                PSRow(icon: "printer", label: p.name, sub: t.printerTypeName(p.type)) {
                     app.push(.cloudPrinter(id: p.id))
                 }
             }

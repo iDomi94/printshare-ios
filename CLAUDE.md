@@ -9,7 +9,7 @@ Native Swift 6 + SwiftUI port of the Expo app in `mobile/` of the PrintShare pro
 State (2026-09-30): all screens and flows of the Expo app are written (Home, Discover, Model detail,
 Prepare, Job with review and confirmation, Preview, Jobs, Printers, Settings, Connect/QR), plus the share extension.
 Own bundle id `com.dominiqueherbrigpersonalteam.printshare` and App Group `group.com.dominiqueherbrigpersonalteam.printshare`
-(Dominique's account, since 2026-09-30; before: the Expo build's `io.github.halvar20000.printshare`), same URL scheme. Caught up with **server 0.15.1** (upstream `bfee81d`; 0.15 = PocketPrint3D cloud: e-mail login, account, printers reached by the app itself on the Wi-Fi via SDCP / Moonraker (`PrintShare/LAN/`), see PORTING_NOTES; earlier: 509c409 + PR #14, 0.11-0.14 in PORTING_NOTES: slot defaults, power via Home Assistant #9, own quality/material presets #7, visible name **PocketPrint3D**, copies / tilt / size per print):
+(Dominique's account, since 2026-09-30; before: the Expo build's `io.github.halvar20000.printshare`), same URL scheme. Caught up with **server 0.15.3** (upstream `24b0770`; 0.15 = PocketPrint3D cloud: e-mail login, account, printers reached by the app itself on the Wi-Fi via SDCP / Moonraker / PrusaLink / OctoPrint (`PrintShare/LAN/`), see PORTING_NOTES; earlier: 509c409 + PR #14, 0.11-0.14 in PORTING_NOTES: slot defaults, power via Home Assistant #9, own quality/material presets #7, visible name **PocketPrint3D**, copies / tilt / size per print):
 bed leveling per print (`leveling`), multicolour 3MF projects (`/api/inspect`, `options.filaments`, grams per colour),
 preview format 2 (`?format=2`, filament per path, `bounds`, `filament_colors`), G-code sharing (`/api/jobs/<id>/gcode`),
 AFC lane choice (`status.lanes`, `send.lanes`, #6; shown as "Slot N", chosen already before slicing, see PORTING_NOTES), camera through the server (live MJPEG / stills, #3), printer control
@@ -33,7 +33,7 @@ Moonraker adapter (Dominique's recorded COSMOS + AFC and the server tests' fake 
 
 **Not verified:** no simulator or device run (the 3D plate view was never seen rendered, nor its performance on a big print), no real server, no share extension on a device, no QR scan, no
 TestFlight upload (workflow `testflight.yml` exists, needs the secrets listed in it), no camera stream from a real
-printer, no lane choice / printer control / profile upload against a real printer or server, cloud login and the Wi-Fi printer clients (SDCP WebSocket, Moonraker upload) never run against the real cloud or a real printer (only the HTTP parts against stubs), Keychain migration: the key layout was checked against the expo-secure-store 57 source, but its test is skipped in the
+printer, no lane choice / printer control / profile upload against a real printer or server, cloud login and the Wi-Fi printer clients (SDCP WebSocket, Moonraker, PrusaLink digest, OctoPrint) never run against the real cloud or a real printer (only the HTTP parts against stubs), Keychain migration: the key layout was checked against the expo-secure-store 57 source, but its test is skipped in the
 unsigned CI (no keychain) and it was never run against a real Expo install.
 
 ## Rules

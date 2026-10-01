@@ -38,9 +38,42 @@ struct LanError: Error, LocalizedError, Sendable, Equatable {
 /// The printer has no Wi-Fi address on this phone yet.
 struct NoLanAddress: Error, Sendable {}
 
+/// How the app reaches one printer: address, plus the PrusaLink password or an API key (PrusaLink, OctoPrint,
+/// Moonraker). Stored only on this phone, never sent to the cloud.
+struct LanAccess: Codable, Sendable, Equatable {
+    var address: String
+    var password: String?
+    var apiKey: String?
+
+    enum CodingKeys: String, CodingKey { case address, password, apiKey }
+
+    init(address: String, password: String? = nil, apiKey: String? = nil) {
+        self.address = address; self.password = password; self.apiKey = apiKey
+    }
+
+    /// Builds 0.6.0 before server 0.15.3 stored the bare address string.
+    init(from decoder: Decoder) throws {
+        if let plain = try? decoder.singleValueContainer().decode(String.self) {
+            self.init(address: plain)
+            return
+        }
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        self.init(address: c.lenient(String.self, .address) ?? "", password: c.lenient(String.self, .password),
+                  apiKey: c.lenient(String.self, .apiKey))
+    }
+
+    /// Trimmed, empty fields dropped; nil when there is no address.
+    var cleaned: LanAccess? {
+        let a = address.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !a.isEmpty else { return nil }
+        let key = apiKey?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        return LanAccess(address: a, password: (password ?? "").isEmpty ? nil : password, apiKey: key.isEmpty ? nil : key)
+    }
+}
+
 enum Lan {
-    /// Printer types the app can talk to directly (PrusaLink / OctoPrint follow later).
-    static let types = ["elegoo_sdcp", "moonraker"]
+    /// Printer types the app can talk to directly (server 0.15.3).
+    static let types = ["elegoo_sdcp", "moonraker", "prusalink", "octoprint"]
 
     static func canRelay(_ type: String) -> Bool { types.contains(type) }
 
@@ -51,12 +84,23 @@ enum Lan {
             .replacingRegex("/.*$", with: "")
     }
 
-    static func printer(type: String, address: String, session: URLSession = .shared) throws -> any LanPrinter {
+    static func printer(type: String, access: LanAccess, session: URLSession = .shared) throws -> any LanPrinter {
+        let address = access.address
         switch type {
         case "elegoo_sdcp": return SDCPPrinter(host: host(address).replacingRegex(":\\d+$", with: ""), session: session)
-        case "moonraker": return MoonrakerPrinter(address: address, session: session)
+        case "moonraker": return MoonrakerPrinter(address: address, apiKey: access.apiKey, session: session)
+        case "prusalink":
+            return try PrusaLinkPrinter(address: address, password: access.password, apiKey: access.apiKey, session: session)
+        case "octoprint": return try OctoPrintPrinter(address: address, apiKey: access.apiKey ?? "", session: session)
         default: throw LanError("printer type \(type) can't be reached from the app yet")
         }
+    }
+
+    /// `http://` + address without trailing slashes (PrusaLink, OctoPrint).
+    static func baseURL(_ address: String) -> String {
+        var a = address.trimmingCharacters(in: .whitespacesAndNewlines)
+        while a.hasSuffix("/") { a.removeLast() }
+        return a.matches("^https?://", options: .caseInsensitive) ? a : "http://\(a)"
     }
 
     /// Same buckets as the server's `api.printer_kind`, so the screens work alike at home and in the cloud.

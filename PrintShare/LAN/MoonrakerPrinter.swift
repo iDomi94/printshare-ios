@@ -8,9 +8,12 @@ actor MoonrakerPrinter: LanPrinter {
 
     nonisolated let candidates: [String]
     private let session: URLSession
+    private let apiKey: String?
     private var base: String?
 
-    init(address: String, session: URLSession = .shared) {
+    /// `apiKey`: only for Moonraker installs that require one (sent as X-Api-Key).
+    init(address: String, apiKey: String? = nil, session: URLSession = .shared) {
+        self.apiKey = apiKey
         var a = address.trimmingCharacters(in: .whitespacesAndNewlines)
         while a.hasSuffix("/") { a.removeLast() }
         let url = a.matches("^https?://", options: .caseInsensitive) ? a : "http://\(a)"
@@ -25,6 +28,7 @@ actor MoonrakerPrinter: LanPrinter {
         var req = URLRequest(url: u)
         req.httpMethod = method
         req.timeoutInterval = timeout
+        if let apiKey { req.setValue(apiKey, forHTTPHeaderField: "X-Api-Key") }
         do {
             let (data, res) = try await session.data(for: req)
             return (data, (res as? HTTPURLResponse)?.statusCode ?? 0)
@@ -145,6 +149,7 @@ actor MoonrakerPrinter: LanPrinter {
         req.httpMethod = "POST"
         req.timeoutInterval = 600
         req.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
+        if let apiKey { req.setValue(apiKey, forHTTPHeaderField: "X-Api-Key") }
         let report = options.onProgress
         let progress = UploadProgress { sent, total in
             if let report, total > 0 { report(min(1, Double(sent) / Double(total))) }

@@ -78,6 +78,26 @@ struct PrinterSettings: Encodable, Sendable, Equatable {
     var name: String
     var type: String
     var cosmos: Bool
+    /// OrcaSlicer printer profile; required for `prusalink` / `octoprint` (server 0.15.3), left out when nil.
+    var machine: String?
+
+    init(name: String, type: String, cosmos: Bool, machine: String? = nil) {
+        self.name = name; self.type = type; self.cosmos = cosmos; self.machine = machine
+    }
+}
+
+/// An OrcaSlicer printer model for the cloud printer's model choice (`GET /api/machines`, server 0.15.3).
+struct Machine: Codable, Sendable, Equatable {
+    var name: String
+    var vendor: String
+
+    enum CodingKeys: String, CodingKey { case name, vendor }
+
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        name = try c.decode(String.self, forKey: .name)
+        vendor = c.lenient(String.self, .vendor) ?? ""
+    }
 }
 
 enum Route: String, Sendable { case home, remote }

@@ -107,7 +107,19 @@ if it contradicts `printshare/api.py` the server wins; otherwise the simplest id
     no address → "Adresse im Heimnetz" button. Print / upload in the cloud downloads `/api/jobs/<id>/gcode?lanes=…`
     (slots mapped by the server) and sends it from the phone with a progress banner; the server job stays "sliced",
     the screen remembers the result. Camera, control and power are hidden in the cloud, as upstream.
-  - Texts from the 0.15.2 `i18n.ts`. The 0.15.2 infill pattern is in a separate PR (#15).
+  - Texts from the 0.15.3 `i18n.ts` (the generator now also reads the `printerTypes`, `printerTypeHints` and
+    `infillNames` tables). The 0.15.2 infill pattern came with PR #15, merged into this branch.
+- **Server 0.15.3** (upstream `24b0770`, 2026-10-01): PrusaLink and OctoPrint printers in the cloud.
+  - `LAN/PrusaLinkPrinter.swift`: digest auth (user `maker` + the password from the printer screen; `DigestAuth`,
+    RFC 7616 MD5 with qop=auth, checked against the RFC 2617 example) or `X-Api-Key`; the first request without
+    credentials gets the challenge, the same request is sent once more with them (the printer refused the first, so
+    nothing runs twice). Upload = raw `PUT /api/v1/files/<storage>/<name>` with `Print-After-Upload`; FAT-safe names.
+  - `LAN/OctoPrintPrinter.swift`: API key, multipart `POST /api/files/local` with `select`/`print`, state from the
+    flags of `/api/printer` (409 = not connected), pause/resume/cancel through `POST /api/job`.
+  - Moonraker takes an optional API key. What the app stores per printer is now `LanAccess` (address, PrusaLink
+    password, API key) in the Keychain; the bare address strings of earlier builds still load.
+  - `CloudPrinterView`: type picker with the four types and their hints, printer model from `GET /api/machines`
+    (required for PrusaLink / OctoPrint, sent as `machine`), password / API key fields, connection test.
 
 - **Model files in 3D** (not in the Expo app): the file row on the model page opens a sheet with the files of
   `/api/files` (same order and index as the prepare screen). STL is read by `STLReader` (binary + ASCII; ModelIO returned no mesh for STL on CI), 3MF by `ThreeMFReader` (own zip reader: stored/deflate via `NSData.decompressed(.zlib)`, zip64; `XMLParser` for the

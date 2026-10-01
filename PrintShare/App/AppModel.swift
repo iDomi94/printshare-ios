@@ -70,27 +70,28 @@ final class AppModel {
 
     var isCloud: Bool { server?.isCloud ?? false }
 
-    /// The printers' Wi-Fi addresses stay on this phone, per account (the cloud never sees them, docs/CLOUD.md).
+    /// The printers' Wi-Fi addresses (and PrusaLink passwords / API keys) stay on this phone, in the Keychain, per
+    /// account - the cloud never sees them (docs/CLOUD.md).
     private var lanKey: String? {
         server.map { StoreKey.lan(($0.email ?? $0.url).replacingRegex("[^A-Za-z0-9_.-]", with: "_")) }
     }
 
-    func lanAddresses() -> [String: String] {
-        lanKey.flatMap { keychain.getJSON($0, as: [String: String].self) } ?? [:]
+    func lanAccess() -> [String: LanAccess] {
+        lanKey.flatMap { keychain.getJSON($0, as: [String: LanAccess].self) } ?? [:]
     }
 
-    func saveLanAddress(_ printer: String, _ address: String?) {
+    /// nil (or no address) forgets the printer.
+    func saveLanAccess(_ printer: String, _ access: LanAccess?) {
         guard let lanKey else { return }
-        var all = lanAddresses()
-        let a = address?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
-        all[printer] = a.isEmpty ? nil : a
+        var all = lanAccess()
+        all[printer] = access?.cleaned
         keychain.setJSON(lanKey, all)
     }
 
     private func lanPrinter(_ p: Printer) throws -> any LanPrinter {
         guard Lan.canRelay(p.type) else { throw LanError("this printer type can only be used with an own server for now") }
-        guard let address = lanAddresses()[p.id] else { throw NoLanAddress() }
-        return try Lan.printer(type: p.type, address: address)
+        guard let access = lanAccess()[p.id], !access.address.isEmpty else { throw NoLanAddress() }
+        return try Lan.printer(type: p.type, access: access)
     }
 
     private func requireAPI() throws -> APIClient {

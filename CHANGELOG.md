@@ -6,13 +6,13 @@ die Commit-Titel seit dem letzten Tag.
 
 ## 0.6.0
 
-Aufgeholt mit Server 0.15.1: PocketPrint3D Cloud.
+Aufgeholt mit Server 0.15.3: PocketPrint3D Cloud, auch für Prusa (PrusaLink) und OctoPrint. Enthält das Füllmuster aus 0.5.0.
 
 - Verbinden: neue Wahl „PocketPrint3D Cloud / Eigener Server“. Cloud = Anmeldung mit E-Mail-Adresse und 6-stelligem Code, kein eigener Server nötig
 - Einstellungen in der Cloud: Konto mit „x von 30 Slices heute“, Abmelden, Konto löschen (zweimal bestätigen) und die Drucker des Kontos
-- Drucker hinzufügen: Name, Typ (Centauri Carbon oder Klipper/COSMOS), COSMOS-Schalter und die Adresse im WLAN mit „Verbindung testen“. Die Adresse bleibt nur auf dem Handy
+- Drucker hinzufügen: Name, Typ (Elegoo Centauri Carbon, Klipper/COSMOS, Prusa mit PrusaLink oder OctoPrint), bei Prusa/OctoPrint das Druckermodell, und die Adresse im WLAN mit „Verbindung testen“. Prusa braucht das PrusaLink-Passwort vom Druckerdisplay, OctoPrint einen API-Key. Adresse, Passwort und Key bleiben nur auf dem Handy
 - Drucken in der Cloud: die App holt den G-Code aus der Cloud und schickt ihn selbst über das WLAN an den Drucker (Fortschritt wird angezeigt); Status, Pause, Fortsetzen und Abbrechen laufen ebenfalls direkt über das WLAN
-- Bitte testen: Centauri (Original-Firmware) und COSMOS über WLAN, jeweils „Nur hochladen“ und Drucken
+- Bitte testen: Centauri (Original-Firmware), COSMOS, Prusa und OctoPrint über WLAN, jeweils „Nur hochladen“ und Drucken
 - Mit eigenem Server ändert sich nichts
 
 ## 0.5.0

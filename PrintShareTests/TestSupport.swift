@@ -23,6 +23,7 @@ struct StubResponse {
     var body = Data("{}".utf8)
     var delay: TimeInterval = 0
     var error: URLError?
+    var headers: [String: String] = [:]
 }
 
 struct LoggedRequest: Equatable {
@@ -72,7 +73,7 @@ final class StubProtocol: URLProtocol {
                 return
             }
             let res = HTTPURLResponse(url: request.url!, statusCode: stub.status, httpVersion: "HTTP/1.1",
-                                      headerFields: ["Content-Type": "application/json"])!
+                                      headerFields: ["Content-Type": "application/json"].merging(stub.headers) { $1 })!
             self.client?.urlProtocol(self, didReceive: res, cacheStoragePolicy: .notAllowed)
             self.client?.urlProtocol(self, didLoad: stub.body)
             self.client?.urlProtocolDidFinishLoading(self)
