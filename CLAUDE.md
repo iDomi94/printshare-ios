@@ -16,8 +16,8 @@ AFC lane choice (`status.lanes`, `send.lanes`, #6; shown as "Slot N", chosen alr
 (`/controls`, `/adjust`, `/temperatures`, #5), own printer profile (`/api/profiles`, `/api/printers/<id>/profile`, #2).
 Beyond the Expo app: the sliced plate in 3D (preview switch "Modell / Ganze Platte / 3D", SceneKit ridges per path from preview format 2, `Plate3D.swift`), model files in 3D before slicing (tap "X printable files" on the model page; STL and 3MF via own
 readers (3MF: own zip reader + XMLParser, Orca/Bambu/Prusa object colours), OBJ via ModelIO, shown with SceneKit, needs
-server 0.10.1 `/api/model-file`, merged upstream), TestFlight workflow on release tags `vX.Y.Z` (version from the tag, `CHANGELOG.md` section as "What to Test", like iDomi94/Lademonitor-App).
-Texts are generated from the 0.15.2 `i18n.ts`. When upstream changes, compare `mobile/` and `printshare/api.py` since
+server 0.10.1 `/api/model-file`, merged upstream), infill pattern per print with a 3 × 3 cm real-size picture of one layer (server 0.15.2, `InfillPattern.swift`), TestFlight workflow on release tags `vX.Y.Z` (version from the tag, `CHANGELOG.md` section as "What to Test", like iDomi94/Lademonitor-App).
+Texts are generated from the 0.15.3 `i18n.ts`. When upstream changes, compare `mobile/` and `printshare/api.py` since
 the commit above and port the difference.
 
 **Verified:** CI (macos-latest): builds without errors or warnings in Swift 6 mode, all unit tests green. Unit tests cover URL normalisation,

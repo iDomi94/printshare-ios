@@ -5,7 +5,7 @@ struct PrepareView: View {
     let args: PrepareArgs
 
     private enum SheetKind: Identifiable, Hashable {
-        case printer, filament, process, plate, file, tilt
+        case printer, filament, process, plate, file, tilt, infillPattern
         case color(Int)  // material for filament n of a multicolour model (or 1 with printer slots)
         case slot(Int)  // printer slot (AFC lane) for filament n
 
@@ -17,6 +17,7 @@ struct PrepareView: View {
             case .plate: return "plate"
             case .file: return "file"
             case .tilt: return "tilt"
+            case .infillPattern: return "infillPattern"
             case .color(let n): return "color\(n)"
             case .slot(let n): return "slot\(n)"
             }
@@ -42,6 +43,7 @@ struct PrepareView: View {
     @State private var supports = "off"
     @State private var brim = "auto"
     @State private var infill: Int?  // nil = profile default
+    @State private var infillPattern: String?  // nil = profile default
     @State private var walls: Int?
     // plate (server 0.14.0): kept when the printer changes, taken over when editing a job
     @State private var copies: Int
@@ -166,7 +168,8 @@ struct PrepareView: View {
         }
         .sheet(item: $sheet) { kind in
             PickerSheet(title: sheetTitle(t, kind), choices: choices(t, kind), selected: sheetValue(kind),
-                        searchLabel: t(.search), closeLabel: "OK") { pick(kind, $0) }
+                        searchLabel: t(.search), closeLabel: "OK", onPick: { pick(kind, $0) },
+                        leading: kind == .infillPattern ? Self.infillThumb : nil)
         }
     }
 
@@ -272,6 +275,16 @@ struct PrepareView: View {
                 PSField(label: t(.infill), hint: infill == nil || infill == d.infill ? t(.standard) : nil) {
                     PSStepper(value: infill ?? d.infill ?? 15, range: 0...100, step: 5, format: { "\($0) %" }) { infill = $0 }
                 }
+                // server 0.15.2: pattern + a 3 × 3 cm picture in real size of what pattern and percentage give
+                if let pattern = infillPattern ?? d.infillPattern,
+                   !InfillPattern.choices(server: opts.infillPatterns, current: d.infillPattern).isEmpty {
+                    PSDivider()
+                    PSRow(label: t(.infillPattern), value: t.infillPattern(pattern),
+                          sub: infillPattern == nil || infillPattern == d.infillPattern ? t(.standard) : nil,
+                          action: { sheet = .infillPattern }, right: { InfillThumb(pattern: pattern, size: 28).padding(.leading, 4) })
+                    InfillRealSize(pattern: pattern, density: infill ?? d.infill ?? 15,
+                                   lineWidth: d.infillLineWidth ?? InfillPattern.defaultLineWidth, t: t)
+                }
                 PSDivider()
                 PSField(label: t(.walls), hint: walls == nil || walls == d.walls ? t(.standard) : nil) {
                     PSStepper(value: walls ?? d.walls ?? 2, range: 1...10) { walls = $0 }
@@ -349,6 +362,7 @@ struct PrepareView: View {
         case .plate: return t(.plate)
         case .file: return t(.file)
         case .tilt: return t(.tilt)
+        case .infillPattern: return t(.infillPattern)
         case .color(let n): return multi ? t(.colorN, ["n": String(n)]) : t(.material)
         case .slot(let n): return multi ? t(.colorN, ["n": String(n)]) : t(.slot)
         }
@@ -362,10 +376,13 @@ struct PrepareView: View {
         case .plate: return plate
         case .file: return file
         case .tilt: return tilt.rawValue
+        case .infillPattern: return infillPattern ?? opts?.defaults.infillPattern
         case .color(let n): return material(for: n)
         case .slot(let n): return slotTools[n].map(String.init)
         }
     }
+
+    @MainActor private static func infillThumb(_ pattern: String) -> AnyView { AnyView(InfillThumb(pattern: pattern)) }
 
     private func choices(_ t: L10n, _ k: SheetKind) -> [Choice] {
         switch k {
@@ -390,6 +407,13 @@ struct PrepareView: View {
             return LanePlan.choices(t, lanes: lanes)
         case .tilt:
             return PlateTilt.allCases.map { Choice(value: $0.rawValue, label: t($0.label)) }
+        case .infillPattern:
+            let standard = opts?.defaults.infillPattern
+            return InfillPattern.choices(server: opts?.infillPatterns, current: standard).map {
+                let hint = t.infillHint($0)
+                let sub = $0 == standard ? [t(.standard), hint].compactMap { $0 }.joined(separator: " · ") : hint
+                return Choice(value: $0, label: t.infillPattern($0), sub: sub)
+            }
         }
     }
 
@@ -401,6 +425,7 @@ struct PrepareView: View {
         case .plate: plate = v
         case .file: file = v
         case .tilt: tilt = PlateTilt(rawValue: v) ?? .asModel
+        case .infillPattern: infillPattern = v
         case .color(let n): perColor[n] = v
         case .slot(let n):
             // a new slot brings its own material: drop an earlier material choice for this colour
@@ -516,6 +541,7 @@ struct PrepareView: View {
         supports = keep?.supports ?? d.supports
         brim = keep?.brim ?? d.brim
         infill = keep?.infill
+        infillPattern = keep?.infillPattern
         walls = keep?.walls
     }
 
@@ -545,6 +571,7 @@ struct PrepareView: View {
         if supports != d.supports { o.supports = supports }
         if brim != d.brim { o.brim = brim }
         if let infill, infill != d.infill { o.infill = infill }
+        if let infillPattern, infillPattern != d.infillPattern { o.infillPattern = infillPattern }
         if let walls, walls != d.walls { o.walls = walls }
         PlateOptions.apply(copies: copies, tilt: tilt, scale: scale, to: &o)
         if multi, let colors {

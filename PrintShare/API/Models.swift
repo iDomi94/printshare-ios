@@ -445,11 +445,16 @@ struct Defaults: Codable, Sendable, Equatable {
     var infill: Int?
     var walls: Int?
     var layerHeight: String?
+    /// Server 0.15.2: the quality's infill pattern and infill line width in mm (nil = given in % or older server).
+    var infillPattern: String?
+    var infillLineWidth: Double?
 
     enum CodingKeys: String, CodingKey {
         case filament, process, supports, brim, infill, walls
         case bedType = "bed_type"
         case layerHeight = "layer_height"
+        case infillPattern = "infill_pattern"
+        case infillLineWidth = "infill_line_width"
     }
 
     init(from decoder: Decoder) throws {
@@ -462,12 +467,16 @@ struct Defaults: Codable, Sendable, Equatable {
         infill = c.lenient(Int.self, .infill)
         walls = c.lenient(Int.self, .walls)
         layerHeight = c.lenient(String.self, .layerHeight)
+        infillPattern = c.lenient(String.self, .infillPattern)
+        infillLineWidth = c.lenient(Double.self, .infillLineWidth)
     }
 
     init(filament: String, process: String, bedType: String, supports: String = "off", brim: String = "auto",
-         infill: Int? = nil, walls: Int? = nil, layerHeight: String? = nil) {
+         infill: Int? = nil, walls: Int? = nil, layerHeight: String? = nil, infillPattern: String? = nil,
+         infillLineWidth: Double? = nil) {
         self.filament = filament; self.process = process; self.bedType = bedType; self.supports = supports
         self.brim = brim; self.infill = infill; self.walls = walls; self.layerHeight = layerHeight
+        self.infillPattern = infillPattern; self.infillLineWidth = infillLineWidth
     }
 }
 
@@ -479,8 +488,15 @@ struct Options: Codable, Sendable, Equatable {
     var supports: [String]
     var brims: [String]
     var defaults: Defaults
+    /// OrcaSlicer infill patterns the server accepts (0.15.2); nil on older servers = no choice.
+    var infillPatterns: [String]?
     /// Uploaded quality/material presets among `materials` / `processes` (server 0.13.0); shown first as own profiles.
     var own: OwnPresets?
+
+    enum CodingKeys: String, CodingKey {
+        case printer, materials, processes, plates, supports, brims, defaults, own
+        case infillPatterns = "infill_patterns"
+    }
 }
 
 struct OwnPresets: Codable, Sendable, Equatable {
@@ -509,6 +525,8 @@ struct JobOptions: Codable, Sendable, Equatable, Hashable {
     var supports: String?
     var brim: String?
     var infill: Int?
+    /// Server 0.15.2: OrcaSlicer sparse_infill_pattern; older servers ignore it.
+    var infillPattern: String?
     var walls: Int?
     var filaments: [String?]?
     /// Plate (server 0.14.0): copies 1-50 (OrcaSlicer fits as many as it can), tilt in degrees before slicing,
@@ -524,13 +542,16 @@ struct JobOptions: Codable, Sendable, Equatable, Hashable {
         case bedType = "bed_type"
         case rotateX = "rotate_x"
         case rotateY = "rotate_y"
+        case infillPattern = "infill_pattern"
     }
 
     init(filament: String? = nil, process: String? = nil, bedType: String? = nil, supports: String? = nil,
-         brim: String? = nil, infill: Int? = nil, walls: Int? = nil, filaments: [String?]? = nil,
-         copies: Int? = nil, rotateX: Double? = nil, rotateY: Double? = nil, scale: Int? = nil, orient: Bool? = nil) {
+         brim: String? = nil, infill: Int? = nil, infillPattern: String? = nil, walls: Int? = nil,
+         filaments: [String?]? = nil, copies: Int? = nil, rotateX: Double? = nil, rotateY: Double? = nil,
+         scale: Int? = nil, orient: Bool? = nil) {
         self.filament = filament; self.process = process; self.bedType = bedType; self.supports = supports
-        self.brim = brim; self.infill = infill; self.walls = walls; self.filaments = filaments
+        self.brim = brim; self.infill = infill; self.infillPattern = infillPattern; self.walls = walls
+        self.filaments = filaments
         self.copies = copies; self.rotateX = rotateX; self.rotateY = rotateY; self.scale = scale; self.orient = orient
     }
 
@@ -542,6 +563,7 @@ struct JobOptions: Codable, Sendable, Equatable, Hashable {
         supports = c.lenient(String.self, .supports)
         brim = c.lenient(String.self, .brim)
         infill = c.lenient(Int.self, .infill)
+        infillPattern = c.lenient(String.self, .infillPattern)
         walls = c.lenient(Int.self, .walls)
         filaments = c.lenient([String?].self, .filaments)
         copies = c.lenient(Int.self, .copies)

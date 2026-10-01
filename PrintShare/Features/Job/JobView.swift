@@ -354,6 +354,7 @@ struct JobView: View {
         if let v = o["sparse_infill_density"], !v.isEmpty {
             out.append("\(t(.infill)): \(v.replacingOccurrences(of: "%", with: " %"))")
         }
+        if let v = o["sparse_infill_pattern"], !v.isEmpty { out.append("\(t(.infillPattern)): \(t.infillPattern(v))") }
         if let v = o["wall_loops"], !v.isEmpty { out.append("\(t(.walls)): \(v)") }
         return out
     }

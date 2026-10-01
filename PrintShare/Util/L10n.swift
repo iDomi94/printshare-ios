@@ -56,6 +56,9 @@ struct L10n: Sendable {
 
     func jobState(_ state: String) -> String { lookup("jobState.\(state)") ?? state }
     func printerKind(_ kind: String) -> String { lookup("printerKind.\(kind)") ?? kind }
+    /// Printer type names / hints of the cloud printer screen (`elegoo_sdcp`, `moonraker`, `prusalink`, `octoprint`).
+    func printerTypeName(_ type: String) -> String { lookup("printerTypeName.\(type)") ?? type }
+    func printerTypeHint(_ type: String) -> String? { lookup("printerTypeHint.\(type)") }
     func rawState(_ state: String) -> String { lookup("rawState.\(state)") ?? state }
     func plate(_ name: String) -> String { lookup("plate.\(name)") ?? name }
     /// OrcaSlicer line type (`;TYPE:` name) in the app language.
@@ -68,6 +71,9 @@ struct L10n: Sendable {
     func speedMode(_ value: Int) -> String { lookup("speedMode.\(value)") ?? "\(value) %" }
     func powerState(_ state: String) -> String { lookup("powerState.\(state)") ?? state }
     func profileKind(_ kind: String) -> String { lookup("profileKind.\(kind)") ?? kind }
+    /// OrcaSlicer infill pattern (`sparse_infill_pattern`) and what it is good for; unknown ones as they are / nil.
+    func infillPattern(_ key: String) -> String { lookup("infillPattern.\(key)") ?? key }
+    func infillHint(_ key: String) -> String? { lookup("infillHint.\(key)") }
     var suggestions: [String] { callAsFunction(.suggestionList).split(separator: "|").map(String.init) }
 
     /// Server log lines -> readable text (German only, like the Expo app).

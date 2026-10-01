@@ -169,6 +169,12 @@ if it contradicts `printshare/api.py` the server wins; otherwise the simplest id
 - **Idle timer**: the screen stays on while a job is slicing/sending (`isIdleTimerDisabled`), reset when leaving the screen.
 - **Polling** (jobs, printers) runs in `.task(id:)` blocks that end when the screen disappears or the app leaves the
   foreground.
+- **Infill pattern** (server 0.15.2, beyond the Expo app): `Features/Prepare/InfillPattern.swift` offers 12 of Orca's
+  26 patterns (the others look the same from above or are special cases; the profile's own pattern is always listed).
+  The 3 × 3 cm preview draws one layer in mm with Orca's spacing rule (line length × line width / area = density;
+  unit test checks it within 15 %); patterns that turn per layer show the layer below faded. Lightning has no picture
+  (it only fills under top surfaces). Real size: ppi by model identifier / `nativeScale` (`ScreenMetrics`), so
+  Display Zoom is included; unknown future iPhones assume 460 ppi.
 
 ## Possible server problems seen while reading
 
