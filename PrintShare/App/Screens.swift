@@ -29,6 +29,8 @@ enum Screen: Hashable {
     case control(id: String, name: String)
     /// Own OrcaSlicer printer profile (issue #2).
     case printerProfile(id: String, name: String)
+    /// Cloud: a printer of the account and its Wi-Fi address (`CloudPrinterView.new` adds one).
+    case cloudPrinter(id: String)
 }
 
 /// Request to show the connect sheet, optionally prefilled from a pairing link.

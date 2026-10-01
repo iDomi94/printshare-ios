@@ -209,7 +209,9 @@ actor APIClient {
         if let obj = try? JSONSerialization.jsonObject(with: data) as? [String: Any], let d = obj["detail"] as? String {
             detail = d
         }
-        return APIError(message: friendlyError(l10n, status: status, detail: detail), status: status, detail: detail)
+        // cloud: a 401 means the session ran out (or was logged out elsewhere), not a wrong pairing token
+        let message = status == 401 && server.isCloud ? l10n(.errSession) : friendlyError(l10n, status: status, detail: detail)
+        return APIError(message: message, status: status, detail: detail)
     }
 
     private func decode<R: Decodable & Sendable>(_ type: R.Type, _ data: Data, status: Int) throws -> R {
@@ -374,9 +376,51 @@ actor APIClient {
         try await request("/api/inspect?link=\(enc(link))" + (file.map { "&file=\(enc($0))" } ?? ""), timeout: 120)
     }
 
-    /// Download the sliced G-code (SL-10) into a temporary file named like the model, for the share sheet.
-    func downloadGcode(job id: String, name: String) async throws -> URL {
-        try await download("/api/jobs/\(enc(id))/gcode", folder: "gcode-\(id)", name: name)
+    /// Download the sliced G-code (SL-10) into a temporary file named like the model, for the share sheet - or, in the
+    /// cloud, to send it to the printer. `lanes` = AFC slot per model colour; the server maps the tools in the copy.
+    func downloadGcode(job id: String, name: String, lanes: [Int: Int]? = nil) async throws -> URL {
+        try await download(Self.gcodePath(job: id, lanes: lanes), folder: "gcode-\(id)", name: name)
+    }
+
+    static func gcodePath(job id: String, lanes: [Int: Int]?) -> String {
+        var path = "/api/jobs/\(id.addingPercentEncoding(withAllowedCharacters: .urlQueryValueAllowed) ?? id)/gcode"
+        if let lanes, !lanes.isEmpty {
+            let mapping = Dictionary(uniqueKeysWithValues: lanes.map { (String($0.key), $0.value) })
+            let encoder = JSONEncoder()
+            encoder.outputFormatting = .sortedKeys
+            if let data = try? encoder.encode(mapping), let json = String(data: data, encoding: .utf8) {
+                path += "?lanes=" + (json.addingPercentEncoding(withAllowedCharacters: .urlQueryValueAllowed) ?? json)
+            }
+        }
+        return path
+    }
+
+    // MARK: cloud account (server 0.15.0, docs/API.md "Cloud accounts")
+
+    func me() async throws -> Me { try await request("/api/auth/me") }
+
+    /// OrcaSlicer printer models for the model choice (server 0.15.3, ~1000 entries).
+    func machines() async throws -> [Machine] { try await request("/api/machines", timeout: 30) }
+
+    func logout() async throws {
+        let _: Ack = try await request("/api/auth/logout", method: "POST")
+    }
+
+    /// Deletes the account with all printers, profiles and jobs. Only after the user confirmed twice.
+    func deleteAccount() async throws {
+        let _: Ack = try await request("/api/auth/account?confirm=true", method: "DELETE")
+    }
+
+    func addPrinter(_ settings: PrinterSettings) async throws -> Printer {
+        try await request("/api/printers", method: "POST", body: settings)
+    }
+
+    func updatePrinter(id: String, _ settings: PrinterSettings) async throws -> Printer {
+        try await request("/api/printers/\(enc(id))", method: "PATCH", body: settings)
+    }
+
+    func deletePrinter(id: String) async throws {
+        let _: Ack = try await request("/api/printers/\(enc(id))", method: "DELETE")
     }
 
     /// One file of a model (index as in `files(link:)`) for the 3D view, into a temporary file (server 0.10.1).
@@ -419,6 +463,69 @@ actor APIClient {
                                           contentType: "application/octet-stream")
         guard (200..<300).contains(res.statusCode) else { throw failure(data, status: res.statusCode) }
         return try decode(Upload.self, data, status: res.statusCode)
+    }
+}
+
+/// Cloud login by e-mail code, before there is a session (`POST /api/auth/code`, `/api/auth/login`).
+enum CloudAuth {
+    struct CodeSent: Decodable, Sendable { var sent: Bool?; var email: String }
+    struct Login: Decodable, Sendable {
+        struct User: Decodable, Sendable { var id: String?; var email: String }
+        var token: String
+        var user: User
+    }
+
+    private struct CodeBody: Encodable { var email: String; var lang: String }
+    private struct LoginBody: Encodable { var email: String; var code: String; var device: String }
+
+    static func requestCode(email: String, l10n: L10n, base: String = Cloud.url,
+                            session: URLSession = .shared) async throws -> CodeSent {
+        try await post("/api/auth/code", CodeBody(email: email.trimmingCharacters(in: .whitespaces), lang: l10n.lang.rawValue),
+                       l10n: l10n, base: base, session: session)
+    }
+
+    static func login(email: String, code: String, l10n: L10n, base: String = Cloud.url,
+                      session: URLSession = .shared) async throws -> Login {
+        try await post("/api/auth/login", LoginBody(email: email, code: code, device: "ios app"),
+                       l10n: l10n, base: base, session: session)
+    }
+
+    private static func post<B: Encodable, R: Decodable>(_ path: String, _ body: B, l10n: L10n, base: String,
+                                                         session: URLSession) async throws -> R {
+        guard let url = URL(string: base + path) else {
+            throw APIError(message: l10n(.errOffline), status: 0, detail: "bad URL")
+        }
+        var req = URLRequest(url: url)
+        req.httpMethod = "POST"
+        req.timeoutInterval = 30
+        req.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        req.httpBody = try JSONEncoder().encode(body)
+        let (data, res): (Data, URLResponse)
+        do { (data, res) = try await session.data(for: req) } catch {
+            throw APIError(message: l10n(.errOffline), status: 0, detail: "\(error)")
+        }
+        let status = (res as? HTTPURLResponse)?.statusCode ?? 0
+        guard (200..<300).contains(status) else {
+            var detail = "HTTP \(status)"
+            if let obj = try? JSONSerialization.jsonObject(with: data) as? [String: Any], let d = obj["detail"] as? String {
+                detail = d
+            }
+            throw APIError(message: message(l10n, status: status, detail: detail), status: status, detail: detail)
+        }
+        do { return try JSONDecoder().decode(R.self, from: data) } catch {
+            throw APIError(message: l10n(.errUnknown), status: status, detail: "\(error)")
+        }
+    }
+
+    /// Same order as `cloudError` in the Expo app's api.ts.
+    static func message(_ t: L10n, status: Int, detail: String) -> String {
+        let d = detail.lowercased()
+        if d.contains("valid e-mail") { return t(.errEmail) }
+        if status == 429 { return t(.errTooManyCodes) }
+        if d.contains("wrong code") { return t(.errWrongCode) }
+        if d.contains("expired") { return t(.errCodeExpired) }
+        if status == 502 { return t(.errMail) }
+        return detail
     }
 }
 

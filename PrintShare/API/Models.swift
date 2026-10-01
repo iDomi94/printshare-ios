@@ -11,10 +11,93 @@ extension KeyedDecodingContainer {
 }
 
 /// `remoteUrl`: optional second address for use away from home (e.g. Tailscale).
+/// `cloud`: the hosted PocketPrint3D service (server 0.15.0) - `token` is the session of `email`, and the app reaches
+/// the printers itself on the home Wi-Fi.
 struct Server: Codable, Sendable, Equatable {
     var url: String
     var token: String
     var remoteUrl: String?
+    var cloud: Bool?
+    var email: String?
+
+    init(url: String, token: String, remoteUrl: String? = nil, cloud: Bool? = nil, email: String? = nil) {
+        self.url = url; self.token = token; self.remoteUrl = remoteUrl; self.cloud = cloud; self.email = email
+    }
+
+    var isCloud: Bool { cloud == true }
+}
+
+/// The hosted service (docs/CLOUD.md).
+enum Cloud {
+    static let url = "https://api.pocketprint3d.com"
+}
+
+/// Cloud account (`GET /api/auth/me`).
+struct Me: Codable, Sendable, Equatable {
+    struct Limits: Codable, Sendable, Equatable {
+        var slicesPerDay: Int
+        var slicesToday: Int
+        var uploadMb: Int
+
+        enum CodingKeys: String, CodingKey {
+            case slicesPerDay = "slices_per_day"
+            case slicesToday = "slices_today"
+            case uploadMb = "upload_mb"
+        }
+
+        init(slicesPerDay: Int, slicesToday: Int, uploadMb: Int) {
+            self.slicesPerDay = slicesPerDay; self.slicesToday = slicesToday; self.uploadMb = uploadMb
+        }
+
+        init(from decoder: Decoder) throws {
+            let c = try decoder.container(keyedBy: CodingKeys.self)
+            slicesPerDay = c.lenient(Int.self, .slicesPerDay) ?? 0
+            slicesToday = c.lenient(Int.self, .slicesToday) ?? 0
+            uploadMb = c.lenient(Int.self, .uploadMb) ?? 0
+        }
+    }
+
+    var id: String
+    var email: String
+    var printers: Int
+    var limits: Limits
+
+    enum CodingKeys: String, CodingKey { case id, email, printers, limits }
+
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        id = c.lenient(String.self, .id) ?? ""
+        email = c.lenient(String.self, .email) ?? ""
+        printers = c.lenient(Int.self, .printers) ?? 0
+        limits = c.lenient(Limits.self, .limits) ?? Limits(slicesPerDay: 0, slicesToday: 0, uploadMb: 0)
+    }
+}
+
+/// A printer of the cloud account (`POST /api/printers`, `PATCH /api/printers/{id}`). The address is never sent.
+struct PrinterSettings: Encodable, Sendable, Equatable {
+    var name: String
+    var type: String
+    var cosmos: Bool
+    /// OrcaSlicer printer profile; required for `prusalink` / `octoprint` (server 0.15.3), left out when nil.
+    var machine: String?
+
+    init(name: String, type: String, cosmos: Bool, machine: String? = nil) {
+        self.name = name; self.type = type; self.cosmos = cosmos; self.machine = machine
+    }
+}
+
+/// An OrcaSlicer printer model for the cloud printer's model choice (`GET /api/machines`, server 0.15.3).
+struct Machine: Codable, Sendable, Equatable {
+    var name: String
+    var vendor: String
+
+    enum CodingKeys: String, CodingKey { case name, vendor }
+
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        name = try c.decode(String.self, forKey: .name)
+        vendor = c.lenient(String.self, .vendor) ?? ""
+    }
 }
 
 enum Route: String, Sendable { case home, remote }
@@ -47,12 +130,15 @@ struct Printer: Codable, Sendable, Identifiable, Hashable {
     var leveling: Bool?
     /// A smart plug is set up on the server's web page (server 0.12.0, issue #9): offer "switch on" while offline.
     var power: Bool
+    /// Cloud printers (server 0.15.0): a Klipper printer with the OpenCentauri COSMOS firmware.
+    var cosmos: Bool
 
-    enum CodingKeys: String, CodingKey { case id, name, type, machine, leveling, power }
+    enum CodingKeys: String, CodingKey { case id, name, type, machine, leveling, power, cosmos }
 
-    init(id: String, name: String, type: String = "", machine: String = "", leveling: Bool? = nil, power: Bool = false) {
+    init(id: String, name: String, type: String = "", machine: String = "", leveling: Bool? = nil, power: Bool = false,
+         cosmos: Bool = false) {
         self.id = id; self.name = name; self.type = type; self.machine = machine; self.leveling = leveling
-        self.power = power
+        self.power = power; self.cosmos = cosmos
     }
 
     init(from decoder: Decoder) throws {
@@ -67,6 +153,7 @@ struct Printer: Codable, Sendable, Identifiable, Hashable {
             leveling = nil
         }
         power = c.lenient(Bool.self, .power) ?? false
+        cosmos = c.lenient(Bool.self, .cosmos) ?? false
     }
 }
 
@@ -378,11 +465,16 @@ struct Defaults: Codable, Sendable, Equatable {
     var infill: Int?
     var walls: Int?
     var layerHeight: String?
+    /// Server 0.15.2: the quality's infill pattern and infill line width in mm (nil = given in % or older server).
+    var infillPattern: String?
+    var infillLineWidth: Double?
 
     enum CodingKeys: String, CodingKey {
         case filament, process, supports, brim, infill, walls
         case bedType = "bed_type"
         case layerHeight = "layer_height"
+        case infillPattern = "infill_pattern"
+        case infillLineWidth = "infill_line_width"
     }
 
     init(from decoder: Decoder) throws {
@@ -395,12 +487,16 @@ struct Defaults: Codable, Sendable, Equatable {
         infill = c.lenient(Int.self, .infill)
         walls = c.lenient(Int.self, .walls)
         layerHeight = c.lenient(String.self, .layerHeight)
+        infillPattern = c.lenient(String.self, .infillPattern)
+        infillLineWidth = c.lenient(Double.self, .infillLineWidth)
     }
 
     init(filament: String, process: String, bedType: String, supports: String = "off", brim: String = "auto",
-         infill: Int? = nil, walls: Int? = nil, layerHeight: String? = nil) {
+         infill: Int? = nil, walls: Int? = nil, layerHeight: String? = nil, infillPattern: String? = nil,
+         infillLineWidth: Double? = nil) {
         self.filament = filament; self.process = process; self.bedType = bedType; self.supports = supports
         self.brim = brim; self.infill = infill; self.walls = walls; self.layerHeight = layerHeight
+        self.infillPattern = infillPattern; self.infillLineWidth = infillLineWidth
     }
 }
 
@@ -412,8 +508,15 @@ struct Options: Codable, Sendable, Equatable {
     var supports: [String]
     var brims: [String]
     var defaults: Defaults
+    /// OrcaSlicer infill patterns the server accepts (0.15.2); nil on older servers = no choice.
+    var infillPatterns: [String]?
     /// Uploaded quality/material presets among `materials` / `processes` (server 0.13.0); shown first as own profiles.
     var own: OwnPresets?
+
+    enum CodingKeys: String, CodingKey {
+        case printer, materials, processes, plates, supports, brims, defaults, own
+        case infillPatterns = "infill_patterns"
+    }
 }
 
 struct OwnPresets: Codable, Sendable, Equatable {
@@ -442,6 +545,8 @@ struct JobOptions: Codable, Sendable, Equatable, Hashable {
     var supports: String?
     var brim: String?
     var infill: Int?
+    /// Server 0.15.2: OrcaSlicer sparse_infill_pattern; older servers ignore it.
+    var infillPattern: String?
     var walls: Int?
     var filaments: [String?]?
     /// Plate (server 0.14.0): copies 1-50 (OrcaSlicer fits as many as it can), tilt in degrees before slicing,
@@ -457,13 +562,16 @@ struct JobOptions: Codable, Sendable, Equatable, Hashable {
         case bedType = "bed_type"
         case rotateX = "rotate_x"
         case rotateY = "rotate_y"
+        case infillPattern = "infill_pattern"
     }
 
     init(filament: String? = nil, process: String? = nil, bedType: String? = nil, supports: String? = nil,
-         brim: String? = nil, infill: Int? = nil, walls: Int? = nil, filaments: [String?]? = nil,
-         copies: Int? = nil, rotateX: Double? = nil, rotateY: Double? = nil, scale: Int? = nil, orient: Bool? = nil) {
+         brim: String? = nil, infill: Int? = nil, infillPattern: String? = nil, walls: Int? = nil,
+         filaments: [String?]? = nil, copies: Int? = nil, rotateX: Double? = nil, rotateY: Double? = nil,
+         scale: Int? = nil, orient: Bool? = nil) {
         self.filament = filament; self.process = process; self.bedType = bedType; self.supports = supports
-        self.brim = brim; self.infill = infill; self.walls = walls; self.filaments = filaments
+        self.brim = brim; self.infill = infill; self.infillPattern = infillPattern; self.walls = walls
+        self.filaments = filaments
         self.copies = copies; self.rotateX = rotateX; self.rotateY = rotateY; self.scale = scale; self.orient = orient
     }
 
@@ -475,6 +583,7 @@ struct JobOptions: Codable, Sendable, Equatable, Hashable {
         supports = c.lenient(String.self, .supports)
         brim = c.lenient(String.self, .brim)
         infill = c.lenient(Int.self, .infill)
+        infillPattern = c.lenient(String.self, .infillPattern)
         walls = c.lenient(Int.self, .walls)
         filaments = c.lenient([String?].self, .filaments)
         copies = c.lenient(Int.self, .copies)

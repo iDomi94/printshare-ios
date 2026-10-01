@@ -66,6 +66,65 @@ final class AppModel {
     func loadLevel(_ printer: String) -> Bool? { keychain.get(StoreKey.level(printer)).map { $0 == "1" } }
     func saveLevel(_ printer: String, _ on: Bool) { keychain.set(StoreKey.level(printer), on ? "1" : "0") }
 
+    // MARK: printers - through the own server, or in the cloud by the app itself on the home Wi-Fi (server 0.15.0)
+
+    var isCloud: Bool { server?.isCloud ?? false }
+
+    /// The printers' Wi-Fi addresses (and PrusaLink passwords / API keys) stay on this phone, in the Keychain, per
+    /// account - the cloud never sees them (docs/CLOUD.md).
+    private var lanKey: String? {
+        server.map { StoreKey.lan(($0.email ?? $0.url).replacingRegex("[^A-Za-z0-9_.-]", with: "_")) }
+    }
+
+    func lanAccess() -> [String: LanAccess] {
+        lanKey.flatMap { keychain.getJSON($0, as: [String: LanAccess].self) } ?? [:]
+    }
+
+    /// nil (or no address) forgets the printer.
+    func saveLanAccess(_ printer: String, _ access: LanAccess?) {
+        guard let lanKey else { return }
+        var all = lanAccess()
+        all[printer] = access?.cleaned
+        keychain.setJSON(lanKey, all)
+    }
+
+    private func lanPrinter(_ p: Printer) throws -> any LanPrinter {
+        guard Lan.canRelay(p.type) else { throw LanError("this printer type can only be used with an own server for now") }
+        guard let access = lanAccess()[p.id], !access.address.isEmpty else { throw NoLanAddress() }
+        return try Lan.printer(type: p.type, access: access)
+    }
+
+    private func requireAPI() throws -> APIClient {
+        guard let api else { throw APIError(message: l10n(.notConnected)) }
+        return api
+    }
+
+    func printerStatus(_ p: Printer) async throws -> PrinterStatus {
+        guard isCloud else { return try await requireAPI().status(printer: p.id) }
+        let lan = try lanPrinter(p)
+        defer { Task { await lan.close() } }
+        return try await lan.status()
+    }
+
+    /// Pause / resume / cancel. A cancel is only sent after the user confirmed it.
+    func printerControl(_ p: Printer, action: String) async throws {
+        guard isCloud else { return try await requireAPI().control(printer: p.id, action: action) }
+        let lan = try lanPrinter(p)
+        defer { Task { await lan.close() } }
+        try await lan.control(action)
+    }
+
+    /// Cloud: download the sliced G-code (slots already mapped by the server) and send it to the printer.
+    func relay(job: String, printer p: Printer, fileName: String, lanes: [Int: Int]?, options: SendOptions) async throws {
+        let api = try requireAPI()
+        let lan = try lanPrinter(p)
+        defer { Task { await lan.close() } }
+        options.onStep?(.download)
+        let file = try await api.downloadGcode(job: job, name: fileName, lanes: lanes)
+        defer { try? FileManager.default.removeItem(at: file.deletingLastPathComponent()) }
+        try await lan.send(file: file, name: fileName, options: options)
+    }
+
     // MARK: navigation
 
     func push(_ screen: Screen) { path.append(screen) }

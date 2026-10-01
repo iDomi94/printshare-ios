@@ -33,6 +33,22 @@
         }
       }
     },
+    "account": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Konto"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Account"
+          }
+        }
+      }
+    },
     "actual": {
       "localizations": {
         "de": {
@@ -45,6 +61,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Actual"
+          }
+        }
+      }
+    },
+    "addPrinter": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Drucker hinzufügen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add printer"
           }
         }
       }
@@ -77,6 +109,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Allow camera"
+          }
+        }
+      }
+    },
+    "apiKeyOptional": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "API-Key (optional)"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "API key (optional)"
           }
         }
       }
@@ -577,6 +625,22 @@
         }
       }
     },
+    "chooseModel": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wählen …"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choose …"
+          }
+        }
+      }
+    },
     "clipboardEmpty": {
       "localizations": {
         "de": {
@@ -605,6 +669,70 @@
           "stringUnit": {
             "state": "translated",
             "value": "Close"
+          }
+        }
+      }
+    },
+    "cloudIntro": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ohne eigenen Server: gesucht und geslict wird in der PocketPrint3D Cloud, gedruckt wird über dein WLAN zu Hause. Kostenlos."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No server of your own needed: search and slicing happen in the PocketPrint3D cloud, printing goes over your Wi-Fi at home. Free."
+          }
+        }
+      }
+    },
+    "cloudPrivacy": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Die Adressen deiner Drucker bleiben auf diesem Gerät. Datenschutz: pocketprint3d.com/privacy"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your printers' addresses stay on this device. Privacy: pocketprint3d.com/privacy"
+          }
+        }
+      }
+    },
+    "code": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Code"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Code"
+          }
+        }
+      }
+    },
+    "codeSent": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wir haben einen 6-stelligen Code an {email} geschickt. Er ist 10 Minuten gültig."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "We sent a 6-digit code to {email}. It is valid for 10 minutes."
           }
         }
       }
@@ -838,13 +966,13 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Server verbinden"
+            "value": "Verbinden"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Connect server"
+            "value": "Connect"
           }
         }
       }
@@ -961,6 +1089,38 @@
         }
       }
     },
+    "cosmos": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "OpenCentauri COSMOS"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "OpenCentauri COSMOS"
+          }
+        }
+      }
+    },
+    "cosmosHint": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Für Klipper-Drucker. „COSMOS“ einschalten, wenn es ein Centauri Carbon mit OpenCentauri-COSMOS-Firmware ist."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "For Klipper printers. Switch on “COSMOS” for a Centauri Carbon with the OpenCentauri COSMOS firmware."
+          }
+        }
+      }
+    },
     "del": {
       "localizations": {
         "de": {
@@ -973,6 +1133,54 @@
           "stringUnit": {
             "state": "translated",
             "value": "Delete"
+          }
+        }
+      }
+    },
+    "deleteAccount": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Konto löschen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Delete account"
+          }
+        }
+      }
+    },
+    "deleteAccountQ": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Konto mit allen Druckern, Profilen und Aufträgen löschen?"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Delete the account with all printers, profiles and jobs?"
+          }
+        }
+      }
+    },
+    "deleteAccountQ2": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wirklich endgültig löschen? Das lässt sich nicht rückgängig machen."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Really delete it for good? This cannot be undone."
           }
         }
       }
@@ -1005,6 +1213,38 @@
           "stringUnit": {
             "state": "translated",
             "value": "Delete this job?"
+          }
+        }
+      }
+    },
+    "deletePrinter": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Drucker entfernen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remove printer"
+          }
+        }
+      }
+    },
+    "deletePrinterQ": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„{name}“ aus deinem Konto entfernen?"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remove “{name}” from your account?"
           }
         }
       }
@@ -1137,6 +1377,22 @@
         }
       }
     },
+    "email": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "E-Mail-Adresse"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "E-mail address"
+          }
+        }
+      }
+    },
     "errBusy": {
       "localizations": {
         "de": {
@@ -1153,6 +1409,22 @@
         }
       }
     },
+    "errCodeExpired": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Der Code ist abgelaufen – bitte einen neuen anfordern."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The code has expired - please request a new one."
+          }
+        }
+      }
+    },
     "errDownload": {
       "localizations": {
         "de": {
@@ -1165,6 +1437,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Downloading the model failed. Please try again later."
+          }
+        }
+      }
+    },
+    "errEmail": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bitte eine gültige E-Mail-Adresse eingeben."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Please enter a valid e-mail address."
           }
         }
       }
@@ -1197,6 +1485,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "PocketPrint3D can’t use this link. Supported: Printables, Thingiverse, direct file links."
+          }
+        }
+      }
+    },
+    "errMail": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Die E-Mail konnte nicht gesendet werden – bitte später noch einmal versuchen."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The e-mail could not be sent - please try again later."
           }
         }
       }
@@ -1281,6 +1585,22 @@
         }
       }
     },
+    "errPrinterOfflineLan": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nicht erreichbar. Ist das Handy im selben WLAN wie der Drucker und der Drucker eingeschaltet?"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Not reachable. Is the phone on the same Wi-Fi as the printer, and is the printer on?"
+          }
+        }
+      }
+    },
     "errProfile": {
       "localizations": {
         "de": {
@@ -1313,6 +1633,22 @@
         }
       }
     },
+    "errRelay": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Senden an den Drucker hat nicht geklappt:"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sending to the printer didn't work:"
+          }
+        }
+      }
+    },
     "errServerOld": {
       "localizations": {
         "de": {
@@ -1325,6 +1661,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Your PocketPrint3D server does not have this feature yet. Update it to the latest version."
+          }
+        }
+      }
+    },
+    "errSession": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deine Anmeldung ist abgelaufen – bitte unter Einstellungen neu anmelden."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your login has expired - please log in again under Settings."
           }
         }
       }
@@ -1409,6 +1761,22 @@
         }
       }
     },
+    "errTooManyCodes": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zu viele Codes angefordert – bitte ein paar Minuten warten."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Too many codes requested - please wait a few minutes."
+          }
+        }
+      }
+    },
     "errUnknown": {
       "localizations": {
         "de": {
@@ -1437,6 +1805,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "The uploaded file is no longer on the server. Please choose it again."
+          }
+        }
+      }
+    },
+    "errWrongCode": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Der Code stimmt nicht."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The code is wrong."
           }
         }
       }
@@ -1745,6 +2129,710 @@
         }
       }
     },
+    "infillHint.3dhoneycomb": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stabil, leicht federnd"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Strong, slightly springy"
+          }
+        }
+      }
+    },
+    "infillHint.adaptivecubic": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wie kubisch, innen dünner – spart Material"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Like cubic, sparser inside – saves material"
+          }
+        }
+      }
+    },
+    "infillHint.concentric": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Folgt der Außenform, gut für flexible Teile"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Follows the outline, good for flexible parts"
+          }
+        }
+      }
+    },
+    "infillHint.crosshatch": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wechselt die Richtung in Schichtblöcken"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Changes direction in blocks of layers"
+          }
+        }
+      }
+    },
+    "infillHint.cubic": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stabil in alle Richtungen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Strong in every direction"
+          }
+        }
+      }
+    },
+    "infillHint.grid": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Schnell und stabil"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fast and strong"
+          }
+        }
+      }
+    },
+    "infillHint.gyroid": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gleichmäßig stabil, gut für flexibles Filament"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Even strength, good for flexible filament"
+          }
+        }
+      }
+    },
+    "infillHint.honeycomb": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sehr stabil, druckt langsamer"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Very strong, prints slower"
+          }
+        }
+      }
+    },
+    "infillHint.lightning": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stützt nur die Oberseite – am schnellsten, nicht stabil"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Only holds up the top – fastest, not strong"
+          }
+        }
+      }
+    },
+    "infillHint.rectilinear": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Schnell, wenig Material"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fast, little material"
+          }
+        }
+      }
+    },
+    "infillHint.tri-hexagon": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stabil, weniger Kreuzungen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Strong, fewer crossings"
+          }
+        }
+      }
+    },
+    "infillHint.triangles": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stabil in der Fläche"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Strong in the plane"
+          }
+        }
+      }
+    },
+    "infillHollow": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hohl – keine Füllung"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hollow – no infill"
+          }
+        }
+      }
+    },
+    "infillNoPreview": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Für dieses Muster gibt es keine Vorschau."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No preview for this pattern."
+          }
+        }
+      }
+    },
+    "infillPattern": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Füllmuster"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Infill pattern"
+          }
+        }
+      }
+    },
+    "infillPattern.3dhoneycomb": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "3D-Bienenwabe"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "3D Honeycomb"
+          }
+        }
+      }
+    },
+    "infillPattern.adaptivecubic": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Adaptiv kubisch"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Adaptive Cubic"
+          }
+        }
+      }
+    },
+    "infillPattern.alignedrectilinear": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Geradlinig ausgerichtet"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aligned Rectilinear"
+          }
+        }
+      }
+    },
+    "infillPattern.archimedeanchords": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Archimedische Sehnen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Archimedean Chords"
+          }
+        }
+      }
+    },
+    "infillPattern.concentric": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Konzentrisch"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Concentric"
+          }
+        }
+      }
+    },
+    "infillPattern.crosshatch": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kreuzschraffur"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cross Hatch"
+          }
+        }
+      }
+    },
+    "infillPattern.crosszag": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kreuz-Zickzack"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cross Zag"
+          }
+        }
+      }
+    },
+    "infillPattern.cubic": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kubisch"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cubic"
+          }
+        }
+      }
+    },
+    "infillPattern.grid": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gitter"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Grid"
+          }
+        }
+      }
+    },
+    "infillPattern.gyroid": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gyroid"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gyroid"
+          }
+        }
+      }
+    },
+    "infillPattern.hilbertcurve": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hilbert-Kurve"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hilbert Curve"
+          }
+        }
+      }
+    },
+    "infillPattern.honeycomb": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bienenwabe"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Honeycomb"
+          }
+        }
+      }
+    },
+    "infillPattern.lateral-honeycomb": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Seitliche Wabe"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lateral Honeycomb"
+          }
+        }
+      }
+    },
+    "infillPattern.lateral-lattice": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Seitliches Gitter"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lateral Lattice"
+          }
+        }
+      }
+    },
+    "infillPattern.lightning": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Blitz"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lightning"
+          }
+        }
+      }
+    },
+    "infillPattern.line": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Linie"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Line"
+          }
+        }
+      }
+    },
+    "infillPattern.lockedzag": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Locked Zag"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Locked Zag"
+          }
+        }
+      }
+    },
+    "infillPattern.octagramspiral": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Oktagramm-Spirale"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Octagram Spiral"
+          }
+        }
+      }
+    },
+    "infillPattern.quartercubic": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Viertel-kubisch"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quarter Cubic"
+          }
+        }
+      }
+    },
+    "infillPattern.rectilinear": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Geradlinig"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rectilinear"
+          }
+        }
+      }
+    },
+    "infillPattern.supportcubic": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stütz-kubisch"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Support Cubic"
+          }
+        }
+      }
+    },
+    "infillPattern.tpmsd": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "TPMS-D"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "TPMS-D"
+          }
+        }
+      }
+    },
+    "infillPattern.tpmsfk": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "TPMS-FK"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "TPMS-FK"
+          }
+        }
+      }
+    },
+    "infillPattern.tri-hexagon": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tri-Hexagon"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tri-hexagon"
+          }
+        }
+      }
+    },
+    "infillPattern.triangles": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dreiecke"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Triangles"
+          }
+        }
+      }
+    },
+    "infillPattern.zigzag": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zickzack"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zig Zag"
+          }
+        }
+      }
+    },
+    "infillPreviewBelow": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Blass: die Schicht darunter."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Faded: the layer below."
+          }
+        }
+      }
+    },
+    "infillPreviewHint": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ungefähr in Originalgröße: 3 × 3 cm, eine Schicht von oben."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "About real size: 3 × 3 cm, one layer seen from above."
+          }
+        }
+      }
+    },
+    "infillRealSize": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "3 × 3 cm in etwa Originalgröße · {pct} % Füllung · Linienbreite {w} mm"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "3 × 3 cm at about real size · {pct} % infill · line width {w} mm"
+          }
+        }
+      }
+    },
     "invalidQr": {
       "localizations": {
         "de": {
@@ -1949,6 +3037,70 @@
           "stringUnit": {
             "state": "translated",
             "value": "Continue in background"
+          }
+        }
+      }
+    },
+    "lanAddress": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Adresse im Heimnetz"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Address on the home network"
+          }
+        }
+      }
+    },
+    "lanAddressHint": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "IP-Adresse des Druckers im WLAN, z. B. 192.168.1.50 (steht im Netzwerk-Menü des Druckers). Sie bleibt nur auf diesem Gerät – die App spricht direkt mit dem Drucker."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The printer's IP address on the Wi-Fi, e.g. 192.168.1.50 (see the printer's network menu). It stays on this device only - the app talks to the printer directly."
+          }
+        }
+      }
+    },
+    "lanReachable": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Erreichbar: {state}, Düse {temp}"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reachable: {state}, nozzle {temp}"
+          }
+        }
+      }
+    },
+    "lanUnreachable": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nicht erreichbar – ist das Handy im selben WLAN?"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Not reachable - is the phone on the same Wi-Fi?"
           }
         }
       }
@@ -2609,6 +3761,54 @@
         }
       }
     },
+    "login": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Anmelden"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Log in"
+          }
+        }
+      }
+    },
+    "logout": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abmelden"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Log out"
+          }
+        }
+      }
+    },
+    "logoutQ": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Von PocketPrint3D Cloud abmelden?"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Log out of PocketPrint3D Cloud?"
+          }
+        }
+      }
+    },
     "longPressDelete": {
       "localizations": {
         "de": {
@@ -2689,6 +3889,38 @@
         }
       }
     },
+    "modeCloud": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PocketPrint3D Cloud"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PocketPrint3D Cloud"
+          }
+        }
+      }
+    },
+    "modeOwn": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eigener Server"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Own server"
+          }
+        }
+      }
+    },
     "model": {
       "localizations": {
         "de": {
@@ -2753,6 +3985,22 @@
         }
       }
     },
+    "modelNeeded": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nötig, damit mit dem richtigen Profil geslict wird."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Needed so slicing uses the right profile."
+          }
+        }
+      }
+    },
     "more": {
       "localizations": {
         "de": {
@@ -2765,6 +4013,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "More settings"
+          }
+        }
+      }
+    },
+    "needLanAddress": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Die App braucht die Adresse des Druckers in deinem WLAN."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The app needs the printer's address on your Wi-Fi."
           }
         }
       }
@@ -2865,6 +4129,22 @@
         }
       }
     },
+    "noPrintersCloud": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Füge deinen ersten Drucker hinzu – Name, Typ und seine Adresse im WLAN genügen."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add your first printer - a name, its type and its address on the Wi-Fi are enough."
+          }
+        }
+      }
+    },
     "noResults": {
       "localizations": {
         "de": {
@@ -2961,6 +4241,38 @@
         }
       }
     },
+    "octoApiKey": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "OctoPrint-API-Key"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "OctoPrint API key"
+          }
+        }
+      }
+    },
+    "octoHint": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Den API-Key gibt es in OctoPrint unter Einstellungen → Application Keys (oder dem globalen API-Key)."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Get the API key in OctoPrint under Settings → Application Keys (or use the global API key)."
+          }
+        }
+      }
+    },
     "off": {
       "localizations": {
         "de": {
@@ -3037,6 +4349,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "or"
+          }
+        }
+      }
+    },
+    "otherEmail": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Andere Adresse"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Other address"
           }
         }
       }
@@ -3857,6 +5185,38 @@
         }
       }
     },
+    "printerModel": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Druckermodell"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Printer model"
+          }
+        }
+      }
+    },
+    "printerName": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Name"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Name"
+          }
+        }
+      }
+    },
     "printerOffline": {
       "localizations": {
         "de": {
@@ -3885,6 +5245,150 @@
           "stringUnit": {
             "state": "translated",
             "value": "Printer profile"
+          }
+        }
+      }
+    },
+    "printerType": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Drucker-Typ"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Printer type"
+          }
+        }
+      }
+    },
+    "printerTypeHint.elegoo_sdcp": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Centauri Carbon mit Original-Firmware."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Centauri Carbon with the original firmware."
+          }
+        }
+      }
+    },
+    "printerTypeHint.moonraker": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Klipper-Drucker mit Moonraker (Mainsail/Fluidd), z. B. Voron, Sovol, Qidi – oder ein Centauri Carbon mit OpenCentauri COSMOS."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Klipper printers with Moonraker (Mainsail/Fluidd), e.g. Voron, Sovol, Qidi - or a Centauri Carbon with OpenCentauri COSMOS."
+          }
+        }
+      }
+    },
+    "printerTypeHint.octoprint": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jeder Drucker, der über OctoPrint läuft (z. B. Ender, MK3S)."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Any printer driven by OctoPrint (e.g. Ender, MK3S)."
+          }
+        }
+      }
+    },
+    "printerTypeHint.prusalink": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prusa MK4/MK4S, MK3.9, CORE One, XL oder MINI mit PrusaLink (eingeschaltet im Netzwerk-Menü des Druckers)."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prusa MK4/MK4S, MK3.9, CORE One, XL or MINI with PrusaLink (switched on in the printer's network menu)."
+          }
+        }
+      }
+    },
+    "printerTypeName.elegoo_sdcp": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Elegoo Centauri Carbon"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Elegoo Centauri Carbon"
+          }
+        }
+      }
+    },
+    "printerTypeName.moonraker": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Klipper (Moonraker) / COSMOS"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Klipper (Moonraker) / COSMOS"
+          }
+        }
+      }
+    },
+    "printerTypeName.octoprint": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "OctoPrint"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "OctoPrint"
+          }
+        }
+      }
+    },
+    "printerTypeName.prusalink": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prusa (PrusaLink)"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prusa (PrusaLink)"
           }
         }
       }
@@ -3997,6 +5501,38 @@
           "stringUnit": {
             "state": "translated",
             "value": "“{name}” is now used for {printer}."
+          }
+        }
+      }
+    },
+    "prusaHint": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Benutzer „maker“, das Passwort steht am Drucker unter Einstellungen → Netzwerk → PrusaLink. Ältere Firmware: API-Key statt Passwort."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "User “maker”; the password is on the printer under Settings → Network → PrusaLink. Older firmware: API key instead of the password."
+          }
+        }
+      }
+    },
+    "prusaPassword": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PrusaLink-Passwort"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PrusaLink password"
           }
         }
       }
@@ -4161,6 +5697,54 @@
         }
       }
     },
+    "relayDownload": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "G-Code wird aus der Cloud geladen …"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Loading the G-code from the cloud …"
+          }
+        }
+      }
+    },
+    "relayStart": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Druck wird gestartet …"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Starting the print …"
+          }
+        }
+      }
+    },
+    "relayUpload": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Übertragung zum Drucker über WLAN … {pct} %"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sending to the printer over Wi-Fi … {pct} %"
+          }
+        }
+      }
+    },
     "remaining": {
       "localizations": {
         "de": {
@@ -4205,6 +5789,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Address away from home (optional)"
+          }
+        }
+      }
+    },
+    "resendCode": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Neuen Code senden"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Send a new code"
           }
         }
       }
@@ -4269,6 +5869,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "via away address"
+          }
+        }
+      }
+    },
+    "save": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Speichern"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Save"
           }
         }
       }
@@ -4381,6 +5997,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Search models, e.g. cable clip"
+          }
+        }
+      }
+    },
+    "sendCode": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Code senden"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Send code"
           }
         }
       }
@@ -4605,6 +6237,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Slice"
+          }
+        }
+      }
+    },
+    "slicesToday": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "{used} von {limit} Slices heute"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "{used} of {limit} slices today"
           }
         }
       }
@@ -5201,6 +6849,22 @@
         }
       }
     },
+    "testConnection": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Verbindung testen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Test connection"
+          }
+        }
+      }
+    },
     "thingiverseHint": {
       "localizations": {
         "de": {
@@ -5393,6 +7057,38 @@
         }
       }
     },
+    "typeCentauri": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Centauri Carbon"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Centauri Carbon"
+          }
+        }
+      }
+    },
+    "typeKlipper": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Klipper / COSMOS"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Klipper / COSMOS"
+          }
+        }
+      }
+    },
     "uploadOnly": {
       "localizations": {
         "de": {
@@ -5510,13 +7206,109 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "3D"
+            "value": "3D-Ansicht"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "3D"
+            "value": "3D view"
+          }
+        }
+      }
+    },
+    "view3dFailed": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Die 3D-Ansicht konnte nicht geladen werden:"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The 3D view could not be loaded:"
+          }
+        }
+      }
+    },
+    "view3dHint": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mit einem Finger drehen, mit zwei Fingern zoomen und verschieben."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rotate with one finger, zoom and move with two."
+          }
+        }
+      }
+    },
+    "view3dLoading": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Modell wird geladen …"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Loading the model …"
+          }
+        }
+      }
+    },
+    "view3dPreparing": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "3D-Ansicht wird aufgebaut …"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Building the 3D view …"
+          }
+        }
+      }
+    },
+    "view3dTooBig": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Die Datei ist zu groß für die 3D-Vorschau (über 40 MB). Slicen geht trotzdem."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The file is too large for the 3D preview (over 40 MB). Slicing still works."
+          }
+        }
+      }
+    },
+    "view3dUnsupported": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Für diese Datei gibt es keine 3D-Ansicht (nur STL, OBJ und 3MF)."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "There is no 3D view for this file (STL, OBJ and 3MF only)."
           }
         }
       }

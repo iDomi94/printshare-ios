@@ -4,6 +4,25 @@ Jeder Abschnitt `## X.Y.Z` wird beim Tag `vX.Y.Z` automatisch als „Was testen�
 (`.github/workflows/testflight.yml`). Text auf Deutsch, höchstens 4000 Zeichen. Fehlt der Abschnitt, stehen dort
 die Commit-Titel seit dem letzten Tag.
 
+## 0.6.0
+
+Aufgeholt mit Server 0.15.3: PocketPrint3D Cloud, auch für Prusa (PrusaLink) und OctoPrint. Enthält das Füllmuster aus 0.5.0.
+
+- Verbinden: neue Wahl „PocketPrint3D Cloud / Eigener Server“. Cloud = Anmeldung mit E-Mail-Adresse und 6-stelligem Code, kein eigener Server nötig
+- Einstellungen in der Cloud: Konto mit „x von 30 Slices heute“, Abmelden, Konto löschen (zweimal bestätigen) und die Drucker des Kontos
+- Drucker hinzufügen: Name, Typ (Elegoo Centauri Carbon, Klipper/COSMOS, Prusa mit PrusaLink oder OctoPrint), bei Prusa/OctoPrint das Druckermodell, und die Adresse im WLAN mit „Verbindung testen“. Prusa braucht das PrusaLink-Passwort vom Druckerdisplay, OctoPrint einen API-Key. Adresse, Passwort und Key bleiben nur auf dem Handy
+- Drucken in der Cloud: die App holt den G-Code aus der Cloud und schickt ihn selbst über das WLAN an den Drucker (Fortschritt wird angezeigt); Status, Pause, Fortsetzen und Abbrechen laufen ebenfalls direkt über das WLAN
+- Bitte testen: Centauri (Original-Firmware), COSMOS, Prusa und OctoPrint über WLAN, jeweils „Nur hochladen“ und Drucken
+- Mit eigenem Server ändert sich nichts
+
+## 0.5.0
+
+Braucht Server 0.15.2 (ältere Server: die Auswahl erscheint nicht).
+
+- Beim Vorbereiten unter „Mehr“: neues Feld „Füllmuster“ (Geradlinig, Gitter, Dreiecke, Kubisch, Bienenwabe, Gyroid, Konzentrisch, Blitz …) mit kleinem Bild und kurzem Hinweis, wofür es gut ist
+- Darunter ein 3 × 3 cm großes Bild in ungefähr echter Größe: so sieht eine Schicht mit dem gewählten Muster und der gewählten Füllung von oben aus. Ändert sich mit Muster und Prozent sofort. Bitte mit einem Lineal nachmessen, ob es wirklich 3 cm sind (vor allem auf iPad und mit „Bildschirmzoom“)
+- In der Prüfung steht ein geändertes Füllmuster bei den geänderten Werten
+
 ## 0.4.0
 
 - Vorschau: neuer Umschalter oben „Modell / Ganze Platte / 3D“. „3D“ zeigt die geslicte Platte räumlich (jede Linie mit Breite und Schichthöhe), mit einem Finger drehen, mit zwei Fingern zoomen, doppelt tippen setzt die Ansicht zurück

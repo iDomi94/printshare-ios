@@ -9,10 +9,13 @@ import json, re, sys, pathlib
 src = pathlib.Path(sys.argv[1]).read_text(encoding="utf-8")
 STR = r'"((?:[^"\\]|\\.)*)"'
 TABLES = ["jobStates", "printerKinds", "rawStates", "plates", "lineTypes", "heaterNames", "fanNames", "lightNames",
-          "speedModes", "powerStates", "kindNames"]
+          "speedModes", "powerStates", "kindNames", "printerTypes", "printerTypeHints", "infillNames"]
 PREFIX = {"jobStates": "jobState", "printerKinds": "printerKind", "rawStates": "rawState", "plates": "plate",
           "lineTypes": "lineType", "heaterNames": "heater", "fanNames": "fan", "lightNames": "light",
-          "speedModes": "speedMode", "powerStates": "powerState", "kindNames": "profileKind"}
+          "speedModes": "speedMode", "powerStates": "powerState", "kindNames": "profileKind",
+          "printerTypes": "printerTypeName", "printerTypeHints": "printerTypeHint",
+          # upstream's names win over the native-only infillPattern.<name> texts below
+          "infillNames": "infillPattern"}
 
 
 def block(name_re: str) -> str:
@@ -42,7 +45,7 @@ def parse(body: str) -> dict:
             depth += {"{": 1, "}": -1}.get(body[i], 0)
             i += 1
         inner = body[m.end():i - 1]
-        for q, k, v in re.findall(r'(?:"([\w ]+)"|(\b\w+)):\s*' + STR, inner):
+        for q, k, v in re.findall(r'(?:"([\w -]+)"|(\b\w+)):\s*' + STR, inner):
             out[f"{PREFIX[tname]}.{q or k}"] = unesc(v)
         body = body[:m.start()] + body[i:]
     body = re.sub(r"log:\s*\[.*?\]\s*(as \[RegExp, string\]\[\])?,", "", body, flags=re.S)
@@ -101,7 +104,37 @@ EXTRA = {
     "chooseMaterial": ("Material wählen", "Choose material"),
     "errServerOld": ("Dein PocketPrint3D-Server kennt diese Funktion noch nicht. Aktualisiere ihn auf die neueste Version.",
                      "Your PocketPrint3D server does not have this feature yet. Update it to the latest version."),
+    # infill pattern per print (server 0.15.2) with a true-to-scale preview
+    "infillPattern": ("Füllmuster", "Infill pattern"),
+    "infillHollow": ("Hohl – keine Füllung", "Hollow – no infill"),
+    "infillNoPreview": ("Für dieses Muster gibt es keine Vorschau.", "No preview for this pattern."),
+    "infillPreviewHint": ("Ungefähr in Originalgröße: 3 × 3 cm, eine Schicht von oben.",
+                          "About real size: 3 × 3 cm, one layer seen from above."),
+    "infillPreviewBelow": ("Blass: die Schicht darunter.", "Faded: the layer below."),
 }
+# OrcaSlicer infill pattern names (sparse_infill_pattern) and a short note on what each is good for
+INFILL = {
+    "rectilinear": ("Geradlinig", "Rectilinear", "Schnell, wenig Material", "Fast, little material"),
+    "grid": ("Gitter", "Grid", "Schnell und stabil", "Fast and strong"),
+    "triangles": ("Dreiecke", "Triangles", "Stabil in der Fläche", "Strong in the plane"),
+    "tri-hexagon": ("Tri-Hexagon", "Tri-hexagon", "Stabil, weniger Kreuzungen", "Strong, fewer crossings"),
+    "cubic": ("Kubisch", "Cubic", "Stabil in alle Richtungen", "Strong in every direction"),
+    "adaptivecubic": ("Adaptiv kubisch", "Adaptive cubic", "Wie kubisch, innen dünner – spart Material",
+                      "Like cubic, sparser inside – saves material"),
+    "honeycomb": ("Bienenwabe", "Honeycomb", "Sehr stabil, druckt langsamer", "Very strong, prints slower"),
+    "3dhoneycomb": ("3D-Bienenwabe", "3D honeycomb", "Stabil, leicht federnd", "Strong, slightly springy"),
+    "gyroid": ("Gyroid", "Gyroid", "Gleichmäßig stabil, gut für flexibles Filament",
+               "Even strength, good for flexible filament"),
+    "crosshatch": ("Kreuzschraffur", "Cross hatch", "Wechselt die Richtung in Schichtblöcken",
+                   "Changes direction in blocks of layers"),
+    "concentric": ("Konzentrisch", "Concentric", "Folgt der Außenform, gut für flexible Teile",
+                   "Follows the outline, good for flexible parts"),
+    "lightning": ("Blitz", "Lightning", "Stützt nur die Oberseite – am schnellsten, nicht stabil",
+                  "Only holds up the top – fastest, not strong"),
+}
+for k, (dn, en_, dh, eh) in INFILL.items():
+    EXTRA[f"infillPattern.{k}"] = (dn, en_)
+    EXTRA[f"infillHint.{k}"] = (dh, eh)
 for k, (d_, e_) in EXTRA.items():
     if k not in de:
         de[k], en[k] = d_, e_

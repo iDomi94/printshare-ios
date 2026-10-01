@@ -16,6 +16,8 @@ struct PickerSheet: View {
     var searchLabel: String
     var closeLabel: String
     var onPick: (String) -> Void
+    /// Optional picture in front of each choice (by value), e.g. the infill pattern.
+    var leading: (@MainActor (String) -> AnyView)? = nil
 
     @Environment(\.dismiss) private var dismiss
     @State private var query = ""
@@ -56,7 +58,8 @@ struct PickerSheet: View {
                             onPick(item.value)
                             dismiss()
                         } label: {
-                            HStack {
+                            HStack(spacing: 12) {
+                                if let leading { leading(item.value) }
                                 VStack(alignment: .leading, spacing: 2) {
                                     Text(item.label).foregroundStyle(Theme.text)
                                     if let sub = item.sub { Text(sub).font(.footnote).foregroundStyle(Theme.sub) }

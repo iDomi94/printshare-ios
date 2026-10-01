@@ -10,7 +10,7 @@ settings:
   base:
     SWIFT_VERSION: "6.0"
     SWIFT_STRICT_CONCURRENCY: complete
-    MARKETING_VERSION: "0.4.0"          # = version in mobile/app.json of the Expo app
+    MARKETING_VERSION: "0.6.0"          # = version in mobile/app.json of the Expo app
     CURRENT_PROJECT_VERSION: "100"      # above the EAS build numbers
     DEVELOPMENT_TEAM: ${DEVELOPMENT_TEAM}
     CODE_SIGN_STYLE: Automatic
@@ -58,7 +58,7 @@ targets:
         NSAppTransportSecurity:
           NSAllowsArbitraryLoads: true
           NSAllowsLocalNetworking: true
-        NSLocalNetworkUsageDescription: PocketPrint3D connects to your own PocketPrint3D server in your home network.
+        NSLocalNetworkUsageDescription: PocketPrint3D connects to your own PocketPrint3D server and to your 3D printers in your home network.
         NSCameraUsageDescription: PocketPrint3D uses the camera only to scan the pairing QR code of your server.
         ITSAppUsesNonExemptEncryption: false
         CFBundleURLTypes:

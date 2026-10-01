@@ -8,6 +8,11 @@ struct SettingsView: View {
     @State private var route: Route?
     @State private var confirmDisconnect = false
     @State private var printers: [Printer] = []
+    @State private var me: Me?
+    @State private var confirmLogout = false
+    @State private var confirmDelete = false
+    @State private var confirmDeleteAgain = false
+    @State private var accountError: String?
 
     private var appVersion: String {
         Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "–"
@@ -17,32 +22,10 @@ struct SettingsView: View {
         let t = app.l10n
         let server = app.server
         PSScreen {
-            PSSection(title: t(.server)) {
-                PSRow(icon: "server.rack", label: server.map { $0.url.replacingRegex("^https?://", with: "") } ?? t(.notConnected),
-                      sub: serverSub(t), right: { statusBadge(t) })
-                if let remote = server?.remoteUrl, !remote.isEmpty {
-                    PSDivider()
-                    PSRow(icon: "globe", label: t(.remoteUrl), sub: remote.replacingRegex("^https?://", with: ""))
-                }
-                PSDivider()
-                PSRow(icon: "qrcode", label: server != nil ? t(.changeServer) : t(.connectNow)) { app.showConnect() }
-                if server != nil {
-                    PSDivider()
-                    PSRow(icon: "rectangle.portrait.and.arrow.right", label: t(.disconnect), danger: true) {
-                        confirmDisconnect = true
-                    }
-                }
-            }
-
-            if server != nil && !printers.isEmpty {
-                PSSection(title: t(.tabPrinters)) {
-                    ForEach(Array(printers.enumerated()), id: \.element.id) { i, p in
-                        if i > 0 { PSDivider() }
-                        PSRow(icon: "printer", label: p.name, sub: t(.printerProfile)) {
-                            app.push(.printerProfile(id: p.id, name: p.name))
-                        }
-                    }
-                }
+            if let server, server.isCloud {
+                account(t, server)
+            } else {
+                serverSection(t, server)
             }
 
             PSSection(title: t(.language)) {
@@ -56,9 +39,20 @@ struct SettingsView: View {
 
             PSSection(title: t(.about), footer: t(.aboutText)) {
                 PSRow(icon: "info.circle", label: t(.version), value: appVersion)
+                if server?.isCloud == true {
+                    PSDivider()
+                    PSRow(icon: "checkmark.shield", label: "pocketprint3d.com/privacy") {
+                        if let u = URL(string: "https://pocketprint3d.com/privacy/") { openURL(u) }
+                    }
+                }
                 PSDivider()
                 PSRow(icon: "chevron.left.forwardslash.chevron.right", label: t(.sourceCode)) {
                     if let u = URL(string: "https://github.com/halvar20000/printshare") { openURL(u) }
+                }
+            }
+            if server?.isCloud == true {
+                PSSection {
+                    PSRow(icon: "trash", label: t(.deleteAccount), danger: true) { confirmDelete = true }
                 }
             }
             Text("PocketPrint3D · MIT").font(.caption).foregroundStyle(Theme.sub).frame(maxWidth: .infinity)
@@ -70,6 +64,97 @@ struct SettingsView: View {
         .alert(t(.disconnectQ), isPresented: $confirmDisconnect) {
             Button(t(.cancelBtn), role: .cancel) {}
             Button(t(.disconnect), role: .destructive) { app.setServer(nil) }
+        }
+        .alert(t(.logoutQ), isPresented: $confirmLogout) {
+            Button(t(.cancelBtn), role: .cancel) {}
+            Button(t(.logout), role: .destructive) { Task { await logout() } }
+        }
+        .alert(t(.deleteAccountQ), isPresented: $confirmDelete) {
+            Button(t(.cancelBtn), role: .cancel) {}
+            Button(t(.deleteAccount), role: .destructive) { confirmDeleteAgain = true }
+        }
+        .alert(t(.deleteAccountQ2), isPresented: $confirmDeleteAgain) {
+            Button(t(.cancelBtn), role: .cancel) {}
+            Button(t(.deleteAccount), role: .destructive) { Task { await deleteAccount() } }
+        }
+        .alert(t(.deleteAccount), isPresented: Binding(get: { accountError != nil }, set: { if !$0 { accountError = nil } })) {
+            Button("OK", role: .cancel) {}
+        } message: {
+            Text(accountError ?? "")
+        }
+    }
+
+    /// Cloud (server 0.15.0): account, slices today, the account's printers with their Wi-Fi address on this phone.
+    @ViewBuilder
+    private func account(_ t: L10n, _ server: Server) -> some View {
+        PSSection(title: t(.account)) {
+            PSRow(icon: "icloud", label: t(.modeCloud), sub: server.email, right: { statusBadge(t) })
+            if let me {
+                PSDivider()
+                PSRow(icon: "square.stack.3d.up", label: t(.slicesToday, ["used": String(me.limits.slicesToday),
+                                                                          "limit": String(me.limits.slicesPerDay)]))
+            }
+            PSDivider()
+            PSRow(icon: "arrow.left.arrow.right", label: t(.changeServer)) { app.showConnect() }
+            PSDivider()
+            PSRow(icon: "rectangle.portrait.and.arrow.right", label: t(.logout)) { confirmLogout = true }
+        }
+        PSSection(title: t(.tabPrinters)) {
+            ForEach(Array(printers.enumerated()), id: \.element.id) { i, p in
+                if i > 0 { PSDivider() }
+                PSRow(icon: "printer", label: p.name, sub: t.printerTypeName(p.type)) {
+                    app.push(.cloudPrinter(id: p.id))
+                }
+            }
+            if !printers.isEmpty { PSDivider() }
+            PSRow(icon: "plus.circle", label: t(.addPrinter)) { app.push(.cloudPrinter(id: CloudPrinterView.new)) }
+        }
+    }
+
+    @ViewBuilder
+    private func serverSection(_ t: L10n, _ server: Server?) -> some View {
+        PSSection(title: t(.server)) {
+            PSRow(icon: "server.rack", label: server.map { $0.url.replacingRegex("^https?://", with: "") } ?? t(.notConnected),
+                  sub: serverSub(t), right: { statusBadge(t) })
+            if let remote = server?.remoteUrl, !remote.isEmpty {
+                PSDivider()
+                PSRow(icon: "globe", label: t(.remoteUrl), sub: remote.replacingRegex("^https?://", with: ""))
+            }
+            PSDivider()
+            PSRow(icon: "qrcode", label: server != nil ? t(.changeServer) : t(.connectNow)) { app.showConnect() }
+            if server != nil {
+                PSDivider()
+                PSRow(icon: "rectangle.portrait.and.arrow.right", label: t(.disconnect), danger: true) {
+                    confirmDisconnect = true
+                }
+            }
+        }
+
+        if server != nil && !printers.isEmpty {
+            PSSection(title: t(.tabPrinters)) {
+                ForEach(Array(printers.enumerated()), id: \.element.id) { i, p in
+                    if i > 0 { PSDivider() }
+                    PSRow(icon: "printer", label: p.name, sub: t(.printerProfile)) {
+                        app.push(.printerProfile(id: p.id, name: p.name))
+                    }
+                }
+            }
+        }
+    }
+
+    private func logout() async {
+        // offline: the session just stays unused on the server
+        try? await app.api?.logout()
+        app.setServer(nil)
+    }
+
+    private func deleteAccount() async {
+        guard let api = app.api else { return }
+        do {
+            try await api.deleteAccount()
+            app.setServer(nil)
+        } catch {
+            accountError = error.localizedDescription
         }
     }
 
@@ -91,6 +176,8 @@ struct SettingsView: View {
     private func loadInfo() async {
         guard let api = app.api else { online = nil; printers = []; return }
         printers = (try? await api.printers()) ?? []
+        me = nil
+        if app.isCloud { me = try? await api.me() }
         do {
             let info = try await api.info()
             online = true

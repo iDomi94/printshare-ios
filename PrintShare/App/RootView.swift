@@ -18,11 +18,12 @@ struct RootView: View {
                             case .preview(let id): PreviewView(id: id)
                             case .control(let id, let name): ControlView(printer: id, name: name)
                             case .printerProfile(let id, let name): PrinterProfileView(printer: id, name: name)
+                            case .cloudPrinter(let id): CloudPrinterView(id: id)
                             }
                         }
                 }
                 .sheet(item: $app.connectRequest) { request in
-                    ConnectView(request: request)
+                    ConnectView(request: request, current: app.server)
                 }
                 .onChange(of: app.server) { _, _ in app.processInbox() }
             } else {

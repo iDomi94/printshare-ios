@@ -87,6 +87,40 @@ if it contradicts `printshare/api.py` the server wins; otherwise the simplest id
   / lay flat, copies 1-50, size 25-400 % in 25 steps). No Z rotation: OrcaSlicer's auto-arrange turns objects anyway.
   Texts from the 0.14.0 `i18n.ts`.
 
+- **Server 0.15.1 / cloud mode** (upstream `bfee81d` = 0.15.2, 2026-10-01), ported from the Expo app of the same commit
+  (`connect.tsx`, `cloud-printer/[id].tsx`, `lib/printerAccess.ts`, `lib/lan/*`):
+  - **Login**: the connect sheet has "PocketPrint3D Cloud / Eigener Server". Cloud = e-mail code (`POST
+    /api/auth/code` with `lang`, `POST /api/auth/login` with `device: "ios app"`) against `https://api.pocketprint3d.com`;
+    the session token is stored like a pairing token, `Server` got `cloud` + `email` (older stored servers decode
+    unchanged). Error texts in the order of `cloudError`; a 401 from a cloud request reads `errSession`.
+  - **Settings in the cloud**: account (e-mail, slices today from `/api/auth/me`), change, log out (confirm),
+    printers of the account (`CloudPrinterView`: name, type Centauri / Klipper, COSMOS switch, Wi-Fi address with a
+    connection test, profile, remove with confirm), delete account (two confirmations, `DELETE
+    /api/auth/account?confirm=true`).
+  - **Printers on the Wi-Fi**: the Wi-Fi address stays on the phone (Keychain `ps_lan_<account>`, as the Expo key) and
+    is never sent to the cloud. `LAN/SDCPPrinter.swift` (Centauri stock firmware: SDCP over `URLSessionWebSocketTask`
+    :3030, chunked multipart upload :80 with MD5 from CryptoKit, file listing + start check + one more start like the
+    server's finding 11) and `LAN/MoonrakerPrinter.swift` (address, then :7125; AFC lanes as on the server). Without
+    a concurrent receive loop: each command sends and reads messages until its answer; a watchdog closes the socket
+    on timeout, the next command opens a new one.
+  - **Screens**: printers tab, prepare and job screen ask the printer directly in the cloud (`AppModel.printerStatus`);
+    no address → "Adresse im Heimnetz" button. Print / upload in the cloud downloads `/api/jobs/<id>/gcode?lanes=…`
+    (slots mapped by the server) and sends it from the phone with a progress banner; the server job stays "sliced",
+    the screen remembers the result. Camera, control and power are hidden in the cloud, as upstream.
+  - Texts from the 0.15.3 `i18n.ts` (the generator now also reads the `printerTypes`, `printerTypeHints` and
+    `infillNames` tables). The 0.15.2 infill pattern came with PR #15, merged into this branch.
+- **Server 0.15.3** (upstream `24b0770`, 2026-10-01): PrusaLink and OctoPrint printers in the cloud.
+  - `LAN/PrusaLinkPrinter.swift`: digest auth (user `maker` + the password from the printer screen; `DigestAuth`,
+    RFC 7616 MD5 with qop=auth, checked against the RFC 2617 example) or `X-Api-Key`; the first request without
+    credentials gets the challenge, the same request is sent once more with them (the printer refused the first, so
+    nothing runs twice). Upload = raw `PUT /api/v1/files/<storage>/<name>` with `Print-After-Upload`; FAT-safe names.
+  - `LAN/OctoPrintPrinter.swift`: API key, multipart `POST /api/files/local` with `select`/`print`, state from the
+    flags of `/api/printer` (409 = not connected), pause/resume/cancel through `POST /api/job`.
+  - Moonraker takes an optional API key. What the app stores per printer is now `LanAccess` (address, PrusaLink
+    password, API key) in the Keychain; the bare address strings of earlier builds still load.
+  - `CloudPrinterView`: type picker with the four types and their hints, printer model from `GET /api/machines`
+    (required for PrusaLink / OctoPrint, sent as `machine`), password / API key fields, connection test.
+
 - **Model files in 3D** (not in the Expo app): the file row on the model page opens a sheet with the files of
   `/api/files` (same order and index as the prepare screen). STL is read by `STLReader` (binary + ASCII; ModelIO returned no mesh for STL on CI), 3MF by `ThreeMFReader` (own zip reader: stored/deflate via `NSData.decompressed(.zlib)`, zip64; `XMLParser` for the
   model files incl. Orca/Bambu `3D/Objects/*.model` components and build transforms; colour per object/part from
@@ -147,6 +181,12 @@ if it contradicts `printshare/api.py` the server wins; otherwise the simplest id
 - **Idle timer**: the screen stays on while a job is slicing/sending (`isIdleTimerDisabled`), reset when leaving the screen.
 - **Polling** (jobs, printers) runs in `.task(id:)` blocks that end when the screen disappears or the app leaves the
   foreground.
+- **Infill pattern** (server 0.15.2, beyond the Expo app): `Features/Prepare/InfillPattern.swift` offers 12 of Orca's
+  26 patterns (the others look the same from above or are special cases; the profile's own pattern is always listed).
+  The 3 × 3 cm preview draws one layer in mm with Orca's spacing rule (line length × line width / area = density;
+  unit test checks it within 15 %); patterns that turn per layer show the layer below faded. Lightning has no picture
+  (it only fills under top surfaces). Real size: ppi by model identifier / `nativeScale` (`ScreenMetrics`), so
+  Display Zoom is included; unknown future iPhones assume 460 ppi.
 
 ## Possible server problems seen while reading
 
