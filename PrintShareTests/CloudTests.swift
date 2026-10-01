@@ -404,6 +404,18 @@ final class CloudTests: XCTestCase {
         let list = try JSONDecoder().decode([Machine].self, from: Data(#"[{"name": "Prusa MK4S 0.4 nozzle", "vendor": "Prusa"}]"#.utf8))
         XCTAssertEqual(list.first?.vendor, "Prusa")
     }
+
+    /// The printer list changes with every save: a cached GET would show the old COSMOS switch or no printer at all.
+    func testAPIRequestsSkipTheURLCache() async throws {
+        let policy = Box()
+        StubProtocol.install { req in
+            policy.set(Double(req.cachePolicy.rawValue))
+            return StubResponse(body: Data(#"[{"id": "cc", "name": "CC", "type": "moonraker", "cosmos": true}]"#.utf8))
+        }
+        let list = try await cloudClient().printers()
+        XCTAssertEqual(list.first?.cosmos, true)
+        XCTAssertEqual(policy.value, Double(URLRequest.CachePolicy.reloadIgnoringLocalCacheData.rawValue))
+    }
 }
 
 private final class Box: @unchecked Sendable {

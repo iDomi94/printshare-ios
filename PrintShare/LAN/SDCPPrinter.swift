@@ -198,7 +198,7 @@ actor SDCPPrinter: LanPrinter {
                                       fields: [("Check", "1"), ("S-File-MD5", md5), ("Offset", String(offset)),
                                                ("Uuid", uuid), ("TotalSize", String(size))],
                                       fileField: "File", fileName: name, data: chunk)
-            var req = URLRequest(url: target)
+            var req = URLRequest(url: target, cachePolicy: .reloadIgnoringLocalCacheData)
             req.httpMethod = "POST"
             req.timeoutInterval = 60
             req.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")

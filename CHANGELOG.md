@@ -8,6 +8,9 @@ die Commit-Titel seit dem letzten Tag.
 
 - Cloud: Ist im Konto noch kein Drucker angelegt, bleibt „Druck vorbereiten“ nicht mehr leer. Die App sagt das und
   bietet „Drucker hinzufügen“ an; danach geht es direkt weiter.
+- Cloud: Geänderte Druckereinstellungen (z. B. der COSMOS-Haken) erscheinen nach dem Speichern auch beim nächsten
+  Öffnen. Die App zeigte teils eine zwischengespeicherte alte Druckerliste; Anfragen an Server und Drucker gehen
+  jetzt immer frisch übers Netz.
 
 ## 0.6.0
 

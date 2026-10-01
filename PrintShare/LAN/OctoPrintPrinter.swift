@@ -22,7 +22,7 @@ actor OctoPrintPrinter: LanPrinter {
     private func call(_ method: String, _ path: String, body: [String: String]? = nil,
                       timeout: TimeInterval = 10) async throws -> (Data, Int) {
         guard let url = URL(string: base + path) else { throw LanError(Self.unreachable) }
-        var req = URLRequest(url: url)
+        var req = URLRequest(url: url, cachePolicy: .reloadIgnoringLocalCacheData)
         req.httpMethod = method
         req.timeoutInterval = timeout
         req.setValue(apiKey, forHTTPHeaderField: "X-Api-Key")
@@ -89,7 +89,7 @@ actor OctoPrintPrinter: LanPrinter {
         let body = try Multipart.file(boundary: boundary, fields: [("select", flag), ("print", flag)],
                                       fileField: "file", fileName: name, source: file)
         defer { try? FileManager.default.removeItem(at: body) }
-        var req = URLRequest(url: target)
+        var req = URLRequest(url: target, cachePolicy: .reloadIgnoringLocalCacheData)
         req.httpMethod = "POST"
         req.timeoutInterval = 600
         req.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")

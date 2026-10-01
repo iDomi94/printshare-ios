@@ -93,7 +93,7 @@ actor PrusaLinkPrinter: LanPrinter {
     private func call(_ method: String, _ path: String, timeout: TimeInterval = 10) async throws -> (Data, HTTPURLResponse) {
         guard let url = URL(string: base + path) else { throw LanError(Self.unreachable) }
         for attempt in 1...2 {
-            var req = URLRequest(url: url)
+            var req = URLRequest(url: url, cachePolicy: .reloadIgnoringLocalCacheData)
             req.httpMethod = method
             req.timeoutInterval = timeout
             for (k, v) in auth(method, path) { req.setValue(v, forHTTPHeaderField: k) }
@@ -158,7 +158,7 @@ actor PrusaLinkPrinter: LanPrinter {
         let remote = Self.remoteName(name)
         let path = "/api/v1/files/\(storage)/\(remote.addingPercentEncoding(withAllowedCharacters: .urlQueryValueAllowed) ?? remote)"
         guard let url = URL(string: base + path) else { throw LanError(Self.unreachable) }
-        var req = URLRequest(url: url)
+        var req = URLRequest(url: url, cachePolicy: .reloadIgnoringLocalCacheData)
         req.httpMethod = "PUT"
         req.timeoutInterval = 600
         req.setValue("application/octet-stream", forHTTPHeaderField: "Content-Type")

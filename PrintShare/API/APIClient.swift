@@ -128,7 +128,7 @@ actor APIClient {
             for a in addrs {
                 group.addTask {
                     guard let url = URL(string: "\(a)/api/info") else { return nil }
-                    var req = URLRequest(url: url)
+                    var req = URLRequest(url: url, cachePolicy: .reloadIgnoringLocalCacheData)
                     req.timeoutInterval = probeTimeout
                     req.allHTTPHeaderFields = hdrs
                     do { _ = try await session.data(for: req); return a } catch { return nil }
@@ -162,7 +162,8 @@ actor APIClient {
         guard let url = URL(string: urlString) else {
             throw APIError(message: l10n(.errOffline), status: 0, detail: "bad URL \(urlString)")
         }
-        var req = URLRequest(url: url)
+        // never from URLCache: the server sends no cache headers and lists like /api/printers change with every save
+        var req = URLRequest(url: url, cachePolicy: .reloadIgnoringLocalCacheData)
         req.httpMethod = method
         req.timeoutInterval = timeout
         req.allHTTPHeaderFields = headers(json: body != nil)
@@ -293,7 +294,7 @@ actor APIClient {
         if kind == .snapshot { query.append("t=\(Int(Date().timeIntervalSince1970 * 1000))") }
         let path = "/api/printers/\(enc(printer))/camera/\(kind.rawValue)" + (query.isEmpty ? "" : "?" + query.joined(separator: "&"))
         guard let url = URL(string: await base() + path) else { return nil }
-        var req = URLRequest(url: url)
+        var req = URLRequest(url: url, cachePolicy: .reloadIgnoringLocalCacheData)
         req.timeoutInterval = timeout
         req.allHTTPHeaderFields = headers(json: false)
         req.cachePolicy = .reloadIgnoringLocalCacheData
@@ -495,7 +496,7 @@ enum CloudAuth {
         guard let url = URL(string: base + path) else {
             throw APIError(message: l10n(.errOffline), status: 0, detail: "bad URL")
         }
-        var req = URLRequest(url: url)
+        var req = URLRequest(url: url, cachePolicy: .reloadIgnoringLocalCacheData)
         req.httpMethod = "POST"
         req.timeoutInterval = 30
         req.setValue("application/json", forHTTPHeaderField: "Content-Type")

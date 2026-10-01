@@ -25,7 +25,7 @@ actor MoonrakerPrinter: LanPrinter {
 
     private func fetch(_ url: String, method: String = "GET", timeout: TimeInterval) async throws -> (Data, Int) {
         guard let u = URL(string: url) else { throw LanError(Self.unreachable) }
-        var req = URLRequest(url: u)
+        var req = URLRequest(url: u, cachePolicy: .reloadIgnoringLocalCacheData)
         req.httpMethod = method
         req.timeoutInterval = timeout
         if let apiKey { req.setValue(apiKey, forHTTPHeaderField: "X-Api-Key") }
@@ -145,7 +145,7 @@ actor MoonrakerPrinter: LanPrinter {
                                       fields: [("root", "gcodes"), ("print", options.start ? "true" : "false")],
                                       fileField: "file", fileName: name, source: file)
         defer { try? FileManager.default.removeItem(at: body) }
-        var req = URLRequest(url: target)
+        var req = URLRequest(url: target, cachePolicy: .reloadIgnoringLocalCacheData)
         req.httpMethod = "POST"
         req.timeoutInterval = 600
         req.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
