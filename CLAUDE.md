@@ -14,7 +14,7 @@ bed leveling per print (`leveling`), multicolour 3MF projects (`/api/inspect`, `
 preview format 2 (`?format=2`, filament per path, `bounds`, `filament_colors`), G-code sharing (`/api/jobs/<id>/gcode`),
 AFC lane choice (`status.lanes`, `send.lanes`, #6; shown as "Slot N", chosen already before slicing, see PORTING_NOTES), camera through the server (live MJPEG / stills, #3), printer control
 (`/controls`, `/adjust`, `/temperatures`, #5), own printer profile (`/api/profiles`, `/api/printers/<id>/profile`, #2).
-Beyond the Expo app: model files in 3D before slicing (tap "X printable files" on the model page; STL and 3MF via own
+Beyond the Expo app: the sliced plate in 3D (preview switch "Modell / Ganze Platte / 3D", SceneKit ridges per path from preview format 2, `Plate3D.swift`), model files in 3D before slicing (tap "X printable files" on the model page; STL and 3MF via own
 readers (3MF: own zip reader + XMLParser, Orca/Bambu/Prusa object colours), OBJ via ModelIO, shown with SceneKit, needs
 server 0.10.1 `/api/model-file`, merged upstream), TestFlight workflow on release tags `vX.Y.Z` (version from the tag, `CHANGELOG.md` section as "What to Test", like iDomi94/Lademonitor-App).
 Texts are generated from the 0.14.0 `i18n.ts`. When upstream changes, compare `mobile/` and `printshare/api.py` since
@@ -31,7 +31,7 @@ adjust / profile requests. Wire formats were checked against the server code (`p
 `status_cosmos.json` / `status_controls.json` / `controls.json` / `temperatures.json` are real output of the server's
 Moonraker adapter (Dominique's recorded COSMOS + AFC and the server tests' fake Moonraker).
 
-**Not verified:** no simulator or device run, no real server, no share extension on a device, no QR scan, no
+**Not verified:** no simulator or device run (the 3D plate view was never seen rendered, nor its performance on a big print), no real server, no share extension on a device, no QR scan, no
 TestFlight upload (workflow `testflight.yml` exists, needs the secrets listed in it), no camera stream from a real
 printer, no lane choice / printer control / profile upload against a real printer or server, Keychain migration: the key layout was checked against the expo-secure-store 57 source, but its test is skipped in the
 unsigned CI (no keychain) and it was never run against a real Expo install.

@@ -4,6 +4,12 @@ Jeder Abschnitt `## X.Y.Z` wird beim Tag `vX.Y.Z` automatisch als „Was testen�
 (`.github/workflows/testflight.yml`). Text auf Deutsch, höchstens 4000 Zeichen. Fehlt der Abschnitt, stehen dort
 die Commit-Titel seit dem letzten Tag.
 
+## 0.4.0
+
+- Vorschau: neuer Umschalter oben „Modell / Ganze Platte / 3D“. „3D“ zeigt die geslicte Platte räumlich (jede Linie mit Breite und Schichthöhe), mit einem Finger drehen, mit zwei Fingern zoomen, doppelt tippen setzt die Ansicht zurück
+- Der Schicht-Regler blendet in 3D die Schichten darüber aus; Farben nach Linientyp oder Filament und die Legende (antippen zum Ausblenden) wirken auch in 3D
+- Die 2D-Ansichten bleiben wie bisher
+
 ## 0.3.0
 
 Aufgeholt mit Server 0.14.0.

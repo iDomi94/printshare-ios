@@ -16,11 +16,13 @@ private struct PreviewScene {
     var bed: (w: Double, h: Double)
 }
 
-private enum ViewMode: Hashable { case model, bed }
+/// Top switch: 2D around the model, 2D whole bed, or the sliced plate in 3D.
+private enum ViewMode: Hashable { case model, bed, threeD }
 /// Colour the lines by line type or by filament; filament only makes sense with more than one.
 private enum ColorMode: Hashable { case type, color }
 
-/// 2D G-code preview (SL-06/07): layer slider, colours per line type or filament, legend toggles, model or whole bed.
+/// G-code preview (SL-06/07): layer slider, colours per line type or filament, legend toggles; 2D around the model or
+/// the whole bed, or the sliced plate in 3D (rotatable).
 struct PreviewView: View {
     let id: String
 
@@ -33,6 +35,8 @@ struct PreviewView: View {
     @State private var hidden: Set<String> = []  // "type:3" / "color:1"
     @State private var mode: ViewMode = .model
     @State private var colorPref: ColorMode?
+    @State private var plate: PlateScene?
+    @State private var plateBuilt: PlateKey?
 
     var body: some View {
         let t = app.l10n
@@ -71,6 +75,7 @@ struct PreviewView: View {
                 Picker("", selection: $mode) {
                     Text(t(.fitModel)).tag(ViewMode.model)
                     Text(t(.wholePlate)).tag(ViewMode.bed)
+                    Text(t(.view3d)).tag(ViewMode.threeD)
                 }
                 .pickerStyle(.segmented).labelsHidden()
                 if scene.tools.count > 1 {
@@ -81,12 +86,21 @@ struct PreviewView: View {
                     .pickerStyle(.segmented).labelsHidden()
                 }
 
-                canvas(scene, preview, current, cmode)
-                    .aspectRatio(1, contentMode: .fit)
-                    .frame(maxWidth: 640)
-                    .background(Theme.card)
-                    .clipShape(RoundedRectangle(cornerRadius: Theme.radius, style: .continuous))
-                    .accessibilityHidden(true)
+                Group {
+                    if mode == .threeD {
+                        plateView(t, current)
+                    } else {
+                        canvas(scene, preview, current, cmode)
+                    }
+                }
+                .aspectRatio(1, contentMode: .fit)
+                .frame(maxWidth: 640)
+                .background(mode == .threeD ? Theme.input : Theme.card)
+                .clipShape(RoundedRectangle(cornerRadius: Theme.radius, style: .continuous))
+                .accessibilityHidden(true)
+                if mode == .threeD && plate != nil {
+                    Text(t(.preview3dHint)).font(.footnote).foregroundStyle(Theme.sub).multilineTextAlignment(.center)
+                }
 
                 VStack(spacing: 4) {
                     HStack {
@@ -110,7 +124,48 @@ struct PreviewView: View {
             .padding(Theme.space)
             .frame(maxWidth: .infinity)
         }
+        // dragging in the 3D view rotates the plate instead of scrolling the page
+        .scrollDisabled(mode == .threeD)
         .background(Theme.bg)
+        .task(id: PlateKey(on: mode == .threeD, color: cmode == .color, hidden: hidden)) {
+            await buildPlate(scene, preview, cmode, PlateKey(on: true, color: cmode == .color, hidden: hidden))
+        }
+    }
+
+    // MARK: 3D
+
+    private struct PlateKey: Hashable {
+        var on: Bool
+        var color: Bool
+        var hidden: Set<String>
+    }
+
+    @ViewBuilder
+    private func plateView(_ t: L10n, _ current: Int) -> some View {
+        if let plate {
+            PlateSceneView(plate: plate, upTo: current)
+        } else {
+            ProgressView().controlSize(.large).frame(maxWidth: .infinity, maxHeight: .infinity)
+        }
+    }
+
+    /// Builds (or, after a colour change or legend toggle, rebuilds) the 3D plate off the main thread; the scene and its
+    /// camera are kept, so the view stays where the user turned it.
+    private func buildPlate(_ scene: PreviewScene, _ preview: Preview, _ cmode: ColorMode, _ key: PlateKey) async {
+        guard mode == .threeD, plateBuilt != key else { return }
+        let keys: [Int] = cmode == .color ? scene.tools : Array(0..<scene.typeCount)
+        var visible: [Int: SIMD3<Float>] = [:]
+        for k in keys where !hidden.contains(Self.hiddenKey(cmode, k)) {
+            visible[k] = PreviewColors.rgb(Self.hex(preview, cmode, k))
+        }
+        let colors = visible
+        let byTool = cmode == .color
+        let mesh = await Task.detached(priority: .userInitiated) {
+            PlateMesh.build(preview, colors: colors, byTool: byTool)
+        }.value
+        guard !Task.isCancelled else { return }
+        if let plate { plate.setLayers(mesh) } else { plate = PlateScene(mesh) }
+        plateBuilt = key
     }
 
     private func stepButton(_ symbol: String, _ label: String, disabled: Bool, action: @escaping () -> Void) -> some View {
@@ -162,11 +217,15 @@ struct PreviewView: View {
     nonisolated private static func hiddenKey(_ mode: ColorMode, _ k: Int) -> String { mode == .color ? "color:\(k)" : "type:\(k)" }
 
     nonisolated private static func color(_ preview: Preview, _ mode: ColorMode, _ k: Int) -> Color {
+        Color(hex: hex(preview, mode, k))
+    }
+
+    nonisolated private static func hex(_ preview: Preview, _ mode: ColorMode, _ k: Int) -> UInt32 {
         if mode == .color {
-            return k < preview.filamentColors.count ? (Color(hexString: preview.filamentColors[k]) ?? PreviewColors.fallback(k))
-                                                    : PreviewColors.fallback(k)
+            return (k < preview.filamentColors.count ? Color.hexValue(preview.filamentColors[k]) : nil)
+                ?? PreviewColors.fallbackHex(k)
         }
-        return PreviewColors.color(name: k < preview.types.count ? preview.types[k] : "", index: k)
+        return PreviewColors.hex(name: k < preview.types.count ? preview.types[k] : "", index: k)
     }
 
     // MARK: drawing
@@ -292,26 +351,32 @@ struct PreviewView: View {
 
 /// Colours per G-code line type (Orca's feature names), with a fallback palette for unknown names.
 enum PreviewColors {
-    private static let palette: [Color] = [
-        Color(hex: 0xE4572E), Color(hex: 0xF3A712), Color(hex: 0x29B6F6), Color(hex: 0x66BB6A),
-        Color(hex: 0xAB47BC), Color(hex: 0x26A69A), Color(hex: 0xFF7043), Color(hex: 0x8D6E63),
-    ]
+    private static let palette: [UInt32] = [0xE4572E, 0xF3A712, 0x29B6F6, 0x66BB6A, 0xAB47BC, 0x26A69A, 0xFF7043, 0x8D6E63]
 
-    static func color(name: String, index: Int) -> Color {
+    static func color(name: String, index: Int) -> Color { Color(hex: hex(name: name, index: index)) }
+
+    static func fallback(_ index: Int) -> Color { Color(hex: fallbackHex(index)) }
+
+    static func hex(name: String, index: Int) -> UInt32 {
         let n = name.lowercased()
-        if n.contains("outer") { return Color(hex: 0xFF8A3D) }
-        if n.contains("inner") { return Color(hex: 0xFFD54F) }
-        if n.contains("overhang") { return Color(hex: 0x3F51B5) }
-        if n.contains("sparse") { return Color(hex: 0xE53935) }
-        if n.contains("solid") { return Color(hex: 0xAB47BC) }
-        if n.contains("top") { return Color(hex: 0xEF5350) }
-        if n.contains("bottom") { return Color(hex: 0x1E88E5) }
-        if n.contains("bridge") { return Color(hex: 0x4DB6AC) }
-        if n.contains("gap") { return Color(hex: 0xFFFFFF) }
-        if n.contains("support") { return Color(hex: 0x66BB6A) }
-        if n.contains("skirt") || n.contains("brim") { return Color(hex: 0x00ACC1) }
-        return fallback(index)
+        if n.contains("outer") { return 0xFF8A3D }
+        if n.contains("inner") { return 0xFFD54F }
+        if n.contains("overhang") { return 0x3F51B5 }
+        if n.contains("sparse") { return 0xE53935 }
+        if n.contains("solid") { return 0xAB47BC }
+        if n.contains("top") { return 0xEF5350 }
+        if n.contains("bottom") { return 0x1E88E5 }
+        if n.contains("bridge") { return 0x4DB6AC }
+        if n.contains("gap") { return 0xFFFFFF }
+        if n.contains("support") { return 0x66BB6A }
+        if n.contains("skirt") || n.contains("brim") { return 0x00ACC1 }
+        return fallbackHex(index)
     }
 
-    static func fallback(_ index: Int) -> Color { palette[abs(index) % palette.count] }
+    static func fallbackHex(_ index: Int) -> UInt32 { palette[abs(index) % palette.count] }
+
+    /// rgb 0...1 for the 3D view's vertex colours.
+    static func rgb(_ hex: UInt32) -> SIMD3<Float> {
+        SIMD3(Float((hex >> 16) & 0xFF), Float((hex >> 8) & 0xFF), Float(hex & 0xFF)) / 255
+    }
 }
