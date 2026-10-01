@@ -1745,6 +1745,470 @@
         }
       }
     },
+    "infillHint.3dhoneycomb": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stabil, leicht federnd"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Strong, slightly springy"
+          }
+        }
+      }
+    },
+    "infillHint.adaptivecubic": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wie kubisch, innen dünner – spart Material"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Like cubic, sparser inside – saves material"
+          }
+        }
+      }
+    },
+    "infillHint.concentric": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Folgt der Außenform, gut für flexible Teile"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Follows the outline, good for flexible parts"
+          }
+        }
+      }
+    },
+    "infillHint.crosshatch": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wechselt die Richtung in Schichtblöcken"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Changes direction in blocks of layers"
+          }
+        }
+      }
+    },
+    "infillHint.cubic": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stabil in alle Richtungen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Strong in every direction"
+          }
+        }
+      }
+    },
+    "infillHint.grid": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Schnell und stabil"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fast and strong"
+          }
+        }
+      }
+    },
+    "infillHint.gyroid": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gleichmäßig stabil, gut für flexibles Filament"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Even strength, good for flexible filament"
+          }
+        }
+      }
+    },
+    "infillHint.honeycomb": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sehr stabil, druckt langsamer"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Very strong, prints slower"
+          }
+        }
+      }
+    },
+    "infillHint.lightning": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stützt nur die Oberseite – am schnellsten, nicht stabil"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Only holds up the top – fastest, not strong"
+          }
+        }
+      }
+    },
+    "infillHint.rectilinear": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Schnell, wenig Material"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fast, little material"
+          }
+        }
+      }
+    },
+    "infillHint.tri-hexagon": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stabil, weniger Kreuzungen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Strong, fewer crossings"
+          }
+        }
+      }
+    },
+    "infillHint.triangles": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stabil in der Fläche"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Strong in the plane"
+          }
+        }
+      }
+    },
+    "infillHollow": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hohl – keine Füllung"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hollow – no infill"
+          }
+        }
+      }
+    },
+    "infillNoPreview": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Für dieses Muster gibt es keine Vorschau."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No preview for this pattern."
+          }
+        }
+      }
+    },
+    "infillPattern": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Füllmuster"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Infill pattern"
+          }
+        }
+      }
+    },
+    "infillPattern.3dhoneycomb": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "3D-Bienenwabe"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "3D honeycomb"
+          }
+        }
+      }
+    },
+    "infillPattern.adaptivecubic": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Adaptiv kubisch"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Adaptive cubic"
+          }
+        }
+      }
+    },
+    "infillPattern.concentric": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Konzentrisch"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Concentric"
+          }
+        }
+      }
+    },
+    "infillPattern.crosshatch": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kreuzschraffur"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cross hatch"
+          }
+        }
+      }
+    },
+    "infillPattern.cubic": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kubisch"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cubic"
+          }
+        }
+      }
+    },
+    "infillPattern.grid": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gitter"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Grid"
+          }
+        }
+      }
+    },
+    "infillPattern.gyroid": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gyroid"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gyroid"
+          }
+        }
+      }
+    },
+    "infillPattern.honeycomb": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bienenwabe"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Honeycomb"
+          }
+        }
+      }
+    },
+    "infillPattern.lightning": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Blitz"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lightning"
+          }
+        }
+      }
+    },
+    "infillPattern.rectilinear": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Geradlinig"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rectilinear"
+          }
+        }
+      }
+    },
+    "infillPattern.tri-hexagon": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tri-Hexagon"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tri-hexagon"
+          }
+        }
+      }
+    },
+    "infillPattern.triangles": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dreiecke"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Triangles"
+          }
+        }
+      }
+    },
+    "infillPreviewBelow": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Blass: die Schicht darunter."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Faded: the layer below."
+          }
+        }
+      }
+    },
+    "infillPreviewHint": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ungefähr in Originalgröße: 3 × 3 cm, eine Schicht von oben."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "About real size: 3 × 3 cm, one layer seen from above."
+          }
+        }
+      }
+    },
     "invalidQr": {
       "localizations": {
         "de": {

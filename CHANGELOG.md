@@ -4,6 +4,14 @@ Jeder Abschnitt `## X.Y.Z` wird beim Tag `vX.Y.Z` automatisch als „Was testen�
 (`.github/workflows/testflight.yml`). Text auf Deutsch, höchstens 4000 Zeichen. Fehlt der Abschnitt, stehen dort
 die Commit-Titel seit dem letzten Tag.
 
+## 0.5.0
+
+Braucht Server 0.15.2 (ältere Server: die Auswahl erscheint nicht).
+
+- Beim Vorbereiten unter „Mehr“: neues Feld „Füllmuster“ (Geradlinig, Gitter, Dreiecke, Kubisch, Bienenwabe, Gyroid, Konzentrisch, Blitz …) mit kleinem Bild und kurzem Hinweis, wofür es gut ist
+- Darunter ein 3 × 3 cm großes Bild in ungefähr echter Größe: so sieht eine Schicht mit dem gewählten Muster und der gewählten Füllung von oben aus. Ändert sich mit Muster und Prozent sofort. Bitte mit einem Lineal nachmessen, ob es wirklich 3 cm sind (vor allem auf iPad und mit „Bildschirmzoom“)
+- In der Prüfung steht ein geändertes Füllmuster bei den geänderten Werten
+
 ## 0.4.0
 
 - Vorschau: neuer Umschalter oben „Modell / Ganze Platte / 3D“. „3D“ zeigt die geslicte Platte räumlich (jede Linie mit Breite und Schichthöhe), mit einem Finger drehen, mit zwei Fingern zoomen, doppelt tippen setzt die Ansicht zurück
