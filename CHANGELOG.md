@@ -4,6 +4,17 @@ Jeder Abschnitt `## X.Y.Z` wird beim Tag `vX.Y.Z` automatisch als „Was testen�
 (`.github/workflows/testflight.yml`). Text auf Deutsch, höchstens 4000 Zeichen. Fehlt der Abschnitt, stehen dort
 die Commit-Titel seit dem letzten Tag.
 
+## 0.9.0
+
+Aufgeholt mit Server 0.27.0 (Brücken). Nur mit PocketPrint3D Cloud.
+
+- Neu: „Unterwegs drucken“ (Einstellungen → Konto). Eine Brücke ist dein eigener PocketPrint3D-Server zu Hause (Unraid, Home Assistant, Docker) mit der Einstellung „Mit PocketPrint3D Cloud verbinden“. Den Code, den er anzeigt, gibst du in der App ein; danach erreichst du seine Drucker auch von unterwegs
+- Drucker hinter einer Brücke erscheinen von selbst im Druckertab („über Brücke“): Status, Pause / Fortsetzen / Abbrechen, Steuerung, Kamerabild und Drucken laufen über den Server, nichts muss im Router freigegeben werden
+- Weitere Drucker über die Brücke hinzufügen: die Brücke sucht in ihrem Netzwerk, Adresse, Passwort und API-Key werden auf dem Handy verschlüsselt, nur die Brücke kann sie lesen
+- Verständlichere Fehlermeldungen, wenn die Brücke offline ist
+- Texte aus der aktuellen i18n.ts: einige Formulierungen sind einfacher geworden
+- Bitte testen: Brücke koppeln (Code eingeben), Drucker der Brücke im Druckertab, Drucker über die Brücke hinzufügen, ein Druck über die Brücke (nur mit Bestätigungsdialog, kein Druck ohne Absicht starten)
+
 ## 0.8.1
 
 - Teilen → PocketPrint3D: zweiter Anlauf, damit sich die App öffnet. Die Erweiterung hat den Link an das eigene Teilen-Fenster geschickt statt an iOS; das hat nichts geöffnet

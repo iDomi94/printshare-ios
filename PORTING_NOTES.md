@@ -160,6 +160,27 @@ if it contradicts `printshare/api.py` the server wins; otherwise the simplest id
     Thumbnails (0.20) and klipper_estimator (0.22) are server-side only.
   - Not verified against a real Orca Cloud link, SpoolmanDB, Manyfold or Obico ML API; only stubs and server shapes.
 
+- **Server 0.24.0-0.27.0, bridges** (upstream `80fe375`, 2026-10-02), ported from `docs/API.md` ("Bridges"),
+  `docs/BRIDGE.md` and the Expo app's `app/bridges.tsx`, `lib/seal.ts`, `lib/printerAccess.ts`, `app/cloud-printer/[id].tsx`:
+  - A bridge is the user's own server with an outgoing connection to the cloud; the cloud forwards the printer endpoints.
+    `Printer.bridge` (id or nil, server 0.26.0) decides the route: `Printer.viaServer(cloud:)` = own server **or** a bridge
+    printer → server API (status, control, controls, adjust, temperatures, camera, power, `/send`); other cloud printers
+    stay with the phone on the Wi-Fi (`AppModel.viaServer`, used by the printers tab, job screen, prepare).
+  - Sending through a bridge uses the normal `POST /api/jobs/<id>/send` (the cloud spawns `job.send`, the job's state and
+    log show the progress), i.e. the same polling as on an own server, not the LAN relay. The confirmation dialog stays.
+  - `Settings → Unterwegs drucken` (`BridgesView`): code entry (`POST /api/bridges/pair`, typed as `K7Q4-M2ZX`), list with
+    online state and printers, remove. `CloudPrinterView(id:bridge:)` adds a printer through a bridge: the bridge scans
+    (`POST /api/bridges/<id>/discover`, tap a hit to fill type / address / name) and the secrets go sealed
+    (`PUT .../bridge-access` for later changes). Address and secrets are not kept on the phone.
+  - `Seal.swift` = scheme "pp3d-seal-v1" with CryptoKit (X25519, HKDF-SHA256 with salt = ephemeral ‖ bridge public key,
+    ChaCha20-Poly1305 with a zero nonce); a test opens a blob that the server's Python `seal()` produced.
+  - Camera through a bridge: the server says `stream: false`, so the existing camera views show still images.
+  - **Not ported**: finding printers on the phone's own Wi-Fi (Expo beginner audit step 2; needs UDP broadcast, the local
+    network permission and a /24 scan - own task), the first-start welcome screen and "first printer" card of the beginner
+    audit step 1, LAN-error wording rules (`errLan*`, their texts are generated but not used yet), `printerNameAuto`.
+    Bridge mode of a home server (`GET/POST /api/bridge`, 0.25.0) is switched on in the server / its web page, not in the app.
+  - Not verified: no Swift build in the porting environment, no real cloud with a paired bridge, no print through a bridge.
+
 - **Model files in 3D** (not in the Expo app): the file row on the model page opens a sheet with the files of
   `/api/files` (same order and index as the prepare screen). STL is read by `STLReader` (binary + ASCII; ModelIO returned no mesh for STL on CI), 3MF by `ThreeMFReader` (own zip reader: stored/deflate via `NSData.decompressed(.zlib)`, zip64; `XMLParser` for the
   model files incl. Orca/Bambu `3D/Objects/*.model` components and build transforms; colour per object/part from
