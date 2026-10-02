@@ -6,7 +6,7 @@ die Commit-Titel seit dem letzten Tag.
 
 ## 0.7.90
 
-Testversion (Branch `claude/project-thread-7xfian`, auf 0.7.0): Printables.com in der App.
+Printables.com in der App (enthält alles aus 0.7.0).
 
 - „Entdecken“ → oben rechts „Printables.com“: die Printables-Webseite in der App. Dort mit dem Prusa-Konto anmelden, dann gibt es Likes und Sammlungen
 - Bitte testen: bleibt die Anmeldung nach dem Beenden der App erhalten? Klappt die Anmeldung mit E-Mail, mit Apple, mit Google (Google sperrt Anmeldungen in eingebetteten Webseiten vermutlich)?
