@@ -4,6 +4,12 @@ Jeder Abschnitt `## X.Y.Z` wird beim Tag `vX.Y.Z` automatisch als „Was testen�
 (`.github/workflows/testflight.yml`). Text auf Deutsch, höchstens 4000 Zeichen. Fehlt der Abschnitt, stehen dort
 die Commit-Titel seit dem letzten Tag.
 
+## 0.7.91
+
+- Teilen → PocketPrint3D: die App öffnet sich danach wieder von selbst. Die Erweiterung wollte die App öffnen, bevor das Teilen-Fenster ganz zu sehen war; das hat iOS still ignoriert
+- Klappt es trotzdem nicht, steht im Teilen-Fenster „Gespeichert. Öffne PocketPrint3D, um weiterzumachen.“ und das Modell erscheint beim nächsten Öffnen der App
+- Bitte testen: Link aus Safari / Printables-App, und eine STL- oder 3MF-Datei aus „Dateien“ teilen
+
 ## 0.7.90
 
 Printables.com in der App (enthält alles aus 0.7.0).
