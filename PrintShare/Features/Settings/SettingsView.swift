@@ -29,6 +29,8 @@ struct SettingsView: View {
                 serverSection(t, server)
             }
 
+            if let server, !server.isCloud { serverExtras(t) }
+
             if server != nil {
                 PSSection(title: t(.spoolman)) {
                     PSRow(icon: "circle.circle", label: t(.spoolman),
@@ -151,6 +153,17 @@ struct SettingsView: View {
                     }
                 }
             }
+        }
+    }
+
+    /// Own servers only (server 0.21.0 / 0.23.0): both answer 409 in the cloud.
+    @ViewBuilder
+    private func serverExtras(_ t: L10n) -> some View {
+        PSSection(title: t(.manyfoldTitle), footer: t(.manyfoldSub)) {
+            PSRow(icon: "books.vertical", label: "Manyfold") { app.push(.manyfold) }
+        }
+        PSSection(title: t(.failureTitle), footer: t(.failureSub)) {
+            PSRow(icon: "eye", label: t(.failureTitle)) { app.push(.failureDetection) }
         }
     }
 

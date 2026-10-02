@@ -141,6 +141,25 @@ if it contradicts `printshare/api.py` the server wins; otherwise the simplest id
     through the share menu.
   - Not verified against a real Spoolman, a Moonraker with `[spoolman]` or MakerWorld; only stubs and server shapes.
 
+- **Server 0.18.0-0.23.0** (upstream `c9f9123`, 2026-10-02), ported from `docs/API.md`, `printshare/api.py` and the
+  Expo app of the same commit:
+  - **Orca Cloud share link** (0.18.0, issue #7): printer settings → "Aus der Orca Cloud" posts the link to
+    `POST /api/profiles/orca-cloud`; the printer preset is used right away only when exactly one imported machine
+    preset inherits this printer's machine, otherwise the user picks it from the list.
+  - **SpoolmanDB** (0.19.0): spool form → "Aus Datenbank wählen" (`/api/filament-db/brands`, `/filaments?brand=`) fills
+    brand, name, material, colour, weight and sends `filament.density` + `spool_weight`.
+  - **MakerWorld card** (Discover) and MakerWorld links typed into the search field open the model page.
+  - **Manyfold** (0.21.0, own servers only): Settings → Manyfold (`/api/manyfold/config`, key never shown, left out =
+    kept). Hits carry `link` "manyfold:<id>" which is used for files and jobs; their images are server paths
+    ("/api/…") and get the server address + `?token=` (`APIClient.imageURL`). No sort chips for Manyfold.
+  - **AI failure detection** (0.23.0, own servers only): Settings → KI-Fehlererkennung
+    (`/api/failure-detection/config`); printer card shows `status.watch` (line while watching, red box with the checked
+    frame from `/watch/frame` on an alert, "Fehlalarm" → `POST /watch/mute`, "Pause" = the normal pause).
+  - **Not ported**: OpenPrintTag NFC tags (0.20.x) need the "NFC Tag Reading" capability on the App ID (developer
+    portal, by hand) and CoreNFC; the 3D G-code view of the Expo app (#4) - the native app has its own `Plate3D`.
+    Thumbnails (0.20) and klipper_estimator (0.22) are server-side only.
+  - Not verified against a real Orca Cloud link, SpoolmanDB, Manyfold or Obico ML API; only stubs and server shapes.
+
 - **Model files in 3D** (not in the Expo app): the file row on the model page opens a sheet with the files of
   `/api/files` (same order and index as the prepare screen). STL is read by `STLReader` (binary + ASCII; ModelIO returned no mesh for STL on CI), 3MF by `ThreeMFReader` (own zip reader: stored/deflate via `NSData.decompressed(.zlib)`, zip64; `XMLParser` for the
   model files incl. Orca/Bambu `3D/Objects/*.model` components and build transforms; colour per object/part from

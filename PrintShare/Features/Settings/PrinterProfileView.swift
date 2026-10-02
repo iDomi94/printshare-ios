@@ -2,7 +2,8 @@ import SwiftUI
 import UniformTypeIdentifiers
 
 /// Printer settings: own OrcaSlicer printer profile (issue #2, spec PR-01/02, server 0.7.0) and the uploaded
-/// quality/material presets (server 0.13.0), which the pickers on the prepare screen show as own profiles.
+/// quality/material presets (server 0.13.0), which the pickers on the prepare screen show as own profiles. Presets can
+/// also come from a public Orca Cloud share link (server 0.18.0, issue #7) - no Orca account needed.
 struct PrinterProfileView: View {
     let printer: String
     let name: String
@@ -15,6 +16,8 @@ struct PrinterProfileView: View {
     @State private var done = ""
     @State private var importing = false
     @State private var deleteTarget: UserProfile?
+    @State private var orcaLink = ""
+    @State private var orcaBusy = false
 
     private var profiles: [UserProfile] { allProfiles.filter { $0.kind == "machine" } }
     private var ownPresets: [UserProfile] { allProfiles.filter { $0.kind == "process" || $0.kind == "filament" } }
@@ -55,6 +58,19 @@ struct PrinterProfileView: View {
                             }
                     }
                 }
+            }
+
+            PSSection(title: t(.orcaCloudTitle), footer: t(.orcaCloudHint)) {
+                TextField("https://cloud.orcaslicer.com/b/…", text: $orcaLink)
+                    .textInputAutocapitalization(.never).autocorrectionDisabled().keyboardType(.URL)
+                    .padding(.horizontal, Theme.space).padding(.vertical, 14)
+                    .accessibilityLabel(t(.orcaCloudTitle))
+                PSDivider()
+                PSButton(title: t(.orcaCloudImport), kind: .secondary, icon: "icloud.and.arrow.down", loading: orcaBusy,
+                         disabled: current == nil || !Self.isOrcaLink(orcaLink)) {
+                    Task { await importOrca() }
+                }
+                .padding(Theme.space)
             }
 
             PSButton(title: t(.uploadProfile), icon: "icloud.and.arrow.up", loading: busy, disabled: current == nil) {
@@ -145,6 +161,40 @@ struct PrinterProfileView: View {
                 done = app.l10n(.profileStoredOther, ["names": stored.map { $0.name ?? $0.file }.joined(separator: ", ")])
                 Haptics.success()
             }
+            allProfiles = try await api.profiles()
+        } catch {
+            self.error = error.localizedDescription
+        }
+    }
+
+    static func isOrcaLink(_ s: String) -> Bool { s.matches("cloud\\.orcaslicer\\.com/b/") }
+
+    /// One printer preset made for this printer's model is used right away; several (nozzles, AFC …): the user picks.
+    static func fittingMachine(_ imported: [UserProfile], machine: String) -> UserProfile? {
+        let fitting = imported.filter { $0.kind == "machine" && $0.inherits == machine }
+        return fitting.count == 1 ? fitting[0] : nil
+    }
+
+    private func importOrca() async {
+        guard let api = app.api, let cur = current else { return }
+        let t = app.l10n
+        orcaBusy = true
+        error = ""
+        done = ""
+        defer { orcaBusy = false }
+        do {
+            let r = try await api.importOrcaCloud(link: orcaLink.trimmingCharacters(in: .whitespacesAndNewlines))
+            var lines = [t(.orcaCloudDone, ["bundle": r.bundle.name ?? "Orca Cloud", "n": String(r.imported.count)])]
+            if !r.skipped.isEmpty { lines.append(t(.orcaCloudSkipped, ["n": String(r.skipped.count)])) }
+            if let m = Self.fittingMachine(r.imported, machine: cur.machine) {
+                current = try await api.setPrinterProfile(printer: printer, machineFile: m.file)
+                lines.append(t(.profileUploaded, ["name": m.name ?? m.file, "printer": name]))
+            } else if r.imported.contains(where: { $0.kind == "machine" }) {
+                lines.append(t(.orcaCloudChoose))
+            }
+            done = lines.joined(separator: " ")
+            orcaLink = ""
+            Haptics.success()
             allProfiles = try await api.profiles()
         } catch {
             self.error = error.localizedDescription

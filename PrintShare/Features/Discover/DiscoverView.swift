@@ -1,8 +1,10 @@
 import SwiftUI
 
-/// Search Printables / Thingiverse and open a model (spec MQ-05).
+/// Search Printables / Thingiverse / own Manyfold and open a model (spec MQ-05). MakerWorld can't be searched from
+/// outside (server 0.17.1): a card sends the user there, and a MakerWorld link typed here opens its model page.
 struct DiscoverView: View {
     @Environment(AppModel.self) private var app
+    @Environment(\.openURL) private var openURL
     @State private var sources: [Source] = []
     @State private var source = "printables"
     @State private var sort: SortKey = .relevant
@@ -32,7 +34,8 @@ struct DiscoverView: View {
 
     private func content(_ t: L10n) -> some View {
         let available = sources.filter(\.available)
-        let tvMissing = sources.contains { $0.id == "thingiverse" && !$0.available }
+        // only the owner of a home server can add the token; cloud users can't do anything about it
+        let tvMissing = !app.isCloud && sources.contains { $0.id == "thingiverse" && !$0.available }
         return ScrollView {
             VStack(alignment: .leading, spacing: 12) {
                 HStack(alignment: .firstTextBaseline) {
@@ -65,7 +68,8 @@ struct DiscoverView: View {
                     }
                     .pickerStyle(.segmented).labelsHidden()
                 }
-                sortChips(t)
+                // own Manyfold library: no likes or makes to sort by
+                if source != "manyfold" { sortChips(t) }
                 if !error.isEmpty { PSBanner(kind: .error, text: error) }
 
                 if hits.isEmpty { emptyState(t, tvMissing: tvMissing) }
@@ -122,6 +126,18 @@ struct DiscoverView: View {
                         .buttonStyle(.plain)
                     }
                 }
+                PSCard(padding: 16) {
+                    VStack(alignment: .leading, spacing: 8) {
+                        Label(t(.makerworldTitle), systemImage: "globe").font(.headline).foregroundStyle(Theme.text)
+                        Text(t(.makerworldText)).font(.subheadline).foregroundStyle(Theme.sub)
+                            .fixedSize(horizontal: false, vertical: true)
+                        PSButton(title: t(.makerworldOpen), kind: .secondary, icon: "arrow.up.right.square") {
+                            if let u = URL(string: "https://makerworld.com") { openURL(u) }
+                        }
+                        .padding(.top, 4)
+                    }
+                }
+                .padding(.top, 16)
                 if tvMissing {
                     Text(t(.thingiverseHint)).font(.footnote).foregroundStyle(Theme.sub).padding(.top, 14)
                 }
@@ -188,6 +204,11 @@ struct DiscoverView: View {
     private func submit(_ text: String) {
         let v = text.trimmingCharacters(in: .whitespaces)
         if v.isEmpty { return }
+        if let mw = Format.makerWorldId(Format.extractLink(v)) {
+            input = ""
+            app.push(.model(source: "makerworld", id: mw))
+            return
+        }
         input = v
         if v != query { hits = [] }
         query = v
@@ -206,21 +227,36 @@ struct DiscoverView: View {
     }
 }
 
-/// Remote image with a grey placeholder (list thumbnails and gallery).
+/// Remote image with a grey placeholder (list thumbnails and gallery). Server-relative addresses ("/api/…", Manyfold
+/// previews, server 0.21.0) are completed with the server address and key.
 struct RemoteImage: View {
     var url: String?
 
+    @Environment(AppModel.self) private var app
+    @State private var resolved: URL?
+
     var body: some View {
-        if let url, let u = URL(string: url) {
-            AsyncImage(url: u) { phase in
-                switch phase {
-                case .success(let image): image.resizable().scaledToFill()
-                default: Theme.track
+        Group {
+            if let u = resolved ?? direct {
+                AsyncImage(url: u) { phase in
+                    switch phase {
+                    case .success(let image): image.resizable().scaledToFill()
+                    default: Theme.track
+                    }
                 }
+            } else {
+                Theme.track
             }
-        } else {
-            Theme.track
         }
+        .task(id: url) {
+            guard let url, url.hasPrefix("/api/"), let api = app.api else { resolved = nil; return }
+            resolved = await api.imageURL(url)
+        }
+    }
+
+    private var direct: URL? {
+        guard let url, !url.hasPrefix("/api/") else { return nil }
+        return URL(string: url)
     }
 }
 

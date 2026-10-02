@@ -2,6 +2,7 @@ import SwiftUI
 
 /// One cloud spool (server 0.17.0): brand, name, material, colour, weights, location; copy, archive, delete.
 /// `id == SpoolFormView.new` adds one; `copy` starts from an existing spool (a stack of identical spools).
+/// "Aus Datenbank wählen" fills the fields from SpoolmanDB (server 0.19.0): brand -> filament.
 struct SpoolFormView: View {
     static let new = "new"
     static let materials = ["PLA", "PLA+", "PETG", "ABS", "ASA", "TPU", "PA", "PC", "PLA-CF", "PETG-CF", "PA-CF", "PVA", "HIPS"]
@@ -26,6 +27,16 @@ struct SpoolFormView: View {
     @State private var busy = false
     @State private var error = ""
     @State private var confirmDelete = false
+    // SpoolmanDB (server 0.19.0)
+    @State private var spoolWeight: Double?
+    @State private var density: Double?
+    @State private var dbSheet: DBSheet?
+    @State private var brands: [FilamentBrand]?
+    @State private var brand: String?
+    @State private var presets: [FilamentPreset]?
+    @State private var dbError = ""
+
+    private enum DBSheet: String, Identifiable { case brand, filament; var id: String { rawValue } }
 
     private var isNew: Bool { id == Self.new }
 
@@ -55,6 +66,7 @@ struct SpoolFormView: View {
         .navigationTitle(isNew ? t(.spoolNew) : t(.spoolEdit, ["id": id]))
         .navigationBarTitleDisplayMode(.inline)
         .task { await load() }
+        .sheet(item: $dbSheet) { which in dbSheetView(t, which) }
         .alert(t(.spoolDeleteQ, ["id": id]), isPresented: $confirmDelete) {
             Button(t(.cancelBtn), role: .cancel) {}
             Button(t(.del), role: .destructive) { Task { await remove() } }
@@ -85,6 +97,14 @@ struct SpoolFormView: View {
         let hex = Self.hex(color)
         return PSScreen {
             if !error.isEmpty { PSBanner(kind: .error, text: error) }
+            if !dbError.isEmpty { PSBanner(kind: .warn, text: dbError) }
+
+            PSSection(footer: t(.spoolDbHint)) {
+                PSRow(icon: "books.vertical", label: t(.spoolFromDb), value: brand) {
+                    dbError = ""
+                    dbSheet = .brand
+                }
+            }
 
             PSSection {
                 field(t(.spoolVendor), $vendor, placeholder: "Elegoo")
@@ -171,6 +191,75 @@ struct SpoolFormView: View {
         }
     }
 
+    @ViewBuilder
+    private func dbSheetView(_ t: L10n, _ which: DBSheet) -> some View {
+        switch which {
+        case .brand:
+            if let brands {
+                PickerSheet(title: t(.spoolVendor),
+                            choices: brands.map { Choice(value: $0.name, label: $0.name, sub: t(.spoolDbCount, ["n": String($0.count)])) },
+                            selected: brand, searchLabel: t(.search), closeLabel: "OK") { v in
+                    brand = v
+                    presets = nil
+                    Task { await loadPresets(v) }
+                }
+            } else {
+                ProgressView().task { await loadBrands() }
+            }
+        case .filament:
+            if let presets {
+                PickerSheet(title: brand ?? "", choices: Self.choices(presets), selected: nil, searchLabel: t(.search),
+                            closeLabel: "OK") { v in
+                    if let i = Int(v), presets.indices.contains(i) { apply(presets[i]) }
+                }
+            } else {
+                ProgressView()
+            }
+        }
+    }
+
+    /// One row per preset: name, grouped by material, sizes · nozzle temperature · finish.
+    static func choices(_ presets: [FilamentPreset]) -> [Choice] {
+        presets.enumerated().map { i, p in
+            let sub = [p.weights.map { "\(Format.trimNumber($0.weight)) g" }.joined(separator: " / "),
+                       p.extruderTemp.map { "\(Format.trimNumber($0)) °C" }, p.finish]
+                .compactMap { $0 }.filter { !$0.isEmpty }.joined(separator: " · ")
+            return Choice(value: String(i), label: p.name.isEmpty ? p.material : p.name, group: p.material,
+                          sub: sub.isEmpty ? nil : sub)
+        }
+    }
+
+    private func loadBrands() async {
+        guard let api = app.api else { return }
+        do { brands = try await api.filamentBrands() } catch {
+            dbError = error.localizedDescription
+            dbSheet = nil
+        }
+    }
+
+    private func loadPresets(_ b: String) async {
+        guard let api = app.api else { return }
+        do {
+            presets = try await api.filamentPresets(brand: b)
+            // the brand sheet closes itself after the pick; open the filament list next
+            try? await Task.sleep(for: .milliseconds(450))
+            dbSheet = .filament
+        } catch {
+            dbError = error.localizedDescription
+        }
+    }
+
+    private func apply(_ p: FilamentPreset) {
+        vendor = brand ?? ""
+        name = p.name
+        material = p.material
+        if let c = p.colorHex, let h = Self.hex(String(c.replacingOccurrences(of: "#", with: "").prefix(6))) { color = h }
+        let size = p.weights.first
+        if let w = size?.weight, w > 0 { weight = Format.trimNumber(w) }
+        spoolWeight = size?.spoolWeight
+        density = p.density
+    }
+
     /// Same body as the Expo app; empty fields are cleared.
     func input(archive: Bool? = nil) -> SpoolInput {
         func clean(_ s: String) -> String? {
@@ -178,9 +267,9 @@ struct SpoolFormView: View {
             return v.isEmpty ? nil : v
         }
         return SpoolInput(filament: .init(name: clean(name), vendor: clean(vendor), material: clean(material),
-                                          colorHex: Self.hex(color), weight: Self.number(weight)),
+                                          colorHex: Self.hex(color), weight: Self.number(weight), density: density),
                           remainingWeight: clean(remaining) != nil ? Self.number(remaining) : nil,
-                          location: clean(location), comment: clean(comment), archived: archive)
+                          location: clean(location), comment: clean(comment), archived: archive, spoolWeight: spoolWeight)
     }
 
     private func save(archive: Bool? = nil) async {

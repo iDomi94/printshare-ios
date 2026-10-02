@@ -15,7 +15,8 @@ struct ModelDetailView: View {
     @State private var attempt = 0
     @State private var showFiles = false
 
-    private static let sourceNames = ["printables": "Printables", "thingiverse": "Thingiverse", "makerworld": "MakerWorld"]
+    private static let sourceNames = ["printables": "Printables", "thingiverse": "Thingiverse", "makerworld": "MakerWorld",
+                                              "manyfold": "Manyfold"]
 
     var body: some View {
         let t = app.l10n
@@ -27,9 +28,10 @@ struct ModelDetailView: View {
         .task(id: attempt) { await load() }
         .sheet(isPresented: $showFiles) {
             if let m = model {
-                ModelFilesSheet(link: m.hit.url) { f in
+                ModelFilesSheet(link: m.hit.sliceLink) { f in
                     showFiles = false
-                    app.push(.prepare(PrepareArgs(link: m.hit.url, edit: EditArgs(file: String(f.index)))))
+                    app.push(.prepare(PrepareArgs(link: m.hit.sliceLink, fileName: m.hit.link != nil ? m.hit.name : nil,
+                                                  edit: EditArgs(file: String(f.index)))))
                 }
             }
         }
@@ -130,7 +132,7 @@ struct ModelDetailView: View {
                 }
             } else {
                 PSButton(title: t(.printThis), icon: "printer", disabled: sliceable == 0) {
-                    app.push(.prepare(PrepareArgs(link: m.hit.url)))
+                    app.push(.prepare(PrepareArgs(link: m.hit.sliceLink, fileName: m.hit.link != nil ? m.hit.name : nil)))
                 }
                 PSButton(title: t(.openOn, ["source": srcName]), kind: .plain, icon: "arrow.up.right.square") {
                     if let u = URL(string: m.hit.url) { openURL(u) }

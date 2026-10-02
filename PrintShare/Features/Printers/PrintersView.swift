@@ -114,6 +114,10 @@ struct PrintersView: View {
                 } else {
                     offline(t, p)
                 }
+                if let w = s?.watch {
+                    WatchInfo(printer: p.id, watch: w, busy: acting, onMute: { Task { await mute(p) } },
+                              onPause: { Task { await run(p, "pause") } })
+                }
                 if busy {
                     HStack(spacing: 10) {
                         if kind == .paused {
@@ -260,6 +264,16 @@ struct PrintersView: View {
         booked = booked.filter { now.timeIntervalSince($0.at) < 60 } + result.booked.map { Booked(booking: $0, at: now) }
         openBookings = result.open
         if let e = result.error { error = app.l10n(.spoolmanUnreachable, ["error": e]) }
+    }
+
+    /// "False alarm" of the AI failure detection: no more alerts for this print.
+    private func mute(_ p: Printer) async {
+        guard let api = app.api else { return }
+        acting = "\(p.id):mute"
+        do { _ = try await api.muteWatch(printer: p.id) }
+        catch { self.error = error.localizedDescription }
+        acting = ""
+        await load()
     }
 
     private func powerOn(_ p: Printer) async {

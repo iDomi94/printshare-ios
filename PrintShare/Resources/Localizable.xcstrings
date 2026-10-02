@@ -49,6 +49,38 @@
         }
       }
     },
+    "actionNotify": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nur melden"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Notify only"
+          }
+        }
+      }
+    },
+    "actionPause": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pausieren"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pause"
+          }
+        }
+      }
+    },
     "actual": {
       "localizations": {
         "de": {
@@ -1985,6 +2017,198 @@
         }
       }
     },
+    "failureAction": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bei Verdacht"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "On suspicion"
+          }
+        }
+      }
+    },
+    "failureHint": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Starte nur den Dienst „ml_api“ von Obico (github.com/TheSpaghettiDetective/obico-server, docker compose up -d ml_api, Port 3333, ca. 4 GB RAM). Er holt die Kamerabilder von diesem Server – daher die Server-Adresse, wie der Container sie erreicht. Beim Speichern wird ein Testbild geprüft."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Run only Obico's “ml_api” service (github.com/TheSpaghettiDetective/obico-server, docker compose up -d ml_api, port 3333, about 4 GB RAM). It fetches the camera pictures from this server – hence this server's address as the container reaches it. Saving checks a test picture."
+          }
+        }
+      }
+    },
+    "failureMl": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Adresse der ML-API"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ML API address"
+          }
+        }
+      }
+    },
+    "failureNote": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Die Warnung erscheint in der App (noch keine Push-Mitteilung)."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The warning shows in the app (no push notification yet)."
+          }
+        }
+      }
+    },
+    "failureOk": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Verbunden – die ML-API hat das Testbild geprüft."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connected – the ML API checked the test picture."
+          }
+        }
+      }
+    },
+    "failureRemove": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fehlererkennung ausschalten"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Turn failure detection off"
+          }
+        }
+      }
+    },
+    "failureSensitivity": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Empfindlichkeit"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sensitivity"
+          }
+        }
+      }
+    },
+    "failureServer": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Adresse dieses Servers für die ML-API"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This server's address for the ML API"
+          }
+        }
+      }
+    },
+    "failureSub": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Erkennt Fehldrucke (Spaghetti, Ablösen) im Kamerabild – mit Obicos ML-API auf deinem Server."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spots failed prints (spaghetti, detaching) in the camera picture – with Obico's ML API on your server."
+          }
+        }
+      }
+    },
+    "failureTitle": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "KI-Fehlererkennung"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "AI failure detection"
+          }
+        }
+      }
+    },
+    "failureToken": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ML_API_TOKEN (optional)"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ML_API_TOKEN (optional)"
+          }
+        }
+      }
+    },
+    "failureTokenKept": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Token (gespeichert – leer lassen)"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Token (stored – leave empty)"
+          }
+        }
+      }
+    },
     "fan.aux": {
       "localizations": {
         "de": {
@@ -2157,6 +2381,54 @@
           "stringUnit": {
             "state": "translated",
             "value": "Model"
+          }
+        }
+      }
+    },
+    "gcode2d": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "2D (Schicht)"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "2D (layer)"
+          }
+        }
+      }
+    },
+    "gcode3d": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "3D"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "3D"
+          }
+        }
+      }
+    },
+    "gcode3dHint": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ein Finger: drehen · zwei Finger: zoomen und verschieben · Regler: bis zu welcher Schicht"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "One finger: rotate · two fingers: zoom and pan · slider: up to which layer"
           }
         }
       }
@@ -3969,6 +4241,54 @@
         }
       }
     },
+    "makerworldOpen": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "MakerWorld öffnen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open MakerWorld"
+          }
+        }
+      }
+    },
+    "makerworldText": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "MakerWorld lässt sich nicht von außen durchsuchen. Öffne ein Modell in der MakerWorld-App oder im Browser und schick es über „Teilen → PocketPrint3D“ hierher – oder füge den Link oben ein."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "MakerWorld can't be searched from outside. Open a model in the MakerWorld app or your browser and send it here with “Share → PocketPrint3D” – or paste the link above."
+          }
+        }
+      }
+    },
+    "makerworldTitle": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Modelle von MakerWorld"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Models from MakerWorld"
+          }
+        }
+      }
+    },
     "makes": {
       "localizations": {
         "de": {
@@ -3997,6 +4317,150 @@
           "stringUnit": {
             "state": "translated",
             "value": "Enter manually"
+          }
+        }
+      }
+    },
+    "manyfoldAddress": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Manyfold-Adresse"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Manyfold address"
+          }
+        }
+      }
+    },
+    "manyfoldHint": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Adresse deines Manyfold (z. B. http://192.168.1.20:3214) und ein API-Key (in Manyfold: dein Name → API-Keys, Bereich „read“). Der PocketPrint3D-Server prüft beides und lädt die Modelle direkt von dort."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Address of your Manyfold (e.g. http://192.168.1.20:3214) and an API key (in Manyfold: your name → API keys, scope “read”). The PocketPrint3D server checks both and loads the models straight from there."
+          }
+        }
+      }
+    },
+    "manyfoldKey": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "API-Key"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "API key"
+          }
+        }
+      }
+    },
+    "manyfoldKeyKept": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "API-Key (gespeichert – leer lassen)"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "API key (stored – leave empty)"
+          }
+        }
+      }
+    },
+    "manyfoldOk": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Verbunden – {n} Modelle in deiner Bibliothek."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connected – {n} models in your library."
+          }
+        }
+      }
+    },
+    "manyfoldRemove": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Manyfold trennen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Disconnect Manyfold"
+          }
+        }
+      }
+    },
+    "manyfoldRemoveQ": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Manyfold-Verbindung entfernen?"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remove the Manyfold connection?"
+          }
+        }
+      }
+    },
+    "manyfoldSub": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Manyfold auf deinem Server: deine Modelle erscheinen in „Entdecken“."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Manyfold on your server: your models show up in “Discover”."
+          }
+        }
+      }
+    },
+    "manyfoldTitle": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eigene Modell-Bibliothek"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Own model library"
           }
         }
       }
@@ -4253,6 +4717,214 @@
           "stringUnit": {
             "state": "translated",
             "value": "Next layer"
+          }
+        }
+      }
+    },
+    "nfcAdd": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Als neue Spule anlegen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add as a new spool"
+          }
+        }
+      }
+    },
+    "nfcCancel": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abbrechen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cancel"
+          }
+        }
+      }
+    },
+    "nfcFilled": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vom Tag übernommen: {tag}"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Taken from the tag: {tag}"
+          }
+        }
+      }
+    },
+    "nfcHold": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Halte das Handy an den NFC-Tag der Spule …"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hold the phone to the spool's NFC tag …"
+          }
+        }
+      }
+    },
+    "nfcMatched": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "{spool} gewählt (Tag: {tag})."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "{spool} chosen (tag: {tag})."
+          }
+        }
+      }
+    },
+    "nfcNoMatch": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keine passende Spule für „{tag}“."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No matching spool for “{tag}”."
+          }
+        }
+      }
+    },
+    "nfcNone": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dieses Handy hat kein NFC."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This phone has no NFC."
+          }
+        }
+      }
+    },
+    "nfcNotOpt": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Auf diesem Tag ist kein OpenPrintTag."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "There is no OpenPrintTag on this tag."
+          }
+        }
+      }
+    },
+    "nfcOff": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "NFC ist ausgeschaltet – schalte es in den Einstellungen des Handys ein."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "NFC is switched off – turn it on in the phone settings."
+          }
+        }
+      }
+    },
+    "nfcPick": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spule per NFC wählen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choose spool by NFC"
+          }
+        }
+      }
+    },
+    "nfcRead": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Von NFC-Tag lesen (OpenPrintTag)"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Read from NFC tag (OpenPrintTag)"
+          }
+        }
+      }
+    },
+    "nfcReadFailed": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Der Tag konnte nicht gelesen werden – Handy ruhig halten und noch einmal versuchen."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The tag could not be read – hold the phone still and try again."
+          }
+        }
+      }
+    },
+    "nfcTimeout": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kein Tag gefunden – halte das Handy ruhig an die Spule und versuche es noch einmal."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No tag found – hold the phone still on the spool and try again."
           }
         }
       }
@@ -4541,6 +5213,102 @@
           "stringUnit": {
             "state": "translated",
             "value": "or"
+          }
+        }
+      }
+    },
+    "orcaCloudChoose": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wähle oben das passende Druckerprofil."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choose the matching printer profile above."
+          }
+        }
+      }
+    },
+    "orcaCloudDone": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„{bundle}“: {n} Profile importiert."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "“{bundle}”: {n} profiles imported."
+          }
+        }
+      }
+    },
+    "orcaCloudHint": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Link eines öffentlichen Bundles von cloud.orcaslicer.com einfügen – Drucker-, Qualitäts- und Materialprofile werden übernommen, ohne Orca-Konto. Private Bundles lassen sich nur mit Orca-Anmeldung lesen: dann die Profile in OrcaSlicer exportieren und unten hochladen."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Paste the link of a public bundle on cloud.orcaslicer.com – printer, quality and material profiles are imported, no Orca account needed. Private bundles need an Orca login: export the presets in OrcaSlicer and upload the file below instead."
+          }
+        }
+      }
+    },
+    "orcaCloudImport": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Importieren"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Import"
+          }
+        }
+      }
+    },
+    "orcaCloudSkipped": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "{n} übersprungen (OrcaSlicer 2.4.2 kennt ihre Basis nicht)."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "{n} skipped (OrcaSlicer 2.4.2 doesn't know their base)."
+          }
+        }
+      }
+    },
+    "orcaCloudTitle": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aus Orca Cloud importieren"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Import from Orca Cloud"
           }
         }
       }
@@ -5057,6 +5825,22 @@
         }
       }
     },
+    "preview3dError": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "3D-Ansicht nicht verfügbar – braucht Internet für die Grafik-Bibliothek"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "3D view not available – it needs the internet for its graphics library"
+          }
+        }
+      }
+    },
     "preview3dHint": {
       "localizations": {
         "de": {
@@ -5244,7 +6028,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sign out of Printables"
+            "value": "Log out of Printables"
           }
         }
       }
@@ -5254,13 +6038,29 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Anmeldung und Website-Daten von Printables in der App löschen?"
+            "value": "Abmelden und alle gespeicherten Daten der Printables-Seite in der App löschen?"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Remove the Printables login and site data from the app?"
+            "value": "Log out and delete all data the Printables website stored in the app?"
+          }
+        }
+      }
+    },
+    "printablesMenu": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Menü"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Menu"
           }
         }
       }
@@ -5292,7 +6092,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sign in to Printables here to see your likes and collections. The login stays in the app; PocketPrint3D never sees your password. On a model page, tap “Print with PocketPrint3D”."
+            "value": "Log in to Printables here to see your likes and collections. The login stays saved in the app; PocketPrint3D never sees your password. On a model page, tap “Print with PocketPrint3D”."
           }
         }
       }
@@ -5309,6 +6109,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Printables.com"
+          }
+        }
+      }
+    },
+    "printablesWebOpenSub": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mit deinem Konto: Likes und Sammlungen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "With your account: likes and collections"
           }
         }
       }
@@ -6321,6 +7137,54 @@
         }
       }
     },
+    "sensHigh": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hoch"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "High"
+          }
+        }
+      }
+    },
+    "sensLow": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Niedrig"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Low"
+          }
+        }
+      }
+    },
+    "sensMedium": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mittel"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Medium"
+          }
+        }
+      }
+    },
     "sensorOnly": {
       "localizations": {
         "de": {
@@ -6929,6 +7793,38 @@
         }
       }
     },
+    "spoolDbCount": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "{n} Filamente"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "{n} filaments"
+          }
+        }
+      }
+    },
+    "spoolDbHint": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hersteller und Filament aus SpoolmanDB (offene Filament-Datenbank) – füllt Bezeichnung, Material, Farbe und Gewicht aus."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Brand and filament from SpoolmanDB (open filament database) – fills in name, material, colour and weight."
+          }
+        }
+      }
+    },
     "spoolDelete": {
       "localizations": {
         "de": {
@@ -6973,6 +7869,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Spool #{id}"
+          }
+        }
+      }
+    },
+    "spoolFromDb": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aus Datenbank wählen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choose from the database"
           }
         }
       }
@@ -8461,6 +9373,134 @@
           "stringUnit": {
             "state": "translated",
             "value": "PLA sticks poorly to the Engineering Plate – Textured PEI works better."
+          }
+        }
+      }
+    },
+    "watchActive": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "KI-Überwachung aktiv"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "AI watch active"
+          }
+        }
+      }
+    },
+    "watchAlert": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Möglicher Fehldruck erkannt"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Possible print failure detected"
+          }
+        }
+      }
+    },
+    "watchCheck": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prüfe das Bild – bei einem Fehler den Druck pausieren."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Check the picture – pause the print if it failed."
+          }
+        }
+      }
+    },
+    "watchError": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "KI-Überwachung: {error}"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "AI watch: {error}"
+          }
+        }
+      }
+    },
+    "watchFalseAlarm": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fehlalarm"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "False alarm"
+          }
+        }
+      }
+    },
+    "watchMuted": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "KI-Überwachung für diesen Druck aus"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "AI watch off for this print"
+          }
+        }
+      }
+    },
+    "watchPaused": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Der Druck wurde pausiert. Prüfe das Bild und setze fort oder brich ab."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The print was paused. Check the picture, then resume or cancel."
+          }
+        }
+      }
+    },
+    "watchWarming": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "KI-Überwachung startet (erste Schichten)"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "AI watch starting (first layers)"
           }
         }
       }

@@ -54,6 +54,38 @@ private struct AdjustBody: Encodable {
     var value: AdjustValue
     var confirm: Bool
 }
+private struct LinkBody: Encodable { var link: String }
+private struct ManyfoldBody: Encodable {
+    var url: String
+    var token: String?
+    func encode(to encoder: Encoder) throws {
+        var c = encoder.container(keyedBy: CodingKeys.self)
+        try c.encode(url, forKey: .url)
+        try c.encodeIfPresent(token, forKey: .token)   // left out = keep the stored key
+    }
+    enum CodingKeys: String, CodingKey { case url, token }
+}
+private struct FailureBody: Encodable {
+    var mlUrl: String
+    var mlToken: String?
+    var serverUrl: String
+    var sensitivity: String
+    var action: String
+    func encode(to encoder: Encoder) throws {
+        var c = encoder.container(keyedBy: CodingKeys.self)
+        try c.encode(mlUrl, forKey: .mlUrl)
+        try c.encodeIfPresent(mlToken, forKey: .mlToken)   // left out = keep the stored token
+        try c.encode(serverUrl, forKey: .serverUrl)
+        try c.encode(sensitivity, forKey: .sensitivity)
+        try c.encode(action, forKey: .action)
+    }
+    enum CodingKeys: String, CodingKey {
+        case sensitivity, action
+        case mlUrl = "ml_url"
+        case mlToken = "ml_token"
+        case serverUrl = "server_url"
+    }
+}
 private struct ProfileBody: Encodable {
     var machineFile: String?
 
@@ -336,6 +368,61 @@ actor APIClient {
     func setPrinterProfile(printer: String, machineFile: String?) async throws -> PrinterProfile {
         try await request("/api/printers/\(enc(printer))/profile", method: "PUT",
                           body: ProfileBody(machineFile: machineFile), timeout: 30)
+    }
+
+    /// Import a public bundle shared on cloud.orcaslicer.com (server 0.18.0) - no Orca account needed.
+    func importOrcaCloud(link: String) async throws -> OrcaCloudImport {
+        try await request("/api/profiles/orca-cloud", method: "POST", body: LinkBody(link: link), timeout: 60)
+    }
+
+    // MARK: SpoolmanDB filament presets (server 0.19.0)
+
+    func filamentBrands() async throws -> [FilamentBrand] { try await request("/api/filament-db/brands", timeout: 60) }
+
+    func filamentPresets(brand: String) async throws -> [FilamentPreset] {
+        try await request("/api/filament-db/filaments?brand=\(enc(brand))", timeout: 60)
+    }
+
+    // MARK: own Manyfold library (server 0.21.0, own servers only)
+
+    func manyfoldConfig() async throws -> ManyfoldConfig { try await request("/api/manyfold/config") }
+
+    /// `token` nil = keep the stored key. The server checks the connection before saving.
+    func setManyfold(url: String, token: String?) async throws -> ManyfoldConfig {
+        try await request("/api/manyfold/config", method: "PUT", body: ManyfoldBody(url: url, token: token), timeout: 60)
+    }
+
+    func removeManyfold() async throws -> ManyfoldConfig {
+        try await request("/api/manyfold/config", method: "DELETE")
+    }
+
+    /// Images the server serves itself (Manyfold previews, "/api/…"): full address with the key, as image views can't
+    /// send headers. Other addresses are returned as they are.
+    func imageURL(_ u: String) async -> URL? {
+        guard u.hasPrefix("/api/") else { return URL(string: u) }
+        let sep = u.contains("?") ? "&" : "?"
+        return URL(string: "\(await base())\(u)\(sep)token=\(enc(server.token))")
+    }
+
+    // MARK: AI failure detection (server 0.23.0, own servers only)
+
+    func failureConfig() async throws -> FailureConfig { try await request("/api/failure-detection/config") }
+
+    /// `mlToken` nil = keep the stored token. Saved only after the ML API checked a test frame.
+    func setFailureConfig(mlUrl: String, mlToken: String?, serverUrl: String, sensitivity: String,
+                          action: String) async throws -> FailureConfig {
+        try await request("/api/failure-detection/config", method: "PUT",
+                          body: FailureBody(mlUrl: mlUrl, mlToken: mlToken, serverUrl: serverUrl,
+                                            sensitivity: sensitivity, action: action), timeout: 90)
+    }
+
+    func removeFailureConfig() async throws -> FailureConfig {
+        try await request("/api/failure-detection/config", method: "DELETE")
+    }
+
+    /// "False alarm": no more alerts for this print.
+    func muteWatch(printer: String) async throws -> WatchState {
+        try await request("/api/printers/\(enc(printer))/watch/mute", method: "POST")
     }
 
     /// Upload an OrcaSlicer preset (JSON) or preset bundle (zip) as raw body. Never retried on the other address.

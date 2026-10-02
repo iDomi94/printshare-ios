@@ -4,6 +4,18 @@ Jeder Abschnitt `## X.Y.Z` wird beim Tag `vX.Y.Z` automatisch als „Was testen�
 (`.github/workflows/testflight.yml`). Text auf Deutsch, höchstens 4000 Zeichen. Fehlt der Abschnitt, stehen dort
 die Commit-Titel seit dem letzten Tag.
 
+## 0.8.0
+
+Aufgeholt mit Server 0.23.0. Enthält die Teilen-Korrektur aus 0.7.91.
+
+- Druckereinstellungen → „Aus der Orca Cloud“: Link einer geteilten Profilsammlung (cloud.orcaslicer.com/b/…) einfügen, die Profile landen auf dem Server, ein passendes Druckerprofil wird gleich verwendet
+- Neue Spule → „Aus Datenbank wählen“: Marke und Filament aus SpoolmanDB, Name, Material, Farbe, Gewicht und Leerspulengewicht werden ausgefüllt
+- Entdecken: Karte „MakerWorld“, und ein MakerWorld-Link im Suchfeld öffnet die Modellseite
+- Einstellungen → Manyfold (eigener Server): eigene Modellbibliothek als Quelle in „Entdecken“
+- Einstellungen → KI-Fehlererkennung (eigener Server, Obico-ML-Dienst nötig): Druckertab zeigt „wird überwacht“, bei Verdacht ein rotes Feld mit Kamerabild, „Fehlalarm“ oder „Pausieren“
+- Teilen → PocketPrint3D öffnet die App wieder von selbst
+- Bitte testen: Orca-Cloud-Link, Spule aus Datenbank, Manyfold-Suche mit Vorschaubildern
+
 ## 0.7.91
 
 - Teilen → PocketPrint3D: die App öffnet sich danach wieder von selbst. Die Erweiterung wollte die App öffnen, bevor das Teilen-Fenster ganz zu sehen war; das hat iOS still ignoriert

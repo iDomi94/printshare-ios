@@ -36,6 +36,10 @@ enum Screen: Hashable {
     /// Cloud spools (server 0.17.0): the list, and one spool (`SpoolFormView.new` adds one, `copy` starts from another).
     case spools
     case spool(id: String, copy: Int? = nil)
+    /// Own Manyfold library (server 0.21.0, own servers only).
+    case manyfold
+    /// AI failure detection with Obico's ML API (server 0.23.0, own servers only).
+    case failureDetection
     /// printables.com in a web view with the user's own Printables login (test build).
     case printablesWeb
 }

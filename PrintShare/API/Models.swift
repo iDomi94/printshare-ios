@@ -213,9 +213,12 @@ struct PrinterStatus: Codable, Sendable, Equatable {
     var speed: Int?
     /// Klipper (server 0.16.0): Moonraker's own Spoolman link - it books the filament itself; nil = none.
     var spoolman: SpoolmanLink?
+    /// Own servers with AI failure detection set up (server 0.23.0); nil = not set up.
+    var watch: WatchState?
 
     enum CodingKeys: String, CodingKey {
         case state, kind, file, progress, layer, layers, nozzle, bed, camera, lanes, heaters, fans, lights, speed, spoolman
+        case watch
         case printDurationS = "print_duration_s"
         case timeRemainingS = "time_remaining_s"
         case nozzleTarget = "nozzle_target"
@@ -243,6 +246,7 @@ struct PrinterStatus: Codable, Sendable, Equatable {
         lights = (c.lenient([String: Bool?].self, .lights) ?? [:]).compactMapValues { $0 }
         speed = c.lenient(Int.self, .speed) ?? c.lenient(Double.self, .speed).map { Int($0.rounded()) }
         spoolman = c.lenient(SpoolmanLink.self, .spoolman)
+        watch = c.lenient(WatchState.self, .watch)
     }
 
     init(kind: PrinterKind, state: String? = nil, lanes: [Lane] = []) {
@@ -267,6 +271,180 @@ struct SpoolmanLink: Codable, Sendable, Equatable {
         connected = c.lenient(Bool.self, .connected) ?? false
         spoolId = c.lenient(Int.self, .spoolId)
     }
+}
+
+/// AI failure detection of one printer (server 0.23.0: Obico's ML API on the user's server checks camera frames).
+struct WatchState: Codable, Sendable, Equatable {
+    enum Phase: String, Codable, Sendable {
+        case idle, warming, watching, alert, muted
+
+        init(from decoder: Decoder) throws {
+            let raw = (try? decoder.singleValueContainer().decode(String.self)) ?? ""
+            self = Phase(rawValue: raw) ?? .idle
+        }
+    }
+
+    var state: Phase
+    var score: Double
+    var threshold: Double
+    var frames: Int
+    var lastCheck: Double?
+    var alertedAt: Double?
+    var paused: Bool
+    var action: String
+    var error: String?
+    /// a checked frame can be fetched (`/watch/frame`)
+    var frame: Bool
+
+    enum CodingKeys: String, CodingKey {
+        case state, score, threshold, frames, paused, action, error, frame
+        case lastCheck = "last_check"
+        case alertedAt = "alerted_at"
+    }
+
+    init(state: Phase, paused: Bool = false, error: String? = nil, frame: Bool = false, lastCheck: Double? = nil) {
+        self.state = state; score = 0; threshold = 0; frames = 0; self.lastCheck = lastCheck; alertedAt = nil
+        self.paused = paused; action = "notify"; self.error = error; self.frame = frame
+    }
+
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        state = c.lenient(Phase.self, .state) ?? .idle
+        score = c.lenient(Double.self, .score) ?? 0
+        threshold = c.lenient(Double.self, .threshold) ?? 0
+        frames = c.lenient(Int.self, .frames) ?? 0
+        lastCheck = c.lenient(Double.self, .lastCheck)
+        alertedAt = c.lenient(Double.self, .alertedAt)
+        paused = c.lenient(Bool.self, .paused) ?? false
+        action = c.lenient(String.self, .action) ?? "notify"
+        error = c.lenient(String.self, .error)
+        frame = c.lenient(Bool.self, .frame) ?? false
+    }
+}
+
+/// `GET/PUT /api/failure-detection/config` (server 0.23.0).
+struct FailureConfig: Codable, Sendable, Equatable {
+    var configured: Bool
+    var mlUrl: String?
+    var tokenSet: Bool
+    var serverUrl: String?
+    var interval: Int?
+    var sensitivity: String
+    var action: String
+    /// only in the answer to a save: what the ML API found on the test frame
+    var testDetections: Int?
+
+    enum CodingKeys: String, CodingKey {
+        case configured, interval, sensitivity, action, test
+        case mlUrl = "ml_url"
+        case tokenSet = "token_set"
+        case serverUrl = "server_url"
+    }
+
+    private struct Test: Codable { var detections: Int? }
+
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        configured = c.lenient(Bool.self, .configured) ?? false
+        mlUrl = c.lenient(String.self, .mlUrl)
+        tokenSet = c.lenient(Bool.self, .tokenSet) ?? false
+        serverUrl = c.lenient(String.self, .serverUrl)
+        interval = c.lenient(Int.self, .interval)
+        sensitivity = c.lenient(String.self, .sensitivity) ?? "medium"
+        action = c.lenient(String.self, .action) ?? "notify"
+        testDetections = c.lenient(Test.self, .test)?.detections
+    }
+
+    func encode(to encoder: Encoder) throws {
+        var c = encoder.container(keyedBy: CodingKeys.self)
+        try c.encode(configured, forKey: .configured)
+        try c.encodeIfPresent(mlUrl, forKey: .mlUrl)
+        try c.encode(tokenSet, forKey: .tokenSet)
+        try c.encodeIfPresent(serverUrl, forKey: .serverUrl)
+        try c.encodeIfPresent(interval, forKey: .interval)
+        try c.encode(sensitivity, forKey: .sensitivity)
+        try c.encode(action, forKey: .action)
+    }
+}
+
+/// `GET/PUT /api/manyfold/config` (server 0.21.0): never contains the key.
+struct ManyfoldConfig: Codable, Sendable, Equatable {
+    var configured: Bool
+    var url: String?
+    var tokenSet: Bool
+    /// only in the answer to a save
+    var models: Int?
+
+    enum CodingKeys: String, CodingKey {
+        case configured, url, models
+        case tokenSet = "token_set"
+    }
+
+    init(configured: Bool, url: String? = nil, tokenSet: Bool = false, models: Int? = nil) {
+        self.configured = configured; self.url = url; self.tokenSet = tokenSet; self.models = models
+    }
+
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        configured = c.lenient(Bool.self, .configured) ?? false
+        url = c.lenient(String.self, .url)
+        // the save answer has no token_set: a configured library has a key
+        tokenSet = c.lenient(Bool.self, .tokenSet) ?? configured
+        models = c.lenient(Int.self, .models)
+    }
+}
+
+/// A SpoolmanDB brand (server 0.19.0).
+struct FilamentBrand: Codable, Sendable, Equatable, Identifiable {
+    var name: String
+    var count: Int
+    var id: String { name }
+}
+
+/// A SpoolmanDB filament: one per name + material + colour; `weights` = the sizes it is sold in (server 0.19.0).
+struct FilamentPreset: Codable, Sendable, Equatable {
+    struct Size: Codable, Sendable, Equatable {
+        var weight: Double
+        var spoolWeight: Double?
+        enum CodingKeys: String, CodingKey {
+            case weight
+            case spoolWeight = "spool_weight"
+        }
+    }
+
+    var name: String
+    var material: String
+    var colorHex: String?
+    var density: Double?
+    var extruderTemp: Double?
+    var finish: String?
+    var weights: [Size]
+
+    enum CodingKeys: String, CodingKey {
+        case name, material, density, finish, weights
+        case colorHex = "color_hex"
+        case extruderTemp = "extruder_temp"
+    }
+
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        name = c.lenient(String.self, .name) ?? ""
+        material = c.lenient(String.self, .material) ?? ""
+        colorHex = c.lenient(String.self, .colorHex)
+        density = c.lenient(Double.self, .density)
+        extruderTemp = c.lenient(Double.self, .extruderTemp)
+        finish = c.lenient(String.self, .finish)
+        weights = c.lenient([Size].self, .weights) ?? []
+    }
+}
+
+/// Answer of `POST /api/profiles/orca-cloud` (server 0.18.0).
+struct OrcaCloudImport: Decodable, Sendable, Equatable {
+    struct Bundle: Decodable, Sendable, Equatable { var name: String? }
+    struct Skipped: Decodable, Sendable, Equatable { var name: String?; var error: String? }
+    var bundle: Bundle
+    var imported: [UserProfile]
+    var skipped: [Skipped]
 }
 
 struct HeaterState: Codable, Sendable, Equatable {
@@ -867,11 +1045,15 @@ struct ModelHit: Codable, Sendable, Equatable, Identifiable {
     var downloads: Int?
     var makes: Int?
     var license: String?
+    /// What to slice when it isn't `url` (server 0.21.0, Manyfold: "manyfold:<id>"; `url` is then its web page).
+    var link: String?
 
     /// Unique across sources (list identity).
     var key: String { "\(source)-\(id)" }
+    /// The link for `/api/files` and new jobs.
+    var sliceLink: String { link?.isEmpty == false ? link! : url }
 
-    enum CodingKeys: String, CodingKey { case source, id, name, url, author, thumbnail, likes, downloads, makes, license }
+    enum CodingKeys: String, CodingKey { case source, id, name, url, author, thumbnail, likes, downloads, makes, license, link }
 
     init(from decoder: Decoder) throws {
         let c = try decoder.container(keyedBy: CodingKeys.self)
@@ -885,6 +1067,7 @@ struct ModelHit: Codable, Sendable, Equatable, Identifiable {
         downloads = c.lenient(Int.self, .downloads)
         makes = c.lenient(Int.self, .makes)
         license = c.lenient(String.self, .license)
+        link = c.lenient(String.self, .link)
     }
 }
 
