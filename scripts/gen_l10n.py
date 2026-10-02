@@ -111,6 +111,19 @@ EXTRA = {
     "infillPreviewHint": ("Ungefähr in Originalgröße: 3 × 3 cm, eine Schicht von oben.",
                           "About real size: 3 × 3 cm, one layer seen from above."),
     "infillPreviewBelow": ("Blass: die Schicht darunter.", "Faded: the layer below."),
+    # printables.com in a web view with the user's own login (test build)
+    "printablesWebOpen": ("Printables.com", "Printables.com"),
+    "printablesWebHint": ("Melde dich hier bei Printables an, dann siehst du deine Likes und Sammlungen. Die Anmeldung bleibt in der App gespeichert, PocketPrint3D sieht dein Passwort nicht. Auf einer Modellseite tippst du auf „Mit PocketPrint3D drucken“.",
+                          "Sign in to Printables here to see your likes and collections. The login stays in the app; PocketPrint3D never sees your password. On a model page, tap “Print with PocketPrint3D”."),
+    "printablesPrintThis": ("Mit PocketPrint3D drucken", "Print with PocketPrint3D"),
+    "printablesDownloadHint": ("Downloads laufen über PocketPrint3D: öffne die Modellseite und tippe auf „Mit PocketPrint3D drucken“.",
+                               "Downloads go through PocketPrint3D: open the model page and tap “Print with PocketPrint3D”."),
+    "printablesLogout": ("Bei Printables abmelden", "Sign out of Printables"),
+    "printablesLogoutConfirm": ("Anmeldung und Website-Daten von Printables in der App löschen?",
+                                "Remove the Printables login and site data from the app?"),
+    "webBack": ("Zurück", "Back"),
+    "webForward": ("Vorwärts", "Forward"),
+    "webReload": ("Neu laden", "Reload"),
 }
 # OrcaSlicer infill pattern names (sparse_infill_pattern) and a short note on what each is good for
 INFILL = {

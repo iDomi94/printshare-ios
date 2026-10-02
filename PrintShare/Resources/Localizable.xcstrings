@@ -5217,6 +5217,102 @@
         }
       }
     },
+    "printablesDownloadHint": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Downloads laufen über PocketPrint3D: öffne die Modellseite und tippe auf „Mit PocketPrint3D drucken“."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Downloads go through PocketPrint3D: open the model page and tap “Print with PocketPrint3D”."
+          }
+        }
+      }
+    },
+    "printablesLogout": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bei Printables abmelden"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sign out of Printables"
+          }
+        }
+      }
+    },
+    "printablesLogoutConfirm": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Anmeldung und Website-Daten von Printables in der App löschen?"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remove the Printables login and site data from the app?"
+          }
+        }
+      }
+    },
+    "printablesPrintThis": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mit PocketPrint3D drucken"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Print with PocketPrint3D"
+          }
+        }
+      }
+    },
+    "printablesWebHint": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Melde dich hier bei Printables an, dann siehst du deine Likes und Sammlungen. Die Anmeldung bleibt in der App gespeichert, PocketPrint3D sieht dein Passwort nicht. Auf einer Modellseite tippst du auf „Mit PocketPrint3D drucken“."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sign in to Printables here to see your likes and collections. The login stays in the app; PocketPrint3D never sees your password. On a model page, tap “Print with PocketPrint3D”."
+          }
+        }
+      }
+    },
+    "printablesWebOpen": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Printables.com"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Printables.com"
+          }
+        }
+      }
+    },
     "printer": {
       "localizations": {
         "de": {
@@ -8365,6 +8461,54 @@
           "stringUnit": {
             "state": "translated",
             "value": "PLA sticks poorly to the Engineering Plate – Textured PEI works better."
+          }
+        }
+      }
+    },
+    "webBack": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zurück"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Back"
+          }
+        }
+      }
+    },
+    "webForward": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vorwärts"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Forward"
+          }
+        }
+      }
+    },
+    "webReload": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Neu laden"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reload"
           }
         }
       }

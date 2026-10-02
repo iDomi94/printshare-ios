@@ -195,6 +195,10 @@ final class SpoolmanTests: XCTestCase {
         XCTAssertEqual(Format.makerWorldId("https://makerworld.com/en/models/1234567-clip#profileId-1"), "1234567")
         XCTAssertEqual(Format.makerWorldId("look: https://makerworld.com/models/42"), "42")
         XCTAssertEqual(Format.makerWorldId("https://makerworld.com.cn/zh-cn/models/7"), "7")
+        XCTAssertEqual(Format.printablesId("https://www.printables.com/model/3161-3d-benchy"), "3161")
+        XCTAssertEqual(Format.printablesId("https://www.printables.com/de/model/42-clip/files"), "42")
+        XCTAssertNil(Format.printablesId("https://www.printables.com/@user/collections/123"))
+        XCTAssertNil(Format.printablesId(nil))
         XCTAssertNil(Format.makerWorldId("https://www.printables.com/model/3161-3d-benchy"))
     }
 

@@ -4,6 +4,16 @@ Jeder Abschnitt `## X.Y.Z` wird beim Tag `vX.Y.Z` automatisch als „Was testen�
 (`.github/workflows/testflight.yml`). Text auf Deutsch, höchstens 4000 Zeichen. Fehlt der Abschnitt, stehen dort
 die Commit-Titel seit dem letzten Tag.
 
+## 0.7.90
+
+Testversion (Branch `claude/project-thread-7xfian`, auf 0.7.0): Printables.com in der App.
+
+- „Entdecken“ → oben rechts „Printables.com“: die Printables-Webseite in der App. Dort mit dem Prusa-Konto anmelden, dann gibt es Likes und Sammlungen
+- Bitte testen: bleibt die Anmeldung nach dem Beenden der App erhalten? Klappt die Anmeldung mit E-Mail, mit Apple, mit Google (Google sperrt Anmeldungen in eingebetteten Webseiten vermutlich)?
+- Auf einer Modellseite „Mit PocketPrint3D drucken“: öffnet das Modell wie aus der Suche, der Server lädt es wie bisher ohne Anmeldung
+- Download-Knöpfe der Webseite laden nichts aufs Handy, sondern öffnen ebenfalls das Modell in PocketPrint3D
+- Menü oben rechts: „Bei Printables abmelden“ löscht Anmeldung und Website-Daten von Printables in der App
+
 ## 0.7.0
 
 Aufgeholt mit Server 0.17.1: Spoolman, Spulen in der Cloud, MakerWorld. Enthält die Korrekturen aus 0.6.1.

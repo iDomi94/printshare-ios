@@ -46,6 +46,11 @@ enum Format {
         (link ?? "").captures(#"makerworld\.com(?:\.cn)?/(?:[a-z]{2}(?:-[a-z]{2})?/)?models/(\d+)"#, options: .caseInsensitive)?[1]
     }
 
+    /// Printables model id of a page or link (`/model/<id>-<slug>`, optionally with a language prefix).
+    static func printablesId(_ link: String?) -> String? {
+        (link ?? "").captures(#"printables\.com/(?:[a-z]{2}/)?model/(\d+)"#, options: .caseInsensitive)?[1]
+    }
+
     /// 42.0 -> "42", 42.5 -> "42.5"
     static func trimNumber(_ v: Double) -> String {
         v == v.rounded() ? String(Int(v)) : String((v * 10).rounded() / 10)

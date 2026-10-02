@@ -35,8 +35,16 @@ struct DiscoverView: View {
         let tvMissing = sources.contains { $0.id == "thingiverse" && !$0.available }
         return ScrollView {
             VStack(alignment: .leading, spacing: 12) {
-                Text(t(.discoverTitle)).font(.largeTitle.bold()).foregroundStyle(Theme.text)
-                    .accessibilityAddTraits(.isHeader).padding(.top, 12).padding(.bottom, 2)
+                HStack(alignment: .firstTextBaseline) {
+                    Text(t(.discoverTitle)).font(.largeTitle.bold()).foregroundStyle(Theme.text)
+                        .accessibilityAddTraits(.isHeader)
+                    Spacer(minLength: 8)
+                    Button { Haptics.tap(); app.push(.printablesWeb) } label: {
+                        Label(t(.printablesWebOpen), systemImage: "safari").font(.subheadline.weight(.semibold))
+                    }
+                    .foregroundStyle(Theme.accent)
+                }
+                .padding(.top, 12).padding(.bottom, 2)
                 HStack {
                     Image(systemName: "magnifyingglass").foregroundStyle(Theme.sub).accessibilityHidden(true)
                     TextField(t(.searchPlaceholder), text: $input)
