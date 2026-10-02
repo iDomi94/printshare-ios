@@ -211,9 +211,11 @@ struct PrinterStatus: Codable, Sendable, Equatable {
     var fans: [String: Double] = [:]
     var lights: [String: Bool] = [:]
     var speed: Int?
+    /// Klipper (server 0.16.0): Moonraker's own Spoolman link - it books the filament itself; nil = none.
+    var spoolman: SpoolmanLink?
 
     enum CodingKeys: String, CodingKey {
-        case state, kind, file, progress, layer, layers, nozzle, bed, camera, lanes, heaters, fans, lights, speed
+        case state, kind, file, progress, layer, layers, nozzle, bed, camera, lanes, heaters, fans, lights, speed, spoolman
         case printDurationS = "print_duration_s"
         case timeRemainingS = "time_remaining_s"
         case nozzleTarget = "nozzle_target"
@@ -240,10 +242,30 @@ struct PrinterStatus: Codable, Sendable, Equatable {
         fans = (c.lenient([String: Double?].self, .fans) ?? [:]).compactMapValues { $0 }
         lights = (c.lenient([String: Bool?].self, .lights) ?? [:]).compactMapValues { $0 }
         speed = c.lenient(Int.self, .speed) ?? c.lenient(Double.self, .speed).map { Int($0.rounded()) }
+        spoolman = c.lenient(SpoolmanLink.self, .spoolman)
     }
 
     init(kind: PrinterKind, state: String? = nil, lanes: [Lane] = []) {
         self.kind = kind; self.state = state; self.lanes = lanes
+    }
+}
+
+/// Moonraker's `[spoolman]` link: `{"connected": true, "spool_id": 3}` (status `spoolman`, server 0.16.0).
+struct SpoolmanLink: Codable, Sendable, Equatable {
+    var connected: Bool
+    var spoolId: Int?
+
+    enum CodingKeys: String, CodingKey {
+        case connected
+        case spoolId = "spool_id"
+    }
+
+    init(connected: Bool, spoolId: Int? = nil) { self.connected = connected; self.spoolId = spoolId }
+
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        connected = c.lenient(Bool.self, .connected) ?? false
+        spoolId = c.lenient(Int.self, .spoolId)
     }
 }
 
@@ -274,11 +296,14 @@ struct Lane: Codable, Sendable, Equatable, Identifiable {
     var loaded: Bool
     var inToolhead: Bool
     var status: String?
+    /// Spoolman spool AFC assigned to the lane (server 0.16.0); nil = none.
+    var spoolId: Int?
 
     enum CodingKeys: String, CodingKey {
         case id, tool, unit, material, color, filament, loaded, status
         case weightG = "weight_g"
         case inToolhead = "in_toolhead"
+        case spoolId = "spool_id"
     }
 
     init(id: String, tool: Int?, material: String? = nil, color: String? = nil, filament: String? = nil,
@@ -299,6 +324,7 @@ struct Lane: Codable, Sendable, Equatable, Identifiable {
         loaded = c.lenient(Bool.self, .loaded) ?? false
         inToolhead = c.lenient(Bool.self, .inToolhead) ?? false
         status = c.lenient(String.self, .status)
+        spoolId = c.lenient(Int.self, .spoolId)
     }
 }
 
@@ -679,6 +705,8 @@ struct JobResult: Codable, Sendable, Equatable {
     var copiesRequested: Int?
     var copies: Int?
     var knowsPlate = false
+    /// Path of the G-code on the server; its file name is the name on the printer.
+    var gcode: String?
 
     struct FilamentUse: Codable, Sendable, Equatable, Identifiable {
         var index: Int
@@ -703,7 +731,7 @@ struct JobResult: Codable, Sendable, Equatable {
     }
 
     enum CodingKeys: String, CodingKey {
-        case printer, layers, profiles, overrides, filaments, copies
+        case printer, layers, profiles, overrides, filaments, copies, gcode
         case sourceFile = "source_file"
         case copiesRequested = "copies_requested"
         case printTime = "print_time"
@@ -725,6 +753,7 @@ struct JobResult: Codable, Sendable, Equatable {
         copiesRequested = c.lenient(Int.self, .copiesRequested)
         copies = c.lenient(Int.self, .copies)
         knowsPlate = c.contains(.copiesRequested)
+        gcode = c.lenient(String.self, .gcode)
     }
 
     init(printer: String, sourceFile: String? = nil, printTime: String? = nil, filamentG: Double? = nil,
@@ -890,8 +919,14 @@ struct ModelDetail: Codable, Sendable, Equatable {
     var category: String?
     var recommended: Recommended
     var files: [ModelDetailFile]
+    /// Server 0.17.1: "external" = only downloadable on the source's own site (MakerWorld); else "server".
+    var download: String
+    /// MakerWorld's print profiles of the model.
+    var variants: [ModelVariant]
 
-    enum CodingKeys: String, CodingKey { case images, summary, description, category, recommended, files }
+    var external: Bool { download == "external" }
+
+    enum CodingKeys: String, CodingKey { case images, summary, description, category, recommended, files, download, variants }
 
     init(from decoder: Decoder) throws {
         hit = try ModelHit(from: decoder)
@@ -902,6 +937,8 @@ struct ModelDetail: Codable, Sendable, Equatable {
         category = c.lenient(String.self, .category)
         recommended = c.lenient(Recommended.self, .recommended) ?? Recommended()
         files = c.lenient([ModelDetailFile].self, .files) ?? []
+        download = c.lenient(String.self, .download) ?? "server"
+        variants = c.lenient([ModelVariant].self, .variants) ?? []
     }
 
     func encode(to encoder: Encoder) throws {
@@ -913,6 +950,40 @@ struct ModelDetail: Codable, Sendable, Equatable {
         try c.encodeIfPresent(category, forKey: .category)
         try c.encode(recommended, forKey: .recommended)
         try c.encode(files, forKey: .files)
+        try c.encode(download, forKey: .download)
+        try c.encode(variants, forKey: .variants)
+    }
+}
+
+/// One of MakerWorld's print profiles of a model (server 0.17.1).
+struct ModelVariant: Codable, Sendable, Equatable, Identifiable {
+    var id: Int
+    var title: String
+    var isDefault: Bool
+    var weightG: Double?
+    var printHours: Double?
+    var materials: [String]
+    var colors: [String]
+    var needsAms: Bool
+
+    enum CodingKeys: String, CodingKey {
+        case id, title, materials, colors
+        case isDefault = "default"
+        case weightG = "weight_g"
+        case printHours = "print_hours"
+        case needsAms = "needs_ams"
+    }
+
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        id = c.lenient(Int.self, .id) ?? 0
+        title = c.lenient(String.self, .title) ?? ""
+        isDefault = c.lenient(Bool.self, .isDefault) ?? false
+        weightG = c.lenient(Double.self, .weightG)
+        printHours = c.lenient(Double.self, .printHours)
+        materials = c.lenient([String].self, .materials) ?? []
+        colors = c.lenient([String].self, .colors) ?? []
+        needsAms = c.lenient(Bool.self, .needsAms) ?? false
     }
 }
 

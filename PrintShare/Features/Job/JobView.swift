@@ -33,6 +33,13 @@ struct JobView: View {
     /// Cloud: the app sends the G-code itself, so the server's job stays "sliced"; this remembers what happened.
     @State private var relayed: SendMode?
     @State private var relay: (step: SendStep, part: Double)?
+    // Spoolman (MA-07): spool per colour; the app books the use after the print unless Moonraker does it itself
+    @State private var smSetting: String?
+    @State private var spools: [Spool]?
+    @State private var smError = ""
+    @State private var spoolChoice: [Int: Int] = [:]
+    @State private var lastSpools: [String: Int] = [:]
+    @State private var spoolSheet: SpoolSheet?
 
     /// `slots`: tool per model colour chosen on the prepare screen (the default until changed here).
     init(id: String, slots: [Int: Int] = [:]) {
@@ -49,6 +56,22 @@ struct JobView: View {
     private var printerName: String { printerInfo?.name ?? printerId ?? "" }
 
     private struct LaneSheet: Identifiable { var colour: Int; var id: Int { colour } }
+    private struct SpoolSheet: Identifiable { var colour: Int; var id: Int { colour } }
+
+    private var spoolColours: [SpoolPlan.Colour] { SpoolPlan.colours(job?.result) }
+    private var tracker: SpoolmanLink? { printerKind == .offline ? nil : printerStatus?.spoolman }
+    /// Moonraker books the filament itself ...
+    private var printerBooks: Bool { tracker?.connected == true }
+    /// ... on the spools AFC assigned to the slots.
+    private var afcSpools: Bool { printerBooks && !printerLanes.isEmpty }
+    private var spoolFor: [Int: Int] {
+        SpoolPlan.spools(colours: spoolColours, lanes: printerLanes, tools: laneTools, afc: afcSpools, choice: spoolChoice,
+                         tracker: tracker, last: lastSpools, known: spools)
+    }
+    /// Moonraker without AFC tracks one active spool: set it for a single-colour print.
+    private var activeSpool: Int? {
+        printerBooks && !afcSpools && spoolColours.count == 1 ? spoolFor[spoolColours[0].index] : nil
+    }
 
     // Lane selection (issue #6): which lane of the printer prints each filament of the model.
     private var printerLanes: [Lane] { LanePlan.usable(printerStatus) }
@@ -75,6 +98,8 @@ struct JobView: View {
         }
         .sheet(item: $gcodeShare) { ActivitySheet(items: [$0.url]).ignoresSafeArea() }
         .sheet(item: $laneSheet) { sheet in laneSheetView(t, sheet.colour) }
+        .sheet(item: $spoolSheet) { sheet in spoolSheetView(t, sheet.colour) }
+        .task(id: reviewing) { await loadSpools() }
         .sheet(item: $camera) { CameraView(printer: $0.printer, title: $0.name) }
         .task(id: job?.state == .started) { await loadCamera() }
         .alert(t(.deleteJobQ), isPresented: $confirmDelete) {
@@ -82,6 +107,8 @@ struct JobView: View {
             Button(t(.del), role: .destructive) { Task { await delete() } }
         }
     }
+
+    private var reviewing: Bool { job?.state == .sliced || job?.state == .uploaded }
 
     private var statusKey: String {
         guard let job, job.state == .sliced || job.state == .uploaded else { return "" }
@@ -257,6 +284,7 @@ struct JobView: View {
             }
             if !done {
                 ForEach(laneWarnings, id: \.text) { PSBanner(kind: $0.blocking ? .error : .warn, text: $0.text) }
+                spoolSection(t)
             }
 
             if !done {
@@ -322,6 +350,73 @@ struct JobView: View {
             }
             .padding(.leading, 8)
         })
+    }
+
+    @ViewBuilder
+    private func spoolSection(_ t: L10n) -> some View {
+        if smSetting != nil && (spools != nil || !smError.isEmpty) {
+            if !smError.isEmpty {
+                PSBanner(kind: .warn, text: t(.spoolmanUnreachable, ["error": smError]))
+            } else if printerBooks && !afcSpools && spoolColours.count > 1 {
+                PSBanner(kind: .info, text: t(.spoolsMultiPrinter))
+            } else {
+                PSSection(title: t(.spools), footer: t(afcSpools ? .spoolsHintAfc : printerBooks ? .spoolsHintPrinter : .spoolsHint)) {
+                    ForEach(Array(spoolColours.enumerated()), id: \.element.index) { i, col in
+                        if i > 0 { PSDivider() }
+                        spoolRow(t, col)
+                    }
+                }
+            }
+            ForEach(SpoolPlan.warnings(t, colours: spoolColours, spoolFor: spoolFor, known: spools ?? []), id: \.self) {
+                PSBanner(kind: .warn, text: $0)
+            }
+        }
+    }
+
+    private func spoolRow(_ t: L10n, _ col: SpoolPlan.Colour) -> some View {
+        let sp = spools?.first { $0.id == spoolFor[col.index] }
+        var sub: String?
+        if let sp {
+            sub = [sp.material, sp.remainingG.map { t(.spoolLeft, ["g": String(Int($0.rounded()))]) }]
+                .compactMap { $0 }.filter { !$0.isEmpty }.joined(separator: " · ")
+        }
+        var pick: (() -> Void)?
+        if !afcSpools { pick = { spoolSheet = SpoolSheet(colour: col.index) } }
+        return PSRow(label: spoolColours.count > 1 ? t(.colorN, ["n": String(col.index)]) : t(.spool),
+                     value: sp?.label ?? t(.noSpool), sub: sub, action: pick, right: {
+            ColorDot(color: Color(hexString: sp?.color)).padding(.leading, 8)
+        })
+    }
+
+    private func spoolSheetView(_ t: L10n, _ colour: Int) -> some View {
+        let choices = [Choice(value: String(SpoolPlan.none), label: t(.noSpool), sub: t(.noSpoolSub))]
+            + (spools ?? []).map { Choice(value: String($0.id), label: $0.label, group: $0.material, sub: SpoolsView.line(t, $0)) }
+        return PickerSheet(title: spoolColours.count > 1 ? t(.colorN, ["n": String(colour)]) : t(.spool), choices: choices,
+                           selected: String(spoolFor[colour] ?? SpoolPlan.none), searchLabel: t(.search), closeLabel: "OK") { v in
+            if let id = Int(v) { spoolChoice[colour] = id }
+        }
+    }
+
+    private func loadSpools() async {
+        smSetting = app.spoolmanSetting()
+        if let p = printerId { lastSpools = app.lastSpools(p) }
+        guard reviewing, let setting = smSetting, let sm = app.openSpoolman(setting) else { return }
+        do {
+            spools = try await sm.spools()
+            smError = ""
+        } catch {
+            smError = error.localizedDescription
+        }
+    }
+
+    /// After a started print: remember the choice; the app books the filament once the print is over.
+    private func afterStart(fileName: String) {
+        guard let p = printerId, smSetting != nil, let spools else { return }
+        let chosen = spoolFor
+        if !afcSpools { app.saveLastSpools(p, Dictionary(uniqueKeysWithValues: chosen.map { (String($0.key), $0.value) })) }
+        if printerBooks { return }
+        app.addBooking(printer: p, printerName: printerName, file: fileName,
+                       uses: SpoolPlan.uses(colours: spoolColours, spoolFor: chosen, known: spools))
     }
 
     private func laneSheetView(_ t: L10n, _ colour: Int) -> some View {
@@ -441,7 +536,7 @@ struct JobView: View {
             return
         }
         do {
-            try await api.send(job: job.id, start: start, leveling: levelValue, lanes: lanes)
+            try await api.send(job: job.id, start: start, leveling: levelValue, lanes: lanes, spoolId: start ? activeSpool : nil)
             var latest: Job?
             for _ in 0..<600 {
                 try await Task.sleep(for: .seconds(1))
@@ -452,6 +547,10 @@ struct JobView: View {
             if let e = latest?.error, !e.isEmpty {
                 actionError = friendlyError(app.l10n, status: 0, detail: e)
             } else {
+                if start, let latest, latest.state == .started {
+                    let onServer = ((latest.result?.gcode ?? "") as NSString).lastPathComponent
+                    afterStart(fileName: onServer.isEmpty ? Lan.fileName(source: latest.result?.sourceFile, job: latest.id) : onServer)
+                }
                 Haptics.success()
             }
         } catch {
@@ -465,7 +564,7 @@ struct JobView: View {
     private func relaySend(_ job: Job, _ printer: Printer, start: Bool, leveling: Bool?, lanes: [Int: Int]?) async {
         // the printer clients report from their own actor; the banner follows through a stream on the main actor
         let (steps, feed) = AsyncStream.makeStream(of: SendProgress.self)
-        let options = SendOptions(start: start, leveling: start ? leveling : nil,
+        let options = SendOptions(start: start, leveling: start ? leveling : nil, spoolId: start ? activeSpool : nil,
                                   onStep: { feed.yield(SendProgress(step: $0, part: 0)) },
                                   onProgress: { feed.yield(SendProgress(step: .upload, part: $0)) })
         let banner = Task {
@@ -477,9 +576,10 @@ struct JobView: View {
             relay = nil
         }
         do {
-            try await app.relay(job: job.id, printer: printer, fileName: Lan.fileName(source: job.result?.sourceFile, job: job.id),
-                                lanes: lanes, options: options)
+            let fileName = Lan.fileName(source: job.result?.sourceFile, job: job.id)
+            try await app.relay(job: job.id, printer: printer, fileName: fileName, lanes: lanes, options: options)
             relayed = start ? .print : .upload
+            if start { afterStart(fileName: fileName) }
             Haptics.success()
         } catch is NoLanAddress {
             actionError = app.l10n(.needLanAddress)

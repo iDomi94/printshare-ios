@@ -40,6 +40,17 @@ enum Format {
         return l.plate(plate)
     }
 
+    /// MakerWorld model id of a link: MakerWorld only lets the user download (own account), so the app shows the model
+    /// page with a button to MakerWorld instead of slicing the link (server 0.17.1).
+    static func makerWorldId(_ link: String?) -> String? {
+        (link ?? "").captures(#"makerworld\.com(?:\.cn)?/(?:[a-z]{2}(?:-[a-z]{2})?/)?models/(\d+)"#, options: .caseInsensitive)?[1]
+    }
+
+    /// 42.0 -> "42", 42.5 -> "42.5"
+    static func trimNumber(_ v: Double) -> String {
+        v == v.rounded() ? String(Int(v)) : String((v * 10).rounded() / 10)
+    }
+
     static func extractLink(_ text: String?) -> String {
         (text ?? "").captures(#"https?://[^\s"'<>]+"#)?.first ?? ""
     }

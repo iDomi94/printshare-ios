@@ -15,6 +15,8 @@ struct SendOptions: Sendable {
     var start: Bool
     /// Bed leveling before the print (SDCP only); nil = printer default.
     var leveling: Bool?
+    /// Klipper: Spoolman spool Moonraker books the print on (server 0.16.0).
+    var spoolId: Int?
     var onStep: (@Sendable (SendStep) -> Void)?
     /// 0...1 of the upload.
     var onProgress: (@Sendable (Double) -> Void)?

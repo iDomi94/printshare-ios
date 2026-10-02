@@ -13,6 +13,7 @@ struct SettingsView: View {
     @State private var confirmDelete = false
     @State private var confirmDeleteAgain = false
     @State private var accountError: String?
+    @State private var spoolman: String?
 
     private var appVersion: String {
         Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "–"
@@ -26,6 +27,16 @@ struct SettingsView: View {
                 account(t, server)
             } else {
                 serverSection(t, server)
+            }
+
+            if server != nil {
+                PSSection(title: t(.spoolman)) {
+                    PSRow(icon: "circle.circle", label: t(.spoolman),
+                          value: spoolman == nil ? t(.spoolmanOff) : nil,
+                          sub: spoolman == Spoolman.cloudSetting ? t(.spoolsCloudOn) : spoolman ?? t(.spoolmanSub)) {
+                        app.push(.spoolman)
+                    }
+                }
             }
 
             PSSection(title: t(.language)) {
@@ -61,6 +72,7 @@ struct SettingsView: View {
         .navigationBarTitleDisplayMode(.inline)
         .toolbar(.visible, for: .navigationBar)
         .task(id: app.server) { await loadInfo() }
+        .onAppear { spoolman = app.spoolmanSetting() }
         .alert(t(.disconnectQ), isPresented: $confirmDisconnect) {
             Button(t(.cancelBtn), role: .cancel) {}
             Button(t(.disconnect), role: .destructive) { app.setServer(nil) }

@@ -122,7 +122,7 @@ struct HomeView: View {
         if found.isEmpty { error = app.l10n(.needLink); return }
         error = ""
         link = ""
-        app.push(.prepare(PrepareArgs(link: found)))
+        app.openLink(found)
     }
 
     private func paste() {

@@ -20,11 +20,24 @@ struct PrintersView: View {
     @State private var cams: [String: Bool] = [:]
     /// When the app switched a printer's plug on (issue #9): it needs 30-60 s before it answers.
     @State private var poweredAt: [String: Date] = [:]
+    /// Spoolman bookings waiting for a decision, and the ones just booked (shown for a minute).
+    @State private var openBookings: [Booking] = []
+    @State private var booked: [Booked] = []
+
+    private struct Booked: Identifiable {
+        var booking: Booking
+        var at: Date
+        var id: String { booking.id }
+    }
 
     var body: some View {
         let t = app.l10n
         PSScreen(refresh: { await load() }) {
             if !error.isEmpty { PSBanner(kind: .error, text: error) }
+            ForEach(booked) { PSBanner(kind: .ok, text: BookingCard.bookedText(t, $0.booking)) }
+            ForEach(openBookings) { b in
+                BookingCard(booking: b) { openBookings = app.bookings().filter { $0.ask != nil } }
+            }
             if let entries {
                 if entries.isEmpty {
                     if app.isCloud {
@@ -232,9 +245,21 @@ struct PrintersView: View {
             entries = out
             for e in out where e.status != nil { poweredAt[e.id] = nil }
             error = ""
+            await settle(out)
         } catch {
             self.error = error.localizedDescription
         }
+    }
+
+    /// Book the filament of finished prints in Spoolman (or ask when a print was cancelled or its end was missed).
+    private func settle(_ list: [Entry]) async {
+        var statuses: [String: PrinterStatus?] = [:]
+        for e in list { statuses[e.id] = .some(e.status) }
+        let result = await app.settleBookings(statuses)
+        let now = Date()
+        booked = booked.filter { now.timeIntervalSince($0.at) < 60 } + result.booked.map { Booked(booking: $0, at: now) }
+        openBookings = result.open
+        if let e = result.error { error = app.l10n(.spoolmanUnreachable, ["error": e]) }
     }
 
     private func powerOn(_ p: Printer) async {

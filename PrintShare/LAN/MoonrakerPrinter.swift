@@ -23,12 +23,17 @@ actor MoonrakerPrinter: LanPrinter {
         self.session = session
     }
 
-    private func fetch(_ url: String, method: String = "GET", timeout: TimeInterval) async throws -> (Data, Int) {
+    private func fetch(_ url: String, method: String = "GET", json: [String: Any]? = nil,
+                       timeout: TimeInterval) async throws -> (Data, Int) {
         guard let u = URL(string: url) else { throw LanError(Self.unreachable) }
         var req = URLRequest(url: u, cachePolicy: .reloadIgnoringLocalCacheData)
         req.httpMethod = method
         req.timeoutInterval = timeout
         if let apiKey { req.setValue(apiKey, forHTTPHeaderField: "X-Api-Key") }
+        if let json {
+            req.setValue("application/json", forHTTPHeaderField: "Content-Type")
+            req.httpBody = try? JSONSerialization.data(withJSONObject: json)
+        }
         do {
             let (data, res) = try await session.data(for: req)
             return (data, (res as? HTTPURLResponse)?.statusCode ?? 0)
@@ -68,7 +73,24 @@ actor MoonrakerPrinter: LanPrinter {
         let base = try await resolve()
         var out = Self.status(from: st, base: base)
         out.lanes = await lanes(objects)
+        out.spoolman = await spoolman()
         return out
+    }
+
+    /// Moonraker's own Spoolman link (`[spoolman]` in moonraker.conf); nil = not configured (404).
+    private func spoolman() async -> SpoolmanLink? {
+        guard let r = try? await get("/server/spoolman/status", timeout: 5) else { return nil }
+        return Self.spoolman(r)
+    }
+
+    static func spoolman(_ r: [String: Any]) -> SpoolmanLink {
+        SpoolmanLink(connected: (r["spoolman_connected"] as? Bool) ?? false, spoolId: wholeNumber(r["spool_id"]))
+    }
+
+    /// Spool ids: whole numbers only (null / missing = none).
+    static func wholeNumber(_ v: Any?) -> Int? {
+        guard let d = SDCPPrinter.num(v), d == d.rounded() else { return nil }
+        return Int(d)
     }
 
     static func status(from st: [String: Any], base: String) -> PrinterStatus {
@@ -127,6 +149,7 @@ actor MoonrakerPrinter: LanPrinter {
             lane.unit = ln["unit"] as? String
             lane.weightG = SDCPPrinter.num(ln["weight"])
             lane.status = ln["status"] as? String
+            lane.spoolId = wholeNumber(ln["spool_id"])
             return lane
         }
         return out.sorted { a, b in
@@ -139,6 +162,12 @@ actor MoonrakerPrinter: LanPrinter {
     func send(file: URL, name: String, options: SendOptions) async throws {
         options.onStep?(.upload)
         let base = try await resolve()
+        if let spool = options.spoolId {
+            // Moonraker books the filament of the next print on its active spool
+            let (_, status) = try await fetch("\(base)/server/spoolman/spool_id", method: "POST", json: ["spool_id": spool],
+                                              timeout: 10)
+            guard (200..<300).contains(status) else { throw LanError("setting the Spoolman spool failed (HTTP \(status))") }
+        }
         guard let target = URL(string: "\(base)/server/files/upload") else { throw LanError(Self.unreachable) }
         let boundary = Multipart.boundary()
         let body = try Multipart.file(boundary: boundary,

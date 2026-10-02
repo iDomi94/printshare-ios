@@ -40,6 +40,13 @@ private struct SendBody: Encodable {
     var confirm: Bool
     var leveling: Bool?
     var lanes: [String: Int]?
+    /// Server 0.16.0: Spoolman spool Moonraker books the print on (left out when nil).
+    var spoolId: Int?
+
+    enum CodingKeys: String, CodingKey {
+        case start, confirm, leveling, lanes
+        case spoolId = "spool_id"
+    }
 }
 private struct AdjustBody: Encodable {
     var kind: String
@@ -356,14 +363,14 @@ actor APIClient {
     func job(id: String) async throws -> Job { try await request("/api/jobs/\(enc(id))") }
 
     /// `lanes` only when the printer reports lanes; sent with uploads too, so the file on the printer matches.
-    func send(job id: String, start: Bool, leveling: Bool? = nil, lanes: [Int: Int]? = nil) async throws {
+    func send(job id: String, start: Bool, leveling: Bool? = nil, lanes: [Int: Int]? = nil, spoolId: Int? = nil) async throws {
         var mapping: [String: Int]?
         if let lanes, !lanes.isEmpty {
             mapping = Dictionary(uniqueKeysWithValues: lanes.map { (String($0.key), $0.value) })
         }
         let _: Ack = try await request("/api/jobs/\(enc(id))/send", method: "POST",
                                        body: SendBody(start: start, confirm: start, leveling: start ? leveling : nil,
-                                                      lanes: mapping))
+                                                      lanes: mapping, spoolId: start ? spoolId : nil))
     }
 
     /// Layer data for the G-code viewer. Format 2 (server 0.6.0) adds the filament per path; older servers ignore

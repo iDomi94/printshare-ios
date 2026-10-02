@@ -4,6 +4,16 @@ Jeder Abschnitt `## X.Y.Z` wird beim Tag `vX.Y.Z` automatisch als „Was testen�
 (`.github/workflows/testflight.yml`). Text auf Deutsch, höchstens 4000 Zeichen. Fehlt der Abschnitt, stehen dort
 die Commit-Titel seit dem letzten Tag.
 
+## 0.7.0
+
+Aufgeholt mit Server 0.17.1: Spoolman, Spulen in der Cloud, MakerWorld. Enthält die Korrekturen aus 0.6.1.
+
+- Einstellungen → Spoolman: eigene Spoolman-Adresse eintragen und testen, oder (Cloud-Konto) „Spulen in der Cloud“ nutzen. Cloud-Spulen anlegen, bearbeiten, kopieren, archivieren, löschen
+- Nach dem Slicen: Abschnitt „Spulen“ mit einer Spule pro Farbe, Warnung bei zu wenig Filament oder anderem Material
+- Nach dem Druck bucht die App das Filament ab (Druckertab). Bei abgebrochenem Druck fragt sie: alles, nur den gedruckten Teil oder nichts. Klipper mit eigener Spoolman-Anbindung bucht selbst
+- MakerWorld-Links (auch über „Teilen“) öffnen die Modellseite mit Druckprofilen und einem Knopf zu MakerWorld; die 3MF dann über „Teilen“ an die App schicken
+- Bitte testen: Spoolman zu Hause, Cloud-Spulen, Abbuchen nach einem Druck, MakerWorld-Link
+
 ## 0.6.1
 
 - Cloud: Ist im Konto noch kein Drucker angelegt, bleibt „Druck vorbereiten“ nicht mehr leer. Die App sagt das und
