@@ -4,6 +4,11 @@ Jeder Abschnitt `## X.Y.Z` wird beim Tag `vX.Y.Z` automatisch als „Was testen�
 (`.github/workflows/testflight.yml`). Text auf Deutsch, höchstens 4000 Zeichen. Fehlt der Abschnitt, stehen dort
 die Commit-Titel seit dem letzten Tag.
 
+## 0.8.1
+
+- Teilen → PocketPrint3D: zweiter Anlauf, damit sich die App öffnet. Die Erweiterung hat den Link an das eigene Teilen-Fenster geschickt statt an iOS; das hat nichts geöffnet
+- Bitte testen: Link aus Safari / Printables-App, und eine STL- oder 3MF-Datei aus „Dateien“ teilen
+
 ## 0.8.0
 
 Aufgeholt mit Server 0.23.0. Enthält die Teilen-Korrektur aus 0.7.91.

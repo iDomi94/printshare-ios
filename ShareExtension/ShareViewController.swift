@@ -131,6 +131,9 @@ final class ShareViewController: UIViewController {
 
     /// `UIApplication.shared` is unavailable in extensions: walk the responder chain to the application instead
     /// (same trick as expo-share-intent; the selector form keeps working on iOS 18).
+    /// Only the application itself: the window scene comes first in the chain and answers the same selector
+    /// (`UIScene.open(_:options:completionHandler:)`), but it is the extension's own scene and silently opens
+    /// nothing - 0.7.91 and 0.8.0 stopped there.
     /// Must run while the sheet is on screen (see `onScreen`). False when no responder can open URLs.
     private func open(_ url: URL) -> Bool {
         typealias OpenFn = @convention(c) (AnyObject, Selector, URL, [UIApplication.OpenExternalURLOptionsKey: Any],
@@ -138,7 +141,7 @@ final class ShareViewController: UIViewController {
         let selector = NSSelectorFromString("openURL:options:completionHandler:")
         var responder: UIResponder? = self
         while let current = responder {
-            if current.responds(to: selector) {
+            if current is UIApplication, current.responds(to: selector) {
                 let imp = current.method(for: selector)
                 let call = unsafeBitCast(imp, to: OpenFn.self)
                 call(current, selector, url, [:], nil)
