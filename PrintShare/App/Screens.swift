@@ -31,6 +31,13 @@ enum Screen: Hashable {
     case printerProfile(id: String, name: String)
     /// Cloud: a printer of the account and its Wi-Fi address (`CloudPrinterView.new` adds one).
     case cloudPrinter(id: String)
+    /// Spoolman (server 0.16.0): where the spools are, and bookings waiting for a decision.
+    case spoolman
+    /// Cloud spools (server 0.17.0): the list, and one spool (`SpoolFormView.new` adds one, `copy` starts from another).
+    case spools
+    case spool(id: String, copy: Int? = nil)
+    /// printables.com in a web view with the user's own Printables login (test build).
+    case printablesWeb
 }
 
 /// Request to show the connect sheet, optionally prefilled from a pairing link.

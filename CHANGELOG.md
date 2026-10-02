@@ -4,6 +4,34 @@ Jeder Abschnitt `## X.Y.Z` wird beim Tag `vX.Y.Z` automatisch als „Was testen�
 (`.github/workflows/testflight.yml`). Text auf Deutsch, höchstens 4000 Zeichen. Fehlt der Abschnitt, stehen dort
 die Commit-Titel seit dem letzten Tag.
 
+## 0.7.90
+
+Printables.com in der App (enthält alles aus 0.7.0).
+
+- „Entdecken“ → oben rechts „Printables.com“: die Printables-Webseite in der App. Dort mit dem Prusa-Konto anmelden, dann gibt es Likes und Sammlungen
+- Bitte testen: bleibt die Anmeldung nach dem Beenden der App erhalten? Klappt die Anmeldung mit E-Mail, mit Apple, mit Google (Google sperrt Anmeldungen in eingebetteten Webseiten vermutlich)?
+- Auf einer Modellseite „Mit PocketPrint3D drucken“: öffnet das Modell wie aus der Suche, der Server lädt es wie bisher ohne Anmeldung
+- Download-Knöpfe der Webseite laden nichts aufs Handy, sondern öffnen ebenfalls das Modell in PocketPrint3D
+- Menü oben rechts: „Bei Printables abmelden“ löscht Anmeldung und Website-Daten von Printables in der App
+
+## 0.7.0
+
+Aufgeholt mit Server 0.17.1: Spoolman, Spulen in der Cloud, MakerWorld. Enthält die Korrekturen aus 0.6.1.
+
+- Einstellungen → Spoolman: eigene Spoolman-Adresse eintragen und testen, oder (Cloud-Konto) „Spulen in der Cloud“ nutzen. Cloud-Spulen anlegen, bearbeiten, kopieren, archivieren, löschen
+- Nach dem Slicen: Abschnitt „Spulen“ mit einer Spule pro Farbe, Warnung bei zu wenig Filament oder anderem Material
+- Nach dem Druck bucht die App das Filament ab (Druckertab). Bei abgebrochenem Druck fragt sie: alles, nur den gedruckten Teil oder nichts. Klipper mit eigener Spoolman-Anbindung bucht selbst
+- MakerWorld-Links (auch über „Teilen“) öffnen die Modellseite mit Druckprofilen und einem Knopf zu MakerWorld; die 3MF dann über „Teilen“ an die App schicken
+- Bitte testen: Spoolman zu Hause, Cloud-Spulen, Abbuchen nach einem Druck, MakerWorld-Link
+
+## 0.6.1
+
+- Cloud: Ist im Konto noch kein Drucker angelegt, bleibt „Druck vorbereiten“ nicht mehr leer. Die App sagt das und
+  bietet „Drucker hinzufügen“ an; danach geht es direkt weiter.
+- Cloud: Geänderte Druckereinstellungen (z. B. der COSMOS-Haken) erscheinen nach dem Speichern auch beim nächsten
+  Öffnen. Die App zeigte teils eine zwischengespeicherte alte Druckerliste; Anfragen an Server und Drucker gehen
+  jetzt immer frisch übers Netz.
+
 ## 0.6.0
 
 Aufgeholt mit Server 0.15.3: PocketPrint3D Cloud, auch für Prusa (PrusaLink) und OctoPrint. Enthält das Füllmuster aus 0.5.0.

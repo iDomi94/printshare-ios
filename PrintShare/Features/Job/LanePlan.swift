@@ -52,9 +52,12 @@ enum LanePlan {
     }
 
     /// Does a preset fit the material in a lane? Unknown on either side counts as fitting.
-    static func fits(_ preset: String?, _ lane: Lane) -> Bool {
+    static func fits(_ preset: String?, _ lane: Lane) -> Bool { fits(preset, material: lane.material) }
+
+    /// The same for a material name (a Spoolman spool's).
+    static func fits(_ preset: String?, material: String?) -> Bool {
         guard let want = materialOf(preset) else { return true }
-        let have = (lane.material ?? "").uppercased()
+        let have = (material ?? "").uppercased()
         return have.isEmpty || have.hasPrefix(want)
     }
 

@@ -225,6 +225,134 @@
         }
       }
     },
+    "bookAll": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alles ({g} g)"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "All ({g} g)"
+          }
+        }
+      }
+    },
+    "bookNone": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nichts"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nothing"
+          }
+        }
+      }
+    },
+    "bookPart": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "{g} g ({pct} %)"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "{g} g ({pct} %)"
+          }
+        }
+      }
+    },
+    "booked": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spoolman: {g} g von {spool} abgebucht"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spoolman: {g} g booked on {spool}"
+          }
+        }
+      }
+    },
+    "bookingAsk": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„{file}“ auf {printer}: Druck abgebrochen oder Ende verpasst. Wie viel abbuchen?"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "“{file}” on {printer}: print cancelled or its end was missed. How much should be booked?"
+          }
+        }
+      }
+    },
+    "bookingWaits": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "wartet auf das Druckende"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "waiting for the print to end"
+          }
+        }
+      }
+    },
+    "bookingsNone": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keine offenen Abbuchungen."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No open bookings."
+          }
+        }
+      }
+    },
+    "bookingsOpen": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spoolman: offene Abbuchungen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spoolman: bookings to decide"
+          }
+        }
+      }
+    },
     "brim": {
       "localizations": {
         "de": {
@@ -1837,6 +1965,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "That didn’t work"
+          }
+        }
+      }
+    },
+    "externalDownload": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "{source} lässt Downloads nur mit deinem eigenen Konto zu: Öffne das Modell in {source}, lade das 3MF dort herunter und teile die Datei mit PocketPrint3D – dann geht es hier weiter."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "{source} only allows downloads with your own account: open the model in {source}, download the 3MF there and share the file with PocketPrint3D – it continues here."
           }
         }
       }
@@ -4049,6 +4193,22 @@
         }
       }
     },
+    "needsAms": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "mehrfarbig (AMS)"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "multicolour (AMS)"
+          }
+        }
+      }
+    },
     "newModel": {
       "localizations": {
         "de": {
@@ -4173,6 +4333,38 @@
           "stringUnit": {
             "state": "translated",
             "value": "Try a different search term."
+          }
+        }
+      }
+    },
+    "noSpool": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keine Spule"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No spool"
+          }
+        }
+      }
+    },
+    "noSpoolSub": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nicht abbuchen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Don't book"
           }
         }
       }
@@ -5021,6 +5213,102 @@
           "stringUnit": {
             "state": "translated",
             "value": "{n} printable files"
+          }
+        }
+      }
+    },
+    "printablesDownloadHint": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Downloads laufen über PocketPrint3D: öffne die Modellseite und tippe auf „Mit PocketPrint3D drucken“."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Downloads go through PocketPrint3D: open the model page and tap “Print with PocketPrint3D”."
+          }
+        }
+      }
+    },
+    "printablesLogout": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bei Printables abmelden"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sign out of Printables"
+          }
+        }
+      }
+    },
+    "printablesLogoutConfirm": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Anmeldung und Website-Daten von Printables in der App löschen?"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remove the Printables login and site data from the app?"
+          }
+        }
+      }
+    },
+    "printablesPrintThis": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mit PocketPrint3D drucken"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Print with PocketPrint3D"
+          }
+        }
+      }
+    },
+    "printablesWebHint": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Melde dich hier bei Printables an, dann siehst du deine Likes und Sammlungen. Die Anmeldung bleibt in der App gespeichert, PocketPrint3D sieht dein Passwort nicht. Auf einer Modellseite tippst du auf „Mit PocketPrint3D drucken“."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sign in to Printables here to see your likes and collections. The login stays in the app; PocketPrint3D never sees your password. On a model page, tap “Print with PocketPrint3D”."
+          }
+        }
+      }
+    },
+    "printablesWebOpen": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Printables.com"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Printables.com"
           }
         }
       }
@@ -6545,6 +6833,742 @@
         }
       }
     },
+    "spool": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spule"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spool"
+          }
+        }
+      }
+    },
+    "spoolAdd": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spule hinzufügen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add spool"
+          }
+        }
+      }
+    },
+    "spoolArchive": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Archivieren (leer)"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Archive (empty)"
+          }
+        }
+      }
+    },
+    "spoolColor": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Farbe"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Colour"
+          }
+        }
+      }
+    },
+    "spoolComment": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Notiz"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Note"
+          }
+        }
+      }
+    },
+    "spoolCopy": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Als neue Spule kopieren"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copy as a new spool"
+          }
+        }
+      }
+    },
+    "spoolDelete": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spule löschen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Delete spool"
+          }
+        }
+      }
+    },
+    "spoolDeleteQ": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spule #{id} löschen?"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Delete spool #{id}?"
+          }
+        }
+      }
+    },
+    "spoolEdit": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spule #{id}"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spool #{id}"
+          }
+        }
+      }
+    },
+    "spoolLeft": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "{g} g übrig"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "{g} g left"
+          }
+        }
+      }
+    },
+    "spoolLocation": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lagerort"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Location"
+          }
+        }
+      }
+    },
+    "spoolMaterial": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Material"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Material"
+          }
+        }
+      }
+    },
+    "spoolMaterialWarn": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "{what}: Profil ist {want}, die Spule ist {have}."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "{what}: the profile is {want}, the spool is {have}."
+          }
+        }
+      }
+    },
+    "spoolName": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bezeichnung"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Name"
+          }
+        }
+      }
+    },
+    "spoolNew": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Neue Spule"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "New spool"
+          }
+        }
+      }
+    },
+    "spoolOther": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Andere"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Other"
+          }
+        }
+      }
+    },
+    "spoolRemaining": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Noch drauf (g)"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Left on it (g)"
+          }
+        }
+      }
+    },
+    "spoolRemainingHint": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Volle Spule = Filament ohne Spulenkörper (meist 1000 g). Angebrochene Spule: wiegen und das Leergewicht abziehen."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Full spool = filament without the spool itself (usually 1000 g). Opened spool: weigh it and subtract the empty spool's weight."
+          }
+        }
+      }
+    },
+    "spoolTooLittle": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "{what}: auf {spool} sind nur noch {have} g – der Druck braucht {need} g."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "{what}: {spool} has only {have} g left – the print needs {need} g."
+          }
+        }
+      }
+    },
+    "spoolUnarchive": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wieder aktiv"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Active again"
+          }
+        }
+      }
+    },
+    "spoolVendor": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hersteller"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Brand"
+          }
+        }
+      }
+    },
+    "spoolWeight": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Volle Spule (g)"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Full spool (g)"
+          }
+        }
+      }
+    },
+    "spoolman": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spoolman"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spoolman"
+          }
+        }
+      }
+    },
+    "spoolmanAddress": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spoolman-Adresse"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spoolman address"
+          }
+        }
+      }
+    },
+    "spoolmanHint": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Adresse deines Spoolman-Servers im Heimnetz, z. B. 192.168.1.20:7912. Sie bleibt auf diesem Handy."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Address of your Spoolman server on the home network, e.g. 192.168.1.20:7912. It stays on this phone."
+          }
+        }
+      }
+    },
+    "spoolmanOff": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "nicht verbunden"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "not connected"
+          }
+        }
+      }
+    },
+    "spoolmanOk": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spoolman {version} · {n} Spulen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spoolman {version} · {n} spools"
+          }
+        }
+      }
+    },
+    "spoolmanRemove": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spoolman entfernen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remove Spoolman"
+          }
+        }
+      }
+    },
+    "spoolmanSub": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spulen wählen, Verbrauch abbuchen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choose spools, book the used filament"
+          }
+        }
+      }
+    },
+    "spoolmanUnreachable": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spoolman nicht erreichbar ({error})"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spoolman not reachable ({error})"
+          }
+        }
+      }
+    },
+    "spools": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spulen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spools"
+          }
+        }
+      }
+    },
+    "spoolsArchived": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Archivierte zeigen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show archived"
+          }
+        }
+      }
+    },
+    "spoolsCloudHint": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ohne Server zu Hause: deine Spulen liegen in deinem PocketPrint3D-Konto. Später kannst du sie zu einem eigenen Spoolman mitnehmen."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No server at home: your spools are kept in your PocketPrint3D account. You can take them to your own Spoolman later."
+          }
+        }
+      }
+    },
+    "spoolsCloudOn": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spulen in der Cloud"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spools in the cloud"
+          }
+        }
+      }
+    },
+    "spoolsCount": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "{n} Spulen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "{n} spools"
+          }
+        }
+      }
+    },
+    "spoolsEmpty": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Noch keine Spulen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No spools yet"
+          }
+        }
+      }
+    },
+    "spoolsEmptySub": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lege deine Spulen an – dann warnt die App, wenn eine nicht mehr reicht, und bucht den Verbrauch ab."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add your spools – the app then warns when one won't be enough and books the used filament."
+          }
+        }
+      }
+    },
+    "spoolsHint": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nach dem Druck bucht die App den Verbrauch in Spoolman ab (nur bei „Drucken“, App einmal öffnen)."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "After the print the app books the used filament in Spoolman (only with “Print”; open the app once)."
+          }
+        }
+      }
+    },
+    "spoolsHintAfc": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Die Spulen sind den Slots in AFC zugeordnet – der Drucker bucht selbst ab."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The spools are assigned to the slots in AFC – the printer books the filament itself."
+          }
+        }
+      }
+    },
+    "spoolsHintPrinter": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Der Drucker (Moonraker) bucht den Verbrauch selbst in Spoolman ab."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The printer (Moonraker) books the used filament in Spoolman itself."
+          }
+        }
+      }
+    },
+    "spoolsInCloud": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "In der Cloud"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "In the cloud"
+          }
+        }
+      }
+    },
+    "spoolsManage": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spulen verwalten"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Manage spools"
+          }
+        }
+      }
+    },
+    "spoolsMultiPrinter": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Moonraker verfolgt nur eine Spule. Bei mehreren Farben ohne AFC bucht der Drucker alles auf die aktive Spule."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Moonraker tracks one spool only. With several colours and no AFC the printer books everything on the active spool."
+          }
+        }
+      }
+    },
+    "spoolsOwnServer": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eigener Spoolman"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Own Spoolman"
+          }
+        }
+      }
+    },
+    "spoolsUseCloud": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spulen in der Cloud verwenden"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Use spools in the cloud"
+          }
+        }
+      }
+    },
+    "spoolsWhere": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wo sind deine Spulen?"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Where are your spools?"
+          }
+        }
+      }
+    },
     "standard": {
       "localizations": {
         "de": {
@@ -7185,6 +8209,22 @@
         }
       }
     },
+    "variants": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Varianten"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Variants"
+          }
+        }
+      }
+    },
     "version": {
       "localizations": {
         "de": {
@@ -7421,6 +8461,54 @@
           "stringUnit": {
             "state": "translated",
             "value": "PLA sticks poorly to the Engineering Plate – Textured PEI works better."
+          }
+        }
+      }
+    },
+    "webBack": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zurück"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Back"
+          }
+        }
+      }
+    },
+    "webForward": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vorwärts"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Forward"
+          }
+        }
+      }
+    },
+    "webReload": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Neu laden"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reload"
           }
         }
       }

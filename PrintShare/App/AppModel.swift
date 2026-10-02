@@ -125,6 +125,111 @@ final class AppModel {
         try await lan.send(file: file, name: fileName, options: options)
     }
 
+    // MARK: Spoolman (spec MA-07, server 0.16.0) - everything stays on this phone, per server / account
+
+    private var accountKey: String? {
+        server.map { ($0.email ?? $0.url).replacingRegex("[^A-Za-z0-9_.-]", with: "_") }
+    }
+
+    private struct SpoolmanSetting: Codable { var url: String }
+
+    /// The user's Spoolman address, `Spoolman.cloudSetting` for the cloud account's spools, or nil (off).
+    func spoolmanSetting() -> String? {
+        accountKey.flatMap { keychain.getJSON(StoreKey.spoolman($0), as: SpoolmanSetting.self)?.url }
+    }
+
+    func saveSpoolmanSetting(_ url: String?) {
+        guard let accountKey else { return }
+        let v = url?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        if v.isEmpty { keychain.set(StoreKey.spoolman(accountKey), nil) } else { keychain.setJSON(StoreKey.spoolman(accountKey), SpoolmanSetting(url: v)) }
+    }
+
+    func openSpoolman(_ setting: String) -> Spoolman? {
+        server.map { Spoolman.open(server: $0, setting: setting) }
+    }
+
+    /// Last spool per colour of a printer (default for the next print).
+    func lastSpools(_ printer: String) -> [String: Int] {
+        accountKey.flatMap { keychain.getJSON(StoreKey.spools($0, printer), as: [String: Int].self) } ?? [:]
+    }
+
+    func saveLastSpools(_ printer: String, _ spools: [String: Int]) {
+        guard let accountKey else { return }
+        keychain.setJSON(StoreKey.spools(accountKey, printer), spools)
+    }
+
+    func bookings() -> [Booking] {
+        accountKey.flatMap { keychain.getJSON(StoreKey.bookings($0), as: [Booking].self) } ?? []
+    }
+
+    private func saveBookings(_ list: [Booking]) {
+        guard let accountKey else { return }
+        keychain.setJSON(StoreKey.bookings(accountKey), Array(list.suffix(Bookings.maxCount)))
+    }
+
+    /// After a started print: book the filament once it is over.
+    func addBooking(printer: String, printerName: String, file: String, uses: [BookingUse]) {
+        let b = Booking(id: Lan.randomHex(6), printer: printer, printerName: printerName, file: file, uses: uses,
+                        created: Bookings.now())
+        saveBookings(Bookings.adding(b, to: bookings()))
+    }
+
+    @ObservationIgnored private var settling = false
+
+    /// With fresh printer statuses (printers tab): finished prints are booked, unclear ones wait for the user.
+    func settleBookings(_ statuses: [String: PrinterStatus?]) async -> SettleResult {
+        guard !settling else { return SettleResult(open: bookings().filter { $0.ask != nil }) }
+        settling = true
+        defer { settling = false }
+        let before = bookings()
+        guard !before.isEmpty else { return SettleResult() }
+        var list = before.map { b in statuses.keys.contains(b.printer) ? Bookings.judge(b, statuses[b.printer] ?? nil) : b }
+        var result = SettleResult()
+        if let setting = spoolmanSetting(), let sm = openSpoolman(setting) {
+            for i in list.indices where list[i].ready == true {
+                let uses = list[i].uses
+                do {
+                    try await book(&list, i, part: 1, sm)
+                    var done = list[i]
+                    done.uses = uses
+                    result.booked.append(done)
+                } catch {
+                    result.error = error.localizedDescription  // retried with the next status refresh
+                    break
+                }
+            }
+        }
+        let doneIds = Set(result.booked.map(\.id))
+        let rest = list.filter { !doneIds.contains($0.id) }
+        saveBookings(rest)
+        result.open = rest.filter { $0.ask != nil }
+        return result
+    }
+
+    /// Book a share of a booking (1 = all); spools already booked are removed from it, so a retry never books twice.
+    private func book(_ list: inout [Booking], _ i: Int, part: Double, _ sm: Spoolman) async throws {
+        while let u = list[i].uses.first {
+            let grams = u.grams * part
+            if grams >= 0.05 { try await sm.use(spool: u.spool, grams: grams) }
+            list[i].uses.removeFirst()
+            saveBookings(list)
+        }
+    }
+
+    /// The user's decision on an open booking: book `part` of the filament (0 = discard).
+    func resolveBooking(_ id: String, part: Double) async throws {
+        var list = bookings()
+        guard let i = list.firstIndex(where: { $0.id == id }) else { return }
+        if part > 0 {
+            guard let setting = spoolmanSetting(), let sm = openSpoolman(setting) else {
+                throw SpoolmanError("no Spoolman address set")
+            }
+            try await book(&list, i, part: part, sm)
+        }
+        list.remove(at: i)
+        saveBookings(list)
+    }
+
     // MARK: navigation
 
     func push(_ screen: Screen) { path.append(screen) }
@@ -168,6 +273,16 @@ final class AppModel {
         }
         var link = Format.extractLink(item.url)
         if link.isEmpty { link = Format.extractLink(item.text) }
-        if !link.isEmpty { push(.prepare(PrepareArgs(link: link))) }
+        if !link.isEmpty { openLink(link) }
+    }
+
+    /// A model link from the user: MakerWorld only allows downloads with the user's own account (server 0.17.1), so
+    /// its model page opens with a button to MakerWorld; everything else goes to the prepare screen.
+    func openLink(_ link: String) {
+        if let mw = Format.makerWorldId(link) {
+            push(.model(source: "makerworld", id: mw))
+        } else {
+            push(.prepare(PrepareArgs(link: link)))
+        }
     }
 }

@@ -120,6 +120,26 @@ if it contradicts `printshare/api.py` the server wins; otherwise the simplest id
     password, API key) in the Keychain; the bare address strings of earlier builds still load.
   - `CloudPrinterView`: type picker with the four types and their hints, printer model from `GET /api/machines`
     (required for PrusaLink / OctoPrint, sent as `machine`), password / API key fields, connection test.
+- **Server 0.16.0-0.17.1** (upstream `be72d42`, 2026-10-02), ported from the Expo app of the same commit
+  (`lib/spoolman.ts`, `spoolman.tsx`, `spools.tsx`, `spool/[id].tsx`, `job/[id].tsx`, `printers.tsx`):
+  - **Spoolman** (MA-07, 0.16.0): `Spoolman/Spoolman.swift` talks to the user's Spoolman directly (the address stays on
+    the phone, `ps_spoolman_<account>` = `{url}`; without port or path `:7912` is tried too). Job screen: section
+    "Spulen" with one spool per colour (picker grouped by material, "Keine Spule"), low-filament and material warnings.
+    Default per colour: the user's choice, else the lane's `spool_id`, else Moonraker's active spool, else the last
+    spool used on that printer (`ps_spools_<account>_<printer>`). Printers whose Moonraker has its own `[spoolman]`
+    (`status.spoolman.connected`) book themselves: single colour → `spool_id` with `/send` (server) or
+    `POST /server/spoolman/spool_id` before the upload (cloud relay); with AFC the slots' spools are shown, not
+    chosen; multicolour without AFC → hint only. Other printers: the app stores a booking (`ps_bookings_<account>`,
+    max 20, same JSON as the Expo app) and settles it on the printers tab with every status refresh (`Bookings.judge`:
+    done → book; cancelled / error → ask with the printed share; gone after being seen at ≥ 99 % → book; never seen
+    within 20 min or offline for 3 days → ask). Booked spools are removed from the booking one by one, so a retry
+    never books twice.
+  - **Cloud spools** (0.17.0): setting `"cloud"` = the same API under `<cloud>/spoolman` with the session token; list,
+    add, edit, copy, archive, delete (`SpoolsView`, `SpoolFormView`). Only offered for cloud accounts.
+  - **MakerWorld** (0.17.1): links (also from the share menu) open the model page; `download: "external"` hides the
+    file row and "print", shows a button to MakerWorld; `variants` (print profiles) are listed. The 3MF comes back
+    through the share menu.
+  - Not verified against a real Spoolman, a Moonraker with `[spoolman]` or MakerWorld; only stubs and server shapes.
 
 - **Model files in 3D** (not in the Expo app): the file row on the model page opens a sheet with the files of
   `/api/files` (same order and index as the prepare screen). STL is read by `STLReader` (binary + ASCII; ModelIO returned no mesh for STL on CI), 3MF by `ThreeMFReader` (own zip reader: stored/deflate via `NSData.decompressed(.zlib)`, zip64; `XMLParser` for the

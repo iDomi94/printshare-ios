@@ -1,6 +1,7 @@
 import SwiftUI
 
-/// Model details from Printables / Thingiverse -> prepare print (spec MQ-06, MQ-10).
+/// Model details from Printables / Thingiverse -> prepare print (spec MQ-06, MQ-10). MakerWorld (server 0.17.1): only
+/// downloadable with the user's own account -> button to MakerWorld, the 3MF comes back through the share menu.
 struct ModelDetailView: View {
     let source: String
     let id: String
@@ -14,7 +15,7 @@ struct ModelDetailView: View {
     @State private var attempt = 0
     @State private var showFiles = false
 
-    private static let sourceNames = ["printables": "Printables", "thingiverse": "Thingiverse"]
+    private static let sourceNames = ["printables": "Printables", "thingiverse": "Thingiverse", "makerworld": "MakerWorld"]
 
     var body: some View {
         let t = app.l10n
@@ -67,11 +68,18 @@ struct ModelDetailView: View {
 
             stats(t, m.hit)
 
+            if m.external { PSBanner(kind: .info, text: t(.externalDownload, ["source": srcName])) }
+
             PSSection {
-                PSRow(icon: "doc", label: sliceable == 1 ? t(.printableFile)
-                      : sliceable > 0 ? t(.printableFiles, ["n": String(sliceable)]) : t(.noPrintableFiles),
-                      action: openFiles)
-                if let l = m.hit.license, !l.isEmpty { PSDivider(); PSRow(icon: "rosette", label: t(.license), sub: l) }
+                if !m.external {
+                    PSRow(icon: "doc", label: sliceable == 1 ? t(.printableFile)
+                          : sliceable > 0 ? t(.printableFiles, ["n": String(sliceable)]) : t(.noPrintableFiles),
+                          action: openFiles)
+                }
+                if let l = m.hit.license, !l.isEmpty {
+                    if !m.external { PSDivider() }
+                    PSRow(icon: "rosette", label: t(.license), sub: l)
+                }
                 if let c = m.category, !c.isEmpty { PSDivider(); PSRow(icon: "tag", label: t(.category), value: c) }
             }
 
@@ -81,6 +89,22 @@ struct ModelDetailView: View {
                     ForEach(Array(rows.enumerated()), id: \.offset) { i, row in
                         if i > 0 { PSDivider() }
                         PSRow(label: row.0, value: row.1)
+                    }
+                }
+            }
+
+            if !m.variants.isEmpty {
+                PSSection(title: t(.variants)) {
+                    ForEach(Array(m.variants.enumerated()), id: \.element.id) { i, v in
+                        if i > 0 { PSDivider() }
+                        PSRow(label: v.title.isEmpty ? "#\(v.id)" : v.title, sub: Self.variantLine(t, v), right: {
+                            HStack(spacing: 3) {
+                                ForEach(Array(v.colors.prefix(6).enumerated()), id: \.offset) { _, c in
+                                    ColorDot(color: Color(hexString: c), size: 12)
+                                }
+                            }
+                            .padding(.leading, 8)
+                        })
                     }
                 }
             }
@@ -100,13 +124,33 @@ struct ModelDetailView: View {
                 }
             }
         } footer: {
-            PSButton(title: t(.printThis), icon: "printer", disabled: sliceable == 0) {
-                app.push(.prepare(PrepareArgs(link: m.hit.url)))
-            }
-            PSButton(title: t(.openOn, ["source": srcName]), kind: .plain, icon: "arrow.up.right.square") {
-                if let u = URL(string: m.hit.url) { openURL(u) }
+            if m.external {
+                PSButton(title: t(.openOn, ["source": srcName]), icon: "arrow.up.right.square") {
+                    if let u = URL(string: m.hit.url) { openURL(u) }
+                }
+            } else {
+                PSButton(title: t(.printThis), icon: "printer", disabled: sliceable == 0) {
+                    app.push(.prepare(PrepareArgs(link: m.hit.url)))
+                }
+                PSButton(title: t(.openOn, ["source": srcName]), kind: .plain, icon: "arrow.up.right.square") {
+                    if let u = URL(string: m.hit.url) { openURL(u) }
+                }
             }
         }
+    }
+
+    private static func hours(_ h: Double) -> String {
+        "\(Int(h)) h \(Int(((h - h.rounded(.down)) * 60).rounded())) min"
+    }
+
+    /// "PLA, PETG · 42 g · 2 h 10 min · AMS"
+    static func variantLine(_ t: L10n, _ v: ModelVariant) -> String {
+        var parts: [String] = []
+        if !v.materials.isEmpty { parts.append(v.materials.joined(separator: ", ")) }
+        if let w = v.weightG, w > 0 { parts.append("\(Format.trimNumber(w)) g") }
+        if let h = v.printHours, h > 0 { parts.append(hours(h)) }
+        if v.needsAms { parts.append(t(.needsAms)) }
+        return parts.joined(separator: " · ")
     }
 
     private func recommendedRows(_ t: L10n, _ r: Recommended) -> [(String, String)] {
@@ -115,9 +159,7 @@ struct ModelDetailView: View {
         if let v = r.nozzle { rows.append((t(.nozzle), v)) }
         if let v = r.layerHeight { rows.append((t(.layerHeight), v)) }
         if let w = r.weightG, w > 0 { rows.append((t(.weight), "\(Int(w.rounded())) g")) }
-        if let h = r.printHours, h > 0 {
-            rows.append((t(.printTimeAuthor), "\(Int(h)) h \(Int(((h - h.rounded(.down)) * 60).rounded())) min"))
-        }
+        if let h = r.printHours, h > 0 { rows.append((t(.printTimeAuthor), Self.hours(h))) }
         return rows
     }
 

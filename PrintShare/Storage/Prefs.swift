@@ -21,4 +21,10 @@ enum StoreKey {
     static func level(_ printer: String) -> String { "ps_level_\(printer)" }
     /// Wi-Fi addresses of the cloud printers, per account (`printerAccess.ts`).
     static func lan(_ account: String) -> String { "ps_lan_\(account)" }
+    /// Spoolman address (or "cloud"), last spools per printer, bookings - per server / account (`spoolman.ts`).
+    static func spoolman(_ account: String) -> String { "ps_spoolman_\(account)" }
+    static func spools(_ account: String, _ printer: String) -> String {
+        "ps_spools_\(account)_\(printer.replacingRegex("[^A-Za-z0-9_.-]", with: "_"))"
+    }
+    static func bookings(_ account: String) -> String { "ps_bookings_\(account)" }
 }

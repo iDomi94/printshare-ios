@@ -31,6 +31,7 @@ struct PrepareView: View {
     @State private var listed: (link: String, files: [ModelFile])?
     @State private var file: String?
     @State private var printers: [Printer] = []
+    @State private var printersLoaded = false
     @State private var kinds: [String: PrinterKind] = [:]
     @State private var statuses: [String: PrinterStatus] = [:]
     /// Printer slot (tool number) per model colour, chosen by the user; others follow `LanePlan.tools`.
@@ -143,6 +144,8 @@ struct PrepareView: View {
         .task(id: args) { await upload() }
         .task(id: link) { await listFiles() }
         .task { await loadPrinters() }
+        // back from adding the first printer: load the list again
+        .onAppear { if printersLoaded && printers.isEmpty { Task { await loadPrinters() } } }
         .task(id: printer) { await loadOptions() }
         .task(id: printer) { await refreshStatus() }
         .task(id: colorKey) { await inspectColors() }
@@ -156,7 +159,9 @@ struct PrepareView: View {
             if !error.isEmpty { PSBanner(kind: .error, text: error) }
             modelSection(t)
             printerSection(t)
-            if let opts {
+            if printersLoaded && printers.isEmpty && error.isEmpty {
+                noPrinter(t)
+            } else if let opts {
                 optionSections(t, opts)
             } else if !printer.isEmpty {
                 ProgressView().frame(maxWidth: .infinity).padding(.top, 24)
@@ -188,6 +193,18 @@ struct PrepareView: View {
                 PSDivider()
                 PSRow(icon: "doc", label: files[0].name)
             }
+        }
+    }
+
+    /// A fresh cloud account has no printer yet: say so instead of an empty screen, with the way to add one.
+    @ViewBuilder
+    private func noPrinter(_ t: L10n) -> some View {
+        if app.isCloud {
+            PSEmpty(icon: "printer", title: t(.noPrinters), sub: t(.noPrintersCloud)) {
+                PSButton(title: t(.addPrinter), icon: "plus") { app.push(.cloudPrinter(id: CloudPrinterView.new)) }
+            }
+        } else {
+            PSEmpty(icon: "printer", title: t(.noPrinters))
         }
     }
 
@@ -472,6 +489,7 @@ struct PrepareView: View {
         do {
             let list = try await api.printers()
             printers = list
+            printersLoaded = true
             let last = args.edit?.printer ?? app.lastPrinter()
             printer = list.first { $0.id == last }?.id ?? list.first?.id ?? ""
             for p in list {
