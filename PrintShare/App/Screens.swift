@@ -31,6 +31,10 @@ enum Screen: Hashable {
     case printerProfile(id: String, name: String)
     /// Cloud: a printer of the account and its Wi-Fi address (`CloudPrinterView.new` adds one).
     case cloudPrinter(id: String)
+    /// Cloud: bridges at home - code entry, list, remove (server 0.24.0).
+    case bridges
+    /// Cloud: add a printer through this bridge (server 0.26.0); the bridge's id.
+    case bridgePrinter(bridge: String)
     /// Spoolman (server 0.16.0): where the spools are, and bookings waiting for a decision.
     case spoolman
     /// Cloud spools (server 0.17.0): the list, and one spool (`SpoolFormView.new` adds one, `copy` starts from another).

@@ -19,6 +19,8 @@ struct RootView: View {
                             case .control(let id, let name): ControlView(printer: id, name: name)
                             case .printerProfile(let id, let name): PrinterProfileView(printer: id, name: name)
                             case .cloudPrinter(let id): CloudPrinterView(id: id)
+                            case .bridges: BridgesView()
+                            case .bridgePrinter(let bridge): CloudPrinterView(id: CloudPrinterView.new, bridge: bridge)
                             case .spoolman: SpoolmanView()
                             case .spools: SpoolsView()
                             case .spool(let id, let copy): SpoolFormView(id: id, copy: copy)
