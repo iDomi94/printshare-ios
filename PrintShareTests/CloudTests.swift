@@ -44,7 +44,7 @@ final class CloudTests: XCTestCase {
          "limits": {"slices_per_day": 30, "slices_today": 4, "upload_mb": 100}}
         """#.utf8))
         XCTAssertEqual(me.limits, Me.Limits(slicesPerDay: 30, slicesToday: 4, uploadMb: 100))
-        XCTAssertEqual(l(.slicesToday, ["used": "4", "limit": "30"]), "4 of 30 slices today")
+        XCTAssertEqual(l(.slicesToday, ["used": "4", "limit": "30"]), "4 of 30 prints prepared today")
         let p = try JSONDecoder().decode(Printer.self, from: Data(#"""
         {"id": "p1", "name": "COSMOS", "type": "moonraker", "machine": "Elegoo Centauri Carbon 0.4 nozzle",
          "cosmos": true}
