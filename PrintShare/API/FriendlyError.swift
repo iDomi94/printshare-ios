@@ -6,6 +6,12 @@ func friendlyError(_ l: L10n, status: Int, detail: String) -> String {
     let d = detail.lowercased()
     func has(_ s: String) -> Bool { d.contains(s) }
     let rules: [(Bool, L10nKey)] = [
+        // cloud: printers behind a bridge at home (server 0.26.0)
+        (has("bridge is offline") || has("bridge went offline") || has("bridge was removed") || has("bridge connection broke"),
+         .errBridgeOffline),
+        (has("bridge didn't answer in time"), .errBridgeTimeout),
+        (has("unknown or expired code"), .errBridgeCode),
+        (has("set up on the server at home itself"), .errBridgeServerPrinter),
         (status == 401, .errToken),
         // FastAPI's answer for a route the server does not have: a feature of a newer server version (e.g. the
         // preview needs 0.5.0, colours 0.6.0). Must come before the generic "not found" rule.

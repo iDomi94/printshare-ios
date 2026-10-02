@@ -99,8 +99,12 @@ final class AppModel {
         return api
     }
 
+    /// Own servers and printers behind a bridge are asked through the server API (the cloud forwards to the bridge,
+    /// server 0.26.0); other cloud printers by the phone itself on the home Wi-Fi.
+    func viaServer(_ p: Printer) -> Bool { p.viaServer(cloud: isCloud) }
+
     func printerStatus(_ p: Printer) async throws -> PrinterStatus {
-        guard isCloud else { return try await requireAPI().status(printer: p.id) }
+        guard !viaServer(p) else { return try await requireAPI().status(printer: p.id) }
         let lan = try lanPrinter(p)
         defer { Task { await lan.close() } }
         return try await lan.status()
@@ -108,7 +112,7 @@ final class AppModel {
 
     /// Pause / resume / cancel. A cancel is only sent after the user confirmed it.
     func printerControl(_ p: Printer, action: String) async throws {
-        guard isCloud else { return try await requireAPI().control(printer: p.id, action: action) }
+        guard !viaServer(p) else { return try await requireAPI().control(printer: p.id, action: action) }
         let lan = try lanPrinter(p)
         defer { Task { await lan.close() } }
         try await lan.control(action)

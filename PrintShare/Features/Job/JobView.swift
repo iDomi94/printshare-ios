@@ -108,6 +108,9 @@ struct JobView: View {
         }
     }
 
+    /// Own server, or a cloud printer behind a bridge (the server forwards the camera, server 0.26.0).
+    private var serverReachesPrinter: Bool { printerInfo.map { app.viaServer($0) } ?? !app.isCloud }
+
     private var reviewing: Bool { job?.state == .sliced || job?.state == .uploaded }
 
     private var statusKey: String {
@@ -320,7 +323,7 @@ struct JobView: View {
         } footer: {
             if done {
                 PSButton(title: t(.toPrinter), icon: "printer") { app.navigate(to: .printers) }
-                if hasCamera, !app.isCloud, let p = printerId {
+                if hasCamera, serverReachesPrinter, let p = printerId {
                     PSButton(title: t(.camera), kind: .secondary, icon: "video") {
                         camera = CameraTarget(printer: p, name: printerName)
                     }
@@ -531,7 +534,7 @@ struct JobView: View {
         defer { sending = nil }
         let levelValue: Bool? = printerInfo?.leveling != nil ? level : nil
         let lanes = printerLanes.isEmpty ? nil : laneTools
-        if app.isCloud, let info = printerInfo {
+        if app.isCloud, let info = printerInfo, !app.viaServer(info) {
             await relaySend(job, info, start: start, leveling: levelValue, lanes: lanes)
             return
         }
@@ -590,7 +593,7 @@ struct JobView: View {
     }
 
     private func loadCamera() async {
-        guard job?.state == .started, !app.isCloud, let api = app.api, let p = printerId else { return }
+        guard job?.state == .started, serverReachesPrinter, let api = app.api, let p = printerId else { return }
         hasCamera = (try? await api.cameraInfo(printer: p))?.available ?? false
     }
 

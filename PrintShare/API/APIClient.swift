@@ -27,6 +27,9 @@ private struct Ack: Decodable, Sendable {
 
 private struct ControlBody: Encodable { var action: String; var confirm: Bool }
 private struct PowerBody: Encodable { var on: Bool }
+private struct BridgePairBody: Encodable { var code: String; var name: String? }
+private struct BridgePrinterBody: Encodable { var printer: PrinterSettings; var sealed: String }
+private struct SealedBody: Encodable { var sealed: String }
 private struct CreateJobBody: Encodable {
     var link: String
     var printer: String
@@ -516,6 +519,36 @@ actor APIClient {
 
     func deletePrinter(id: String) async throws {
         let _: Ack = try await request("/api/printers/\(enc(id))", method: "DELETE")
+    }
+
+    // MARK: bridges (cloud, server 0.24.0-0.26.0, upstream docs/BRIDGE.md) - print from anywhere
+
+    func bridges() async throws -> [Bridge] { try await request("/api/bridges") }
+
+    /// The user types the code a bridge shows; the bridge picks up its token within a few seconds.
+    func pairBridge(code: String, name: String? = nil) async throws -> Bridge {
+        try await request("/api/bridges/pair", method: "POST", body: BridgePairBody(code: code, name: name))
+    }
+
+    func deleteBridge(id: String) async throws {
+        let _: Ack = try await request("/api/bridges/\(enc(id))", method: "DELETE")
+    }
+
+    /// Printers the bridge finds in its home network. The bridge scans, so this takes a while.
+    func bridgeDiscover(id: String) async throws -> [BridgeFound] {
+        try await request("/api/bridges/\(enc(id))/discover", method: "POST", timeout: 40)
+    }
+
+    /// `sealed` = `Seal.seal(...)` of address / password / API key for this bridge's public key.
+    func bridgeAddPrinter(bridge id: String, _ printer: PrinterSettings, sealed: String) async throws -> Printer {
+        try await request("/api/bridges/\(enc(id))/printers", method: "POST",
+                          body: BridgePrinterBody(printer: printer, sealed: sealed), timeout: 40)
+    }
+
+    /// New address / password / key for a printer that was added through a bridge.
+    func bridgePrinterAccess(printer id: String, sealed: String) async throws {
+        let _: Ack = try await request("/api/printers/\(enc(id))/bridge-access", method: "PUT",
+                                       body: SealedBody(sealed: sealed), timeout: 40)
     }
 
     /// One file of a model (index as in `files(link:)`) for the 3D view, into a temporary file (server 0.10.1).

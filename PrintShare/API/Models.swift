@@ -132,13 +132,16 @@ struct Printer: Codable, Sendable, Identifiable, Hashable {
     var power: Bool
     /// Cloud printers (server 0.15.0): a Klipper printer with the OpenCentauri COSMOS firmware.
     var cosmos: Bool
+    /// Cloud (server 0.26.0): id of the bridge at home this printer sits behind. The cloud then forwards status, control,
+    /// camera and sending to the bridge; nil = the phone reaches the printer itself on the Wi-Fi.
+    var bridge: String?
 
-    enum CodingKeys: String, CodingKey { case id, name, type, machine, leveling, power, cosmos }
+    enum CodingKeys: String, CodingKey { case id, name, type, machine, leveling, power, cosmos, bridge }
 
     init(id: String, name: String, type: String = "", machine: String = "", leveling: Bool? = nil, power: Bool = false,
-         cosmos: Bool = false) {
+         cosmos: Bool = false, bridge: String? = nil) {
         self.id = id; self.name = name; self.type = type; self.machine = machine; self.leveling = leveling
-        self.power = power; self.cosmos = cosmos
+        self.power = power; self.cosmos = cosmos; self.bridge = bridge
     }
 
     init(from decoder: Decoder) throws {
@@ -154,6 +157,90 @@ struct Printer: Codable, Sendable, Identifiable, Hashable {
         }
         power = c.lenient(Bool.self, .power) ?? false
         cosmos = c.lenient(Bool.self, .cosmos) ?? false
+        bridge = c.lenient(String.self, .bridge)
+    }
+
+    /// Own servers and bridge printers are asked through the server API; with the cloud the phone talks to the other
+    /// printers itself on the home Wi-Fi (docs/BRIDGE.md).
+    func viaServer(cloud: Bool) -> Bool { !cloud || bridge != nil }
+}
+
+/// A bridge of the cloud account: a PocketPrint3D server at home with one outgoing connection (server 0.24.0).
+struct Bridge: Codable, Sendable, Identifiable, Equatable {
+    struct Entry: Codable, Sendable, Identifiable, Equatable {
+        var id: String
+        var name: String
+        var type: String?
+        var machine: String?
+
+        enum CodingKeys: String, CodingKey { case id, name, type, machine }
+
+        init(id: String, name: String, type: String? = nil, machine: String? = nil) {
+            self.id = id; self.name = name; self.type = type; self.machine = machine
+        }
+
+        init(from decoder: Decoder) throws {
+            let c = try decoder.container(keyedBy: CodingKeys.self)
+            id = try c.decode(String.self, forKey: .id)
+            name = c.lenient(String.self, .name) ?? id
+            type = c.lenient(String.self, .type)
+            machine = c.lenient(String.self, .machine)
+        }
+    }
+
+    var id: String
+    var name: String
+    var version: String?
+    /// X25519, base64 of 32 bytes: printer secrets are sealed for it (`Seal`). nil for bridges older than 0.25.0.
+    var publicKey: String?
+    var online: Bool
+    /// Unix seconds.
+    var lastSeen: Double?
+    /// Printers as the bridge reports them (never addresses or secrets).
+    var printers: [Entry]
+
+    enum CodingKeys: String, CodingKey { case id, name, version, publicKey = "public_key", online, lastSeen = "last_seen", printers }
+
+    init(id: String, name: String, version: String? = nil, publicKey: String? = nil, online: Bool = false,
+         lastSeen: Double? = nil, printers: [Entry] = []) {
+        self.id = id; self.name = name; self.version = version; self.publicKey = publicKey; self.online = online
+        self.lastSeen = lastSeen; self.printers = printers
+    }
+
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        id = try c.decode(String.self, forKey: .id)
+        name = c.lenient(String.self, .name) ?? id
+        version = c.lenient(String.self, .version)
+        publicKey = c.lenient(String.self, .publicKey)
+        online = c.lenient(Bool.self, .online) ?? false
+        lastSeen = c.lenient(Double.self, .lastSeen)
+        printers = c.lenient([Entry].self, .printers) ?? []
+    }
+}
+
+/// A printer a bridge found in its home network (`POST /api/bridges/<id>/discover`).
+struct BridgeFound: Codable, Sendable, Equatable, Identifiable {
+    var type: String
+    var address: String
+    var name: String
+    var cosmos: Bool
+    var detail: String?
+    /// Already a printer of the account.
+    var added: Bool
+
+    var id: String { "\(type)@\(address)" }
+
+    enum CodingKeys: String, CodingKey { case type, address, name, cosmos, detail, added }
+
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        type = c.lenient(String.self, .type) ?? ""
+        address = c.lenient(String.self, .address) ?? ""
+        name = c.lenient(String.self, .name) ?? address
+        cosmos = c.lenient(Bool.self, .cosmos) ?? false
+        detail = c.lenient(String.self, .detail)
+        added = c.lenient(Bool.self, .added) ?? false
     }
 }
 

@@ -89,7 +89,11 @@ struct PrintersView: View {
                     Spacer(minLength: 8)
                     PSBadge(text: label, kind: badge)
                 }
-                .padding(.bottom, 12)
+                .padding(.bottom, p.bridge == nil ? 12 : 4)
+                if p.bridge != nil {
+                    Label(t(.viaBridge), systemImage: "point.3.connected.trianglepath.dotted")
+                        .font(.footnote).foregroundStyle(Theme.sub).padding(.bottom, 10)
+                }
                 if busy, let s {
                     Text(s.file ?? "–").font(.subheadline).foregroundStyle(Theme.text).lineLimit(1).padding(.bottom, 8)
                     PSProgressBar(value: pct)
@@ -134,14 +138,15 @@ struct PrintersView: View {
                     .padding(.top, 16)
                 }
                 if let lanes = s?.lanes, !lanes.isEmpty { laneChips(t, lanes).padding(.top, 14) }
-                // the cloud reaches the printer only for status and pause / resume / cancel so far
-                if s != nil && !app.isCloud {
+                // in the cloud the phone reaches Wi-Fi printers only for status and pause / resume / cancel; printers
+                // behind a bridge go through the server like on an own server
+                if s != nil && app.viaServer(p) {
                     PSButton(title: t(.control), kind: .secondary, icon: "slider.horizontal.3") {
                         app.push(.control(id: p.id, name: p.name))
                     }
                     .padding(.top, 14)
                 }
-                if cams[p.id] == true && !app.isCloud {
+                if cams[p.id] == true && app.viaServer(p) {
                     Button { Haptics.tap(); camera = CameraTarget(printer: p.id, name: p.name) } label: {
                         CameraImage(printer: p.id, width: 640, interval: 5)
                             .aspectRatio(16 / 9, contentMode: .fit)
@@ -192,7 +197,7 @@ struct PrintersView: View {
             }
         } else {
             VStack(alignment: .leading, spacing: 12) {
-                Text(since != nil ? t(.powerSlow) : t(app.isCloud ? .errPrinterOfflineLan : .errPrinterOffline)).font(.subheadline).foregroundStyle(Theme.sub)
+                Text(since != nil ? t(.powerSlow) : t(app.viaServer(p) ? .errPrinterOffline : .errPrinterOfflineLan)).font(.subheadline).foregroundStyle(Theme.sub)
                 if p.power {
                     PSButton(title: t(.powerOn), icon: "power", loading: acting == "\(p.id):power") {
                         Task { await powerOn(p) }
@@ -228,8 +233,8 @@ struct PrintersView: View {
 
     /// Which printers have a camera (asked once per visit, not with every status refresh).
     private func loadCameras() async {
-        guard !app.isCloud, let api = app.api, let list = try? await api.printers() else { return }
-        for p in list {
+        guard let api = app.api, let list = try? await api.printers() else { return }
+        for p in list where app.viaServer(p) {
             if let info = try? await api.cameraInfo(printer: p.id) { cams[p.id] = info.available }
         }
     }
