@@ -42,10 +42,32 @@ private struct SendBody: Encodable {
     var lanes: [String: Int]?
     /// Server 0.16.0: Spoolman spool Moonraker books the print on (left out when nil).
     var spoolId: Int?
+    /// Server 0.32.0: record a time-lapse (only sent when true).
+    var timelapse: Bool?
 
     enum CodingKeys: String, CodingKey {
-        case start, confirm, leveling, lanes
+        case start, confirm, leveling, lanes, timelapse
         case spoolId = "spool_id"
+    }
+}
+private struct RelayedBody: Encodable { var start: Bool; var file: String }
+private struct ObserveBody: Encodable { var statuses: [String: PrinterStatus?] }
+private struct PairBody: Encodable { var code: String; var name: String? }
+private struct NameBody: Encodable { var name: String }
+private struct SealedBody: Encodable { var sealed: String }
+private struct BridgePrinterBody: Encodable { var printer: PrinterSettings; var sealed: String }
+private struct ResolveBody: Encodable { var part: Double }
+struct BookingRequest: Encodable, Sendable, Equatable {
+    struct Use: Encodable, Sendable, Equatable { var spool: Int; var grams: Double; var label: String? }
+    var printer: String
+    var file: String
+    var uses: [Use]
+    var printerName: String?
+    var job: String?
+
+    enum CodingKeys: String, CodingKey {
+        case printer, file, uses, job
+        case printerName = "printer_name"
     }
 }
 private struct AdjustBody: Encodable {
@@ -450,14 +472,38 @@ actor APIClient {
     func job(id: String) async throws -> Job { try await request("/api/jobs/\(enc(id))") }
 
     /// `lanes` only when the printer reports lanes; sent with uploads too, so the file on the printer matches.
-    func send(job id: String, start: Bool, leveling: Bool? = nil, lanes: [Int: Int]? = nil, spoolId: Int? = nil) async throws {
+    func send(job id: String, start: Bool, leveling: Bool? = nil, lanes: [Int: Int]? = nil, spoolId: Int? = nil,
+              timelapse: Bool = false) async throws {
         var mapping: [String: Int]?
         if let lanes, !lanes.isEmpty {
             mapping = Dictionary(uniqueKeysWithValues: lanes.map { (String($0.key), $0.value) })
         }
         let _: Ack = try await request("/api/jobs/\(enc(id))/send", method: "POST",
                                        body: SendBody(start: start, confirm: start, leveling: start ? leveling : nil,
-                                                      lanes: mapping, spoolId: start ? spoolId : nil))
+                                                      lanes: mapping, spoolId: start ? spoolId : nil,
+                                                      timelapse: start && timelapse ? true : nil))
+    }
+
+    /// Cloud: the phone sent the G-code itself on the Wi-Fi; the server follows the print from now on (0.33.0).
+    /// `file` = the name on the printer.
+    func markRelayed(job id: String, start: Bool, file: String) async throws {
+        let _: Ack = try await request("/api/jobs/\(enc(id))/relayed", method: "POST", body: RelayedBody(start: start, file: file))
+    }
+
+    /// Cloud: statuses of printers the phone reaches on its Wi-Fi (nil = not reachable), so started jobs learn that
+    /// they finished (0.33.0).
+    func observe(_ statuses: [String: PrinterStatus?]) async throws {
+        let _: Ack = try await request("/api/observe", method: "POST", body: ObserveBody(statuses: statuses))
+    }
+
+    /// The time-lapse video (MP4) of a job (server 0.32.0); players can't send headers, so the key goes into the URL.
+    func timelapseURL(job id: String) async -> URL? {
+        URL(string: "\(await base())/api/jobs/\(enc(id))/timelapse?token=\(enc(server.token))")
+    }
+
+    /// The time-lapse into a temporary file, for the share sheet.
+    func downloadTimelapse(job id: String, name: String) async throws -> URL {
+        try await download("/api/jobs/\(enc(id))/timelapse", folder: "timelapse-\(id)", name: name)
     }
 
     /// Layer data for the G-code viewer. Format 2 (server 0.6.0) adds the filament per path; older servers ignore
@@ -516,6 +562,69 @@ actor APIClient {
 
     func deletePrinter(id: String) async throws {
         let _: Ack = try await request("/api/printers/\(enc(id))", method: "DELETE")
+    }
+
+    // MARK: send from OrcaSlicer (cloud, server 0.31.0)
+
+    func orcaUpload(printer: String) async throws -> OrcaUpload {
+        try await request("/api/printers/\(enc(printer))/orca-upload")
+    }
+
+    /// A new key (shown once); an older key of that printer stops working.
+    func createOrcaUpload(printer: String) async throws -> OrcaUpload {
+        try await request("/api/printers/\(enc(printer))/orca-upload", method: "POST")
+    }
+
+    func deleteOrcaUpload(printer: String) async throws {
+        let _: Ack = try await request("/api/printers/\(enc(printer))/orca-upload", method: "DELETE")
+    }
+
+    // MARK: spool bookings in the account (cloud spools, server 0.29.0)
+
+    func bookings() async throws -> ServerBookings { try await request("/api/bookings") }
+
+    func createBooking(_ b: BookingRequest) async throws {
+        let _: Ack = try await request("/api/bookings", method: "POST", body: b)
+    }
+
+    func observeBookings(_ statuses: [String: PrinterStatus?]) async throws -> ServerBookings {
+        try await request("/api/bookings/observe", method: "POST", body: ObserveBody(statuses: statuses))
+    }
+
+    /// The user's decision on an open booking: `part` 0...1 of the filament (0 = nothing).
+    func resolveBooking(id: String, part: Double) async throws {
+        let _: Ack = try await request("/api/bookings/\(enc(id))/resolve", method: "POST", body: ResolveBody(part: part))
+    }
+
+    // MARK: bridges (cloud, server 0.24.0-0.26.0, docs/BRIDGE.md)
+
+    func bridges() async throws -> [Bridge] { try await request("/api/bridges") }
+
+    func pairBridge(code: String, name: String? = nil) async throws -> Bridge {
+        try await request("/api/bridges/pair", method: "POST", body: PairBody(code: code, name: name))
+    }
+
+    func renameBridge(id: String, name: String) async throws -> Bridge {
+        try await request("/api/bridges/\(enc(id))", method: "PATCH", body: NameBody(name: name))
+    }
+
+    func deleteBridge(id: String) async throws {
+        let _: Ack = try await request("/api/bridges/\(enc(id))", method: "DELETE")
+    }
+
+    /// Printers the bridge finds on its home network.
+    func bridgeDiscover(id: String) async throws -> [FoundPrinter] {
+        try await request("/api/bridges/\(enc(id))/discover", method: "POST", timeout: 40)
+    }
+
+    /// A new printer behind the bridge; `sealed` = address and secrets sealed for the bridge (`Seal`).
+    func bridgeAddPrinter(bridge id: String, _ printer: PrinterSettings, sealed: String) async throws -> Printer {
+        try await request("/api/bridges/\(enc(id))/printers", method: "POST",
+                          body: BridgePrinterBody(printer: printer, sealed: sealed), timeout: 40)
+    }
+
+    func bridgePrinterAccess(printer id: String, sealed: String) async throws {
+        let _: Ack = try await request("/api/printers/\(enc(id))/bridge-access", method: "PUT", body: SealedBody(sealed: sealed))
     }
 
     /// One file of a model (index as in `files(link:)`) for the 3D view, into a temporary file (server 0.10.1).

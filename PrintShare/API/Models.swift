@@ -132,13 +132,16 @@ struct Printer: Codable, Sendable, Identifiable, Hashable {
     var power: Bool
     /// Cloud printers (server 0.15.0): a Klipper printer with the OpenCentauri COSMOS firmware.
     var cosmos: Bool
+    /// Cloud (server 0.26.0): reached through this bridge at home - the server forwards status, control and send;
+    /// nil = reached by the phone on the Wi-Fi.
+    var bridge: String?
 
-    enum CodingKeys: String, CodingKey { case id, name, type, machine, leveling, power, cosmos }
+    enum CodingKeys: String, CodingKey { case id, name, type, machine, leveling, power, cosmos, bridge }
 
     init(id: String, name: String, type: String = "", machine: String = "", leveling: Bool? = nil, power: Bool = false,
-         cosmos: Bool = false) {
+         cosmos: Bool = false, bridge: String? = nil) {
         self.id = id; self.name = name; self.type = type; self.machine = machine; self.leveling = leveling
-        self.power = power; self.cosmos = cosmos
+        self.power = power; self.cosmos = cosmos; self.bridge = bridge
     }
 
     init(from decoder: Decoder) throws {
@@ -154,6 +157,176 @@ struct Printer: Codable, Sendable, Identifiable, Hashable {
         }
         power = c.lenient(Bool.self, .power) ?? false
         cosmos = c.lenient(Bool.self, .cosmos) ?? false
+        bridge = c.lenient(String.self, .bridge).flatMap { $0.isEmpty ? nil : $0 }
+    }
+}
+
+/// A bridge of the cloud account (server 0.24.0, docs/BRIDGE.md): a PocketPrint3D server at home with an outgoing
+/// connection to the cloud. Never carries printer addresses or secrets.
+struct Bridge: Codable, Sendable, Equatable, Identifiable {
+    struct BridgePrinter: Codable, Sendable, Equatable, Identifiable {
+        var id: String
+        var name: String
+        var type: String?
+        var machine: String?
+    }
+
+    var id: String
+    var name: String
+    var version: String?
+    /// X25519 key (base64) the printer secrets are sealed for (`Seal`).
+    var publicKey: String?
+    var created: Double
+    var lastSeen: Double?
+    var online: Bool
+    var printers: [BridgePrinter]
+
+    enum CodingKeys: String, CodingKey {
+        case id, name, version, created, online, printers
+        case publicKey = "public_key"
+        case lastSeen = "last_seen"
+    }
+
+    init(id: String, name: String, version: String? = nil, publicKey: String? = nil, created: Double = 0,
+         lastSeen: Double? = nil, online: Bool = false, printers: [BridgePrinter] = []) {
+        self.id = id; self.name = name; self.version = version; self.publicKey = publicKey; self.created = created
+        self.lastSeen = lastSeen; self.online = online; self.printers = printers
+    }
+
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        id = try c.decode(String.self, forKey: .id)
+        name = c.lenient(String.self, .name) ?? id
+        version = c.lenient(String.self, .version)
+        publicKey = c.lenient(String.self, .publicKey)
+        created = c.lenient(Double.self, .created) ?? 0
+        lastSeen = c.lenient(Double.self, .lastSeen)
+        online = c.lenient(Bool.self, .online) ?? false
+        printers = c.lenient([BridgePrinter].self, .printers) ?? []
+    }
+}
+
+/// A printer found on the home network, by the phone (`Discovery`) or by a bridge (`POST /api/bridges/<id>/discover`).
+struct FoundPrinter: Codable, Sendable, Equatable, Hashable {
+    var type: String
+    var address: String
+    var name: String
+    var cosmos: Bool = false
+    var detail: String?
+    /// bridge search: already a printer of that bridge
+    var added: Bool = false
+
+    enum CodingKeys: String, CodingKey { case type, address, name, cosmos, detail, added }
+
+    init(type: String, address: String, name: String, cosmos: Bool = false, detail: String? = nil, added: Bool = false) {
+        self.type = type; self.address = address; self.name = name; self.cosmos = cosmos; self.detail = detail
+        self.added = added
+    }
+
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        type = c.lenient(String.self, .type) ?? ""
+        address = c.lenient(String.self, .address) ?? ""
+        name = c.lenient(String.self, .name) ?? address
+        cosmos = c.lenient(Bool.self, .cosmos) ?? false
+        detail = c.lenient(String.self, .detail)
+        added = c.lenient(Bool.self, .added) ?? false
+    }
+}
+
+/// `/api/printers/<id>/orca-upload` (server 0.31.0): send from OrcaSlicer with an OctoPrint-compatible key per printer.
+struct OrcaUpload: Codable, Sendable, Equatable {
+    var enabled: Bool
+    var url: String
+    var created: Double?
+    var lastUsed: Double?
+    /// only in the answer to POST: shown once
+    var key: String?
+
+    enum CodingKeys: String, CodingKey {
+        case enabled, url, created, key
+        case lastUsed = "last_used"
+    }
+
+    init(enabled: Bool, url: String, created: Double? = nil, lastUsed: Double? = nil, key: String? = nil) {
+        self.enabled = enabled; self.url = url; self.created = created; self.lastUsed = lastUsed; self.key = key
+    }
+
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        enabled = c.lenient(Bool.self, .enabled) ?? false
+        url = c.lenient(String.self, .url) ?? ""
+        created = c.lenient(Double.self, .created)
+        lastUsed = c.lenient(Double.self, .lastUsed)
+        key = c.lenient(String.self, .key)
+    }
+}
+
+/// A spool booking kept in the cloud account (server 0.29.0): the cloud books it when the print is finished.
+struct ServerBooking: Codable, Sendable, Equatable {
+    struct Use: Codable, Sendable, Equatable {
+        var spool: Int
+        var grams: Double
+        var label: String?
+    }
+
+    var id: String
+    var printer: String
+    var printerName: String?
+    var file: String
+    var job: String?
+    var uses: [Use]
+    var bookedUses: [Use]
+    var created: Double
+    var seen: Bool
+    var progress: Double?
+    /// wait | ready | ask | booked | dropped
+    var state: String
+    var askPart: Double?
+
+    enum CodingKeys: String, CodingKey {
+        case id, printer, file, job, uses, created, seen, progress, state
+        case printerName = "printer_name"
+        case bookedUses = "booked_uses"
+        case askPart = "ask_part"
+    }
+
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        id = try c.decode(String.self, forKey: .id)
+        printer = c.lenient(String.self, .printer) ?? ""
+        printerName = c.lenient(String.self, .printerName)
+        file = c.lenient(String.self, .file) ?? ""
+        job = c.lenient(String.self, .job)
+        uses = c.lenient([Use].self, .uses) ?? []
+        bookedUses = c.lenient([Use].self, .bookedUses) ?? []
+        created = c.lenient(Double.self, .created) ?? 0
+        seen = c.lenient(Bool.self, .seen) ?? false
+        progress = c.lenient(Double.self, .progress)
+        state = c.lenient(String.self, .state) ?? "wait"
+        askPart = c.lenient(Double.self, .askPart)
+    }
+}
+
+/// `GET /api/bookings` / `POST /api/bookings/observe` (server 0.29.0).
+struct ServerBookings: Decodable, Sendable, Equatable {
+    var waiting: [ServerBooking]
+    var open: [ServerBooking]
+    var booked: [ServerBooking]
+    /// only from `observe`: booked by this call
+    var bookedNow: [ServerBooking]
+
+    enum CodingKeys: String, CodingKey {
+        case waiting, open, booked
+        case bookedNow = "booked_now"
+    }
+
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        waiting = c.lenient([ServerBooking].self, .waiting) ?? []
+        open = c.lenient([ServerBooking].self, .open) ?? []
+        booked = c.lenient([ServerBooking].self, .booked) ?? []
+        bookedNow = c.lenient([ServerBooking].self, .bookedNow) ?? []
     }
 }
 
@@ -856,7 +1029,7 @@ struct ModelFile: Codable, Sendable, Hashable, Identifiable {
 }
 
 enum JobState: String, Codable, Sendable {
-    case slicing, sliced, sending, uploaded, started, error, running, done, unknown
+    case slicing, sliced, sending, uploading, uploaded, started, finished, cancelled, error, running, done, unknown
 
     init(from decoder: Decoder) throws {
         let raw = (try? decoder.singleValueContainer().decode(String.self)) ?? ""
@@ -865,6 +1038,35 @@ enum JobState: String, Codable, Sendable {
 
     /// The server is working on the job.
     var isWorking: Bool { self == .slicing || self == .running || self == .sending }
+    /// The print is over (server 0.33.0 follows started jobs): it can be sent again.
+    var isOver: Bool { self == .finished || self == .cancelled }
+}
+
+/// Time-lapse of a print (server 0.32.0).
+struct Timelapse: Codable, Sendable, Equatable {
+    enum Phase: String, Codable, Sendable {
+        case recording, rendering, ready, failed
+
+        init(from decoder: Decoder) throws {
+            let raw = (try? decoder.singleValueContainer().decode(String.self)) ?? ""
+            self = Phase(rawValue: raw) ?? .failed
+        }
+    }
+
+    var state: Phase
+    var frames: Int
+    var error: String?
+
+    init(state: Phase, frames: Int = 0, error: String? = nil) {
+        self.state = state; self.frames = frames; self.error = error
+    }
+
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        state = c.lenient(Phase.self, .state) ?? .failed
+        frames = c.lenient(Int.self, .frames) ?? 0
+        error = c.lenient(String.self, .error)
+    }
 }
 
 struct JobResult: Codable, Sendable, Equatable {
@@ -961,8 +1163,15 @@ struct Job: Codable, Sendable, Equatable, Identifiable {
     var created: Double
     var printer: String?
     var request: JobRequest
+    /// Sent through a bridge (server 0.29.0): the file's name on the printer.
+    var printerFile: String?
+    /// Time-lapse of this print (server 0.32.0).
+    var timelapse: Timelapse?
 
-    enum CodingKeys: String, CodingKey { case id, kind, state, log, result, error, created, printer, request }
+    enum CodingKeys: String, CodingKey {
+        case id, kind, state, log, result, error, created, printer, request, timelapse
+        case printerFile = "printer_file"
+    }
 
     init(from decoder: Decoder) throws {
         let c = try decoder.container(keyedBy: CodingKeys.self)
@@ -975,12 +1184,16 @@ struct Job: Codable, Sendable, Equatable, Identifiable {
         created = c.lenient(Double.self, .created) ?? 0
         printer = c.lenient(String.self, .printer)
         request = c.lenient(JobRequest.self, .request) ?? JobRequest(link: "")
+        printerFile = c.lenient(String.self, .printerFile).flatMap { $0.isEmpty ? nil : $0 }
+        timelapse = c.lenient(Timelapse.self, .timelapse)
     }
 
     init(id: String, kind: String = "prepare", state: JobState, log: [String] = [], result: JobResult? = nil,
-         error: String? = nil, created: Double = 0, printer: String? = nil, request: JobRequest) {
+         error: String? = nil, created: Double = 0, printer: String? = nil, request: JobRequest,
+         printerFile: String? = nil, timelapse: Timelapse? = nil) {
         self.id = id; self.kind = kind; self.state = state; self.log = log; self.result = result
         self.error = error; self.created = created; self.printer = printer; self.request = request
+        self.printerFile = printerFile; self.timelapse = timelapse
     }
 }
 

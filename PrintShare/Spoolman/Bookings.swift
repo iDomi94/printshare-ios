@@ -31,8 +31,21 @@ struct Booking: Codable, Sendable, Equatable, Identifiable {
     var ready: Bool?
     /// outcome unclear (cancelled, missed): the user decides
     var ask: Ask?
+    /// kept in the cloud account (cloud spools, server 0.29.0) - settled by the server, not this phone
+    var account: Bool?
 
     var grams: Double { uses.reduce(0) { $0 + $1.grams } }
+}
+
+extension Booking {
+    /// A booking of the cloud account in the app's shape (`fromServer` in the Expo app).
+    init(server x: ServerBooking) {
+        let list = x.state == "booked" ? x.bookedUses : x.uses
+        self.init(id: x.id, printer: x.printer, printerName: x.printerName ?? x.printer, file: x.file,
+                  uses: list.map { BookingUse(spool: $0.spool, grams: $0.grams, label: $0.label ?? "#\($0.spool)") },
+                  created: x.created * 1000, seen: x.seen, progress: x.progress,
+                  ask: x.state == "ask" ? Ask(part: x.askPart ?? 1) : nil, account: true)
+    }
 }
 
 enum Bookings {

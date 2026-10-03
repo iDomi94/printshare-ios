@@ -4,6 +4,20 @@ Jeder Abschnitt `## X.Y.Z` wird beim Tag `vX.Y.Z` automatisch als „Was testen�
 (`.github/workflows/testflight.yml`). Text auf Deutsch, höchstens 4000 Zeichen. Fehlt der Abschnitt, stehen dort
 die Commit-Titel seit dem letzten Tag.
 
+## 0.9.0
+
+Aufgeholt mit Server 0.34.0.
+
+- Drucker hinzufügen: die App sucht ihn selbst im WLAN (Centauri Carbon, Klipper/COSMOS, Prusa, OctoPrint) – antippen, fertig. „Selbst eingeben“ bleibt. iOS fragt einmal nach dem Zugriff auf das lokale Netzwerk
+- Cloud: Einstellungen → Erweitert → „Von überall drucken“ (Brücken). Code der Brücke eingeben oder eine Raspberry-Pi-Brücke im WLAN mit einem Tipp verbinden; ihre Drucker erscheinen von selbst, weitere kommen über die Brücke dazu. Adresse und Passwort werden für die Brücke verschlüsselt
+- Drucker hinter einer Brücke: Status, Kamera, Steuerung und Drucken laufen über die Cloud, auch unterwegs
+- Aufträge folgen dem Druck: „Fertig“ oder „Abgebrochen“ statt „Gestartet“, dazu „Nochmal drucken“
+- Zeitraffer (Drucker mit Kamera): Schalter vor dem Start, danach Video ansehen und teilen
+- Cloud-Drucker → „Aus OrcaSlicer senden“: Adresse und Schlüssel für OrcaSlicer am Computer
+- Cloud-Spulen: Buchungen liegen im Konto und werden gebucht, wenn der Druck fertig ist, auch ohne offene App
+- Vor dem Start fragt die App, ob die Druckplatte leer und das Material geladen ist (statt des Schalters)
+- Bitte testen: Drucker im WLAN finden, Brücke verbinden, Zeitraffer
+
 ## 0.8.1
 
 - Teilen → PocketPrint3D: zweiter Anlauf, damit sich die App öffnet. Die Erweiterung hat den Link an das eigene Teilen-Fenster geschickt statt an iOS; das hat nichts geöffnet

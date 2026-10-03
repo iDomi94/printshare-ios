@@ -99,8 +99,12 @@ final class AppModel {
         return api
     }
 
+    /// Own servers and printers behind a bridge (server 0.26.0) are reached through the server; other cloud printers
+    /// by this phone on the Wi-Fi.
+    func viaServer(_ p: Printer) -> Bool { !isCloud || p.bridge != nil }
+
     func printerStatus(_ p: Printer) async throws -> PrinterStatus {
-        guard isCloud else { return try await requireAPI().status(printer: p.id) }
+        guard !viaServer(p) else { return try await requireAPI().status(printer: p.id) }
         let lan = try lanPrinter(p)
         defer { Task { await lan.close() } }
         return try await lan.status()
@@ -108,7 +112,7 @@ final class AppModel {
 
     /// Pause / resume / cancel. A cancel is only sent after the user confirmed it.
     func printerControl(_ p: Printer, action: String) async throws {
-        guard isCloud else { return try await requireAPI().control(printer: p.id, action: action) }
+        guard !viaServer(p) else { return try await requireAPI().control(printer: p.id, action: action) }
         let lan = try lanPrinter(p)
         defer { Task { await lan.close() } }
         try await lan.control(action)
@@ -159,7 +163,23 @@ final class AppModel {
     }
 
     func bookings() -> [Booking] {
-        accountKey.flatMap { keychain.getJSON(StoreKey.bookings($0), as: [Booking].self) } ?? []
+        if bookingsInAccount { return accountBookings }
+        return accountKey.flatMap { keychain.getJSON(StoreKey.bookings($0), as: [Booking].self) } ?? []
+    }
+
+    /// Cloud spools: bookings live in the account (server 0.29.0), so the cloud books them even when no app is open.
+    /// An own Spoolman at home: this phone keeps them, as before.
+    var bookingsInAccount: Bool { isCloud && spoolmanSetting() == Spoolman.cloudSetting }
+    /// Last list of the account's open bookings (refreshed with every `settleBookings` / `loadBookings`).
+    @ObservationIgnored private var accountBookings: [Booking] = []
+
+    /// The open bookings, asking the account when it keeps them.
+    func loadBookings() async -> [Booking] {
+        if bookingsInAccount, let api {
+            if let r = try? await api.bookings() { accountBookings = (r.waiting + r.open).map(Booking.init(server:)) }
+            return accountBookings
+        }
+        return bookings()
     }
 
     private func saveBookings(_ list: [Booking]) {
@@ -168,7 +188,14 @@ final class AppModel {
     }
 
     /// After a started print: book the filament once it is over.
-    func addBooking(printer: String, printerName: String, file: String, uses: [BookingUse]) {
+    func addBooking(printer: String, printerName: String, file: String, uses: [BookingUse], job: String? = nil) async {
+        guard !uses.isEmpty else { return }
+        if bookingsInAccount, let api {
+            try? await api.createBooking(BookingRequest(printer: printer, file: file,
+                                                        uses: uses.map { .init(spool: $0.spool, grams: $0.grams, label: $0.label) },
+                                                        printerName: printerName, job: job))
+            return
+        }
         let b = Booking(id: Lan.randomHex(6), printer: printer, printerName: printerName, file: file, uses: uses,
                         created: Bookings.now())
         saveBookings(Bookings.adding(b, to: bookings()))
@@ -178,6 +205,15 @@ final class AppModel {
 
     /// With fresh printer statuses (printers tab): finished prints are booked, unclear ones wait for the user.
     func settleBookings(_ statuses: [String: PrinterStatus?]) async -> SettleResult {
+        if bookingsInAccount, let api {
+            do {
+                let r = try await api.observeBookings(statuses)
+                accountBookings = (r.waiting + r.open).map(Booking.init(server:))
+                return SettleResult(booked: r.bookedNow.map(Booking.init(server:)), open: r.open.map(Booking.init(server:)))
+            } catch {
+                return SettleResult(open: accountBookings.filter { $0.ask != nil }, error: error.localizedDescription)
+            }
+        }
         guard !settling else { return SettleResult(open: bookings().filter { $0.ask != nil }) }
         settling = true
         defer { settling = false }
@@ -218,6 +254,11 @@ final class AppModel {
 
     /// The user's decision on an open booking: book `part` of the filament (0 = discard).
     func resolveBooking(_ id: String, part: Double) async throws {
+        if bookingsInAccount, let api {
+            try await api.resolveBooking(id: id, part: part)
+            accountBookings.removeAll { $0.id == id }
+            return
+        }
         var list = bookings()
         guard let i = list.firstIndex(where: { $0.id == id }) else { return }
         if part > 0 {

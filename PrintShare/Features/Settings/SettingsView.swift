@@ -29,18 +29,6 @@ struct SettingsView: View {
                 serverSection(t, server)
             }
 
-            if let server, !server.isCloud { serverExtras(t) }
-
-            if server != nil {
-                PSSection(title: t(.spoolman)) {
-                    PSRow(icon: "circle.circle", label: t(.spoolman),
-                          value: spoolman == nil ? t(.spoolmanOff) : nil,
-                          sub: spoolman == Spoolman.cloudSetting ? t(.spoolsCloudOn) : spoolman ?? t(.spoolmanSub)) {
-                        app.push(.spoolman)
-                    }
-                }
-            }
-
             PSSection(title: t(.language)) {
                 Picker("", selection: Binding(get: { app.langPref }, set: { app.setLangPref($0) })) {
                     Text(t(.langAuto)).tag(LangPref.auto)
@@ -50,7 +38,9 @@ struct SettingsView: View {
                 .pickerStyle(.segmented).labelsHidden().padding(12)
             }
 
-            PSSection(title: t(.about), footer: t(.aboutText)) {
+            if let server { advanced(t, cloud: server.isCloud) }
+
+            PSSection(title: t(.about), footer: t(server?.isCloud == true ? .aboutTextCloud : .aboutText)) {
                 PSRow(icon: "info.circle", label: t(.version), value: appVersion)
                 if server?.isCloud == true {
                     PSDivider()
@@ -109,7 +99,7 @@ struct SettingsView: View {
                                                                           "limit": String(me.limits.slicesPerDay)]))
             }
             PSDivider()
-            PSRow(icon: "arrow.left.arrow.right", label: t(.changeServer)) { app.showConnect() }
+            PSRow(icon: "arrow.left.arrow.right", label: t(.changeAccount)) { app.showConnect() }
             PSDivider()
             PSRow(icon: "rectangle.portrait.and.arrow.right", label: t(.logout)) { confirmLogout = true }
         }
@@ -156,14 +146,28 @@ struct SettingsView: View {
         }
     }
 
-    /// Own servers only (server 0.21.0 / 0.23.0): both answer 409 in the cloud.
+    /// "Erweitert" (server 0.26): bridges + spools in the cloud; spools, Manyfold and failure detection on own
+    /// servers (the last two answer 409 in the cloud).
     @ViewBuilder
-    private func serverExtras(_ t: L10n) -> some View {
-        PSSection(title: t(.manyfoldTitle), footer: t(.manyfoldSub)) {
-            PSRow(icon: "books.vertical", label: "Manyfold") { app.push(.manyfold) }
-        }
-        PSSection(title: t(.failureTitle), footer: t(.failureSub)) {
-            PSRow(icon: "eye", label: t(.failureTitle)) { app.push(.failureDetection) }
+    private func advanced(_ t: L10n, cloud: Bool) -> some View {
+        PSSection(title: t(.advanced)) {
+            if cloud {
+                PSRow(icon: "point.3.connected.trianglepath.dotted", label: t(.bridgesTitle), sub: t(.bridgesSub)) {
+                    app.push(.bridges)
+                }
+                PSDivider()
+            }
+            PSRow(icon: "circle.circle", label: t(.spoolman),
+                  value: spoolman == nil ? t(.spoolsOptional) : nil,
+                  sub: spoolman == Spoolman.cloudSetting ? t(.spoolsCloudOn) : spoolman ?? t(.spoolmanSub)) {
+                app.push(.spoolman)
+            }
+            if !cloud {
+                PSDivider()
+                PSRow(icon: "books.vertical", label: t(.manyfoldTitle), sub: t(.manyfoldSub)) { app.push(.manyfold) }
+                PSDivider()
+                PSRow(icon: "eye", label: t(.failureTitle), sub: t(.failureSub)) { app.push(.failureDetection) }
+            }
         }
     }
 

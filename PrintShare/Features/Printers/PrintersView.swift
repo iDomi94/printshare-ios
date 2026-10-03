@@ -7,6 +7,8 @@ struct PrintersView: View {
         var status: PrinterStatus?
         /// Cloud: the app has no Wi-Fi address for this printer yet.
         var noAddress = false
+        /// Why there is no status (bridge printers: the server's reason, e.g. "bridge offline").
+        var error: String?
         var id: String { printer.id }
     }
 
@@ -23,6 +25,8 @@ struct PrintersView: View {
     /// Spoolman bookings waiting for a decision, and the ones just booked (shown for a minute).
     @State private var openBookings: [Booking] = []
     @State private var booked: [Booked] = []
+    /// Cloud: when the server was last told what the printers on this Wi-Fi do (server 0.33.0).
+    @State private var lastObserve = Date.distantPast
 
     private struct Booked: Identifiable {
         var booking: Booking
@@ -85,7 +89,10 @@ struct PrintersView: View {
             VStack(alignment: .leading, spacing: 0) {
                 HStack(spacing: 10) {
                     Image(systemName: "printer.fill").font(.title3).foregroundStyle(Theme.accent).accessibilityHidden(true)
-                    Text(p.name).font(.title3.bold()).foregroundStyle(Theme.text).lineLimit(1)
+                    VStack(alignment: .leading, spacing: 1) {
+                        Text(p.name).font(.title3.bold()).foregroundStyle(Theme.text).lineLimit(1)
+                        if p.bridge != nil { Text(t(.viaBridge)).font(.footnote).foregroundStyle(Theme.sub) }
+                    }
                     Spacer(minLength: 8)
                     PSBadge(text: label, kind: badge)
                 }
@@ -111,6 +118,8 @@ struct PrintersView: View {
                         Text(t(.needLanAddress)).font(.subheadline).foregroundStyle(Theme.sub)
                         PSButton(title: t(.lanAddress), kind: .secondary, icon: "wifi") { app.push(.cloudPrinter(id: p.id)) }
                     }
+                } else if p.bridge != nil {
+                    Text(e.error ?? t(.errBridgeOffline)).font(.subheadline).foregroundStyle(Theme.sub)
                 } else {
                     offline(t, p)
                 }
@@ -134,14 +143,15 @@ struct PrintersView: View {
                     .padding(.top, 16)
                 }
                 if let lanes = s?.lanes, !lanes.isEmpty { laneChips(t, lanes).padding(.top, 14) }
-                // the cloud reaches the printer only for status and pause / resume / cancel so far
-                if s != nil && !app.isCloud {
+                // on the Wi-Fi the cloud app reaches the printer only for status and pause / resume / cancel so far;
+                // own servers and bridges do everything
+                if s != nil && app.viaServer(p) {
                     PSButton(title: t(.control), kind: .secondary, icon: "slider.horizontal.3") {
                         app.push(.control(id: p.id, name: p.name))
                     }
                     .padding(.top, 14)
                 }
-                if cams[p.id] == true && !app.isCloud {
+                if cams[p.id] == true && app.viaServer(p) {
                     Button { Haptics.tap(); camera = CameraTarget(printer: p.id, name: p.name) } label: {
                         CameraImage(printer: p.id, width: 640, interval: 5)
                             .aspectRatio(16 / 9, contentMode: .fit)
@@ -228,8 +238,8 @@ struct PrintersView: View {
 
     /// Which printers have a camera (asked once per visit, not with every status refresh).
     private func loadCameras() async {
-        guard !app.isCloud, let api = app.api, let list = try? await api.printers() else { return }
-        for p in list {
+        guard let api = app.api, let list = try? await api.printers() else { return }
+        for p in list where app.viaServer(p) {
             if let info = try? await api.cameraInfo(printer: p.id) { cams[p.id] = info.available }
         }
     }
@@ -243,16 +253,29 @@ struct PrintersView: View {
                 do {
                     out.append(Entry(printer: p, status: try await app.printerStatus(p)))
                 } catch {
-                    out.append(Entry(printer: p, status: nil, noAddress: error is NoLanAddress))
+                    out.append(Entry(printer: p, status: nil, noAddress: error is NoLanAddress,
+                                     error: p.bridge != nil ? error.localizedDescription : nil))
                 }
             }
             entries = out
             for e in out where e.status != nil { poweredAt[e.id] = nil }
             error = ""
+            await observe(api, out)
             await settle(out)
         } catch {
             self.error = error.localizedDescription
         }
+    }
+
+    /// Cloud: tell the server what the printers on this Wi-Fi do, so started jobs learn that they finished (0.33.0).
+    /// Bridge printers are watched by the cloud itself.
+    private func observe(_ api: APIClient, _ list: [Entry]) async {
+        guard app.isCloud, Date().timeIntervalSince(lastObserve) > 30 else { return }
+        var statuses: [String: PrinterStatus?] = [:]
+        for e in list where e.printer.bridge == nil { if let st = e.status { statuses[e.id] = .some(st) } }
+        guard !statuses.isEmpty else { return }
+        lastObserve = Date()
+        try? await api.observe(statuses)
     }
 
     /// Book the filament of finished prints in Spoolman (or ask when a print was cancelled or its end was missed).

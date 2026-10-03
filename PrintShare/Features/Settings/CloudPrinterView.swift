@@ -3,10 +3,17 @@ import SwiftUI
 /// Cloud (server 0.15.0/0.15.3): a printer of the account - name, type, OrcaSlicer model, COSMOS - and how the app
 /// reaches it on the home Wi-Fi (address, PrusaLink password, API key). That part is stored only on this phone; the
 /// app talks to the printer itself (docs/CLOUD.md).
+/// New printers are found on the Wi-Fi first (server 0.25, `Discovery`); the form opens when one is picked or "enter
+/// yourself" is tapped. With a bridge (server 0.24, docs/BRIDGE.md; `bridge` or a printer that has one) the bridge
+/// searches its home network, and address/password/key are sealed for the bridge - the cloud passes them on without
+/// being able to read them, and this phone doesn't keep them.
 struct CloudPrinterView: View {
     static let new = "new"
 
     let id: String
+    var bridge: String?
+
+    private enum ScanState: Equatable { case running(pct: Int), done, noWifi }
 
     private enum Sheet: String, Identifiable { case type, model; var id: String { rawValue } }
 
@@ -27,6 +34,14 @@ struct CloudPrinterView: View {
     @State private var test: (ok: Bool, text: String)?
     @State private var testing = false
     @State private var confirmDelete = false
+    @State private var found: [FoundPrinter] = []
+    @State private var scan: ScanState?
+    @State private var scanRun = 0
+    @State private var picked: String?
+    @State private var manual = false
+    @State private var known: [String] = []
+    @State private var viaBridge: String?
+    @State private var bridgeInfo: (name: String, key: String?)?
 
     private var isNew: Bool { id == Self.new }
     /// PrusaLink / OctoPrint printers are sliced with the chosen model; there is no default for them.
@@ -35,6 +50,15 @@ struct CloudPrinterView: View {
     private var missingModel: Bool { needsModel && machine == nil }
     private var missingCreds: Bool {
         (type == "prusalink" && password.isEmpty && apiKey.isEmpty) || (type == "octoprint" && apiKey.isEmpty)
+    }
+    /// A name is optional: without one the printer is called after its model or type.
+    private var autoName: String {
+        if let machine, needsModel || type == "moonraker" {
+            let short = machine.replacingRegex(#"(?i)\s+[\d.]+\s*nozzle$"#, with: "")
+            if !short.isEmpty { return short }
+        }
+        if type == "moonraker" && cosmos { return "Centauri Carbon" }
+        return app.l10n.printerTypeName(type)
     }
     private var access: LanAccess {
         LanAccess(address: address, password: type == "prusalink" ? password : nil,
@@ -49,6 +73,8 @@ struct CloudPrinterView: View {
         .navigationTitle(isNew ? t(.addPrinter) : (name.isEmpty ? t(.printer) : name))
         .navigationBarTitleDisplayMode(.inline)
         .task { await load() }
+        .task(id: scanRun) { await runScan() }
+        .task(id: viaBridge) { await loadBridge() }
         .sheet(item: $sheet) { sheetView(t, $0) }
         .alert(t(.deletePrinterQ, ["name": name]), isPresented: $confirmDelete) {
             Button(t(.cancelBtn), role: .cancel) {}
@@ -59,64 +85,81 @@ struct CloudPrinterView: View {
     private func form(_ t: L10n) -> some View {
         PSScreen {
             if !error.isEmpty { PSBanner(kind: .error, text: error) }
-
-            PSSection(title: t(.printerName)) {
-                TextField("Centauri Carbon", text: Binding(get: { name }, set: { name = String($0.prefix(60)) }))
-                    .padding(.horizontal, Theme.space).padding(.vertical, 14)
-                    .accessibilityLabel(t(.printerName))
+            if viaBridge != nil {
+                PSBanner(kind: .info, text: t(isNew ? .bridgeAddHint : .bridgePrinterHint, ["bridge": bridgeInfo?.name ?? "…"]))
             }
 
-            PSSection(title: t(.printerType), footer: t.printerTypeHint(type)) {
-                PSRow(icon: "printer", label: t(.printerType), value: t.printerTypeName(type)) { sheet = .type }
-                if showsModel {
-                    PSDivider()
-                    PSRow(icon: "cube", label: t(.printerModel), value: machine ?? t(.chooseModel),
-                          sub: missingModel ? t(.modelNeeded) : nil) { sheet = .model }
+            if isNew { discoverSection(t) }
+
+            if manual || picked != nil {
+                PSSection(title: t(.printerType), footer: t.printerTypeHint(type)) {
+                    let locked = viaBridge != nil && !isNew
+                    PSRow(icon: "printer", label: t.printerTypeName(type), value: locked ? nil : t(.change),
+                          action: locked ? nil : { sheet = .type })
+                    if type == "moonraker" {
+                        PSDivider()
+                        Toggle(t(.cosmos), isOn: $cosmos).tint(Theme.accent)
+                            .padding(.horizontal, Theme.space).padding(.vertical, 10)
+                    }
+                    if showsModel {
+                        PSDivider()
+                        PSRow(icon: "cube", label: t(.printerModel), value: machine ?? t(.chooseModel),
+                              sub: missingModel ? t(.modelNeeded) : nil) { sheet = .model }
+                    }
                 }
                 if type == "moonraker" {
-                    PSDivider()
-                    Toggle(t(.cosmos), isOn: $cosmos).tint(Theme.accent)
-                        .padding(.horizontal, Theme.space).padding(.vertical, 10)
+                    Text(t(.cosmosHint)).font(.footnote).foregroundStyle(Theme.sub)
+                        .padding(.horizontal, 16).padding(.top, -12).padding(.bottom, 20)
                 }
-            }
-            if type == "moonraker" {
-                Text(t(.cosmosHint)).font(.footnote).foregroundStyle(Theme.sub)
-                    .padding(.horizontal, 16).padding(.top, -12).padding(.bottom, 20)
-            }
 
-            PSSection(title: t(.lanAddress), footer: t(.lanAddressHint)) {
-                TextField(type == "octoprint" ? "octopi.local" : "192.168.1.50", text: $address)
-                    .textInputAutocapitalization(.never).autocorrectionDisabled().keyboardType(.URL)
-                    .padding(.horizontal, Theme.space).padding(.vertical, 14)
-                    .accessibilityLabel(t(.lanAddress))
-                if type == "prusalink" {
-                    PSDivider()
-                    secret(t(.prusaPassword), $password)
-                }
-                if type != "elegoo_sdcp" {
-                    PSDivider()
-                    secret(type == "octoprint" ? t(.octoApiKey) : t(.apiKeyOptional), $apiKey)
-                }
-                PSDivider()
-                VStack(alignment: .leading, spacing: 10) {
-                    PSButton(title: t(.testConnection), kind: .secondary, icon: "wifi", loading: testing,
-                             disabled: address.trimmingCharacters(in: .whitespaces).isEmpty || missingCreds) {
-                        Task { await testConnection() }
+                PSSection(title: t(.lanAddress),
+                          footer: t(viaBridge == nil ? .lanAddressHint : isNew ? .bridgeAddressHint : .bridgeAccessHint)) {
+                    TextField(type == "octoprint" ? "octopi.local" : "192.168.1.50", text: $address)
+                        .textInputAutocapitalization(.never).autocorrectionDisabled().keyboardType(.URL)
+                        .padding(.horizontal, Theme.space).padding(.vertical, 14)
+                        .accessibilityLabel(t(.lanAddress))
+                    if type == "prusalink" {
+                        PSDivider()
+                        secret(t(.prusaPassword), $password)
                     }
-                    if let test {
-                        Text(test.text).font(.subheadline).foregroundStyle(test.ok ? Theme.ok : Theme.danger)
+                    if type != "elegoo_sdcp" {
+                        PSDivider()
+                        secret(type == "octoprint" ? t(.octoApiKey) : t(.apiKeyOptional), $apiKey)
+                    }
+                    if viaBridge == nil {
+                        PSDivider()
+                        VStack(alignment: .leading, spacing: 10) {
+                            PSButton(title: t(.testConnection), kind: .secondary, icon: "wifi", loading: testing,
+                                     disabled: address.trimmingCharacters(in: .whitespaces).isEmpty || missingCreds) {
+                                Task { await testConnection() }
+                            }
+                            if let test {
+                                Text(test.text).font(.subheadline).foregroundStyle(test.ok ? Theme.ok : Theme.danger)
+                            }
+                        }
+                        .padding(Theme.space)
                     }
                 }
-                .padding(Theme.space)
-            }
-            .onChange(of: access) { _, _ in test = nil }
-            if type == "prusalink" || type == "octoprint" {
-                Text(t(type == "prusalink" ? .prusaHint : .octoHint)).font(.footnote).foregroundStyle(Theme.sub)
-                    .padding(.horizontal, 16).padding(.top, -12).padding(.bottom, 20)
+                .onChange(of: access) { _, _ in test = nil }
+                if type == "prusalink" || type == "octoprint" {
+                    Text(t(type == "prusalink" ? .prusaHint : .octoHint)).font(.footnote).foregroundStyle(Theme.sub)
+                        .padding(.horizontal, 16).padding(.top, -12).padding(.bottom, 20)
+                }
+
+                PSSection(title: t(.printerNameAuto),
+                          footer: name.trimmingCharacters(in: .whitespaces).isEmpty ? t(.printerNameAutoHint, ["name": autoName]) : nil) {
+                    TextField(autoName, text: Binding(get: { name }, set: { name = String($0.prefix(60)) }))
+                        .padding(.horizontal, Theme.space).padding(.vertical, 14)
+                        .accessibilityLabel(t(.printerName))
+                }
             }
 
             if !isNew {
                 PSSection {
+                    PSRow(icon: "desktopcomputer", label: t(.orcaRow)) {
+                        app.push(.orcaUpload(id: id, name: name.isEmpty ? autoName : name))
+                    }
+                    PSDivider()
                     PSRow(icon: "doc.text", label: t(.printerProfile)) {
                         app.push(.printerProfile(id: id, name: name))
                     }
@@ -125,8 +168,91 @@ struct CloudPrinterView: View {
                 }
             }
         } footer: {
-            PSButton(title: t(.save), icon: "checkmark", loading: busy,
-                     disabled: name.trimmingCharacters(in: .whitespaces).isEmpty || missingModel) { Task { await save() } }
+            PSButton(title: t(.save), icon: "checkmark", loading: busy, disabled: saveDisabled) { Task { await save() } }
+        }
+    }
+
+    private var saveDisabled: Bool {
+        missingModel || (isNew && address.trimmingCharacters(in: .whitespaces).isEmpty)
+            || (isNew && viaBridge != nil && missingCreds)
+    }
+
+    @ViewBuilder
+    private func discoverSection(_ t: L10n) -> some View {
+        PSSection(title: t(bridge != nil ? .bridgeFindTitle : .lanFindTitle), footer: found.isEmpty ? nil : t(.discoverHint)) {
+            ForEach(Array(found.enumerated()), id: \.element.address) { i, f in
+                if i > 0 { PSDivider() }
+                let added = known.contains(f.address)
+                let sub = [t.printerTypeName(f.type), f.address, added ? t(.discoverAdded) : nil].compactMap { $0 }
+                    .joined(separator: " · ")
+                PSRow(icon: "printer", label: f.name, sub: sub, action: { pick(f) }) {
+                    if picked == f.address {
+                        Image(systemName: "checkmark.circle.fill").font(.title3).foregroundStyle(Theme.accent)
+                    }
+                }
+            }
+            if !found.isEmpty { PSDivider() }
+            if case .running(let pct) = scan {
+                HStack(spacing: 10) {
+                    ProgressView()
+                    Text(bridge != nil ? t(.bridgeSearching) : t(.discoverRunning, ["pct": String(pct)]))
+                        .font(.subheadline).foregroundStyle(Theme.sub)
+                    Spacer()
+                }
+                .padding(Theme.space)
+            } else {
+                if scan == .noWifi || (scan == .done && found.isEmpty) {
+                    Text(t(scan == .noWifi ? .discoverNoWifi : bridge != nil ? .bridgeNone : .discoverNone))
+                        .font(.subheadline).foregroundStyle(Theme.sub)
+                        .frame(maxWidth: .infinity, alignment: .leading).padding(Theme.space)
+                }
+                PSRow(icon: "arrow.clockwise", label: t(.discoverAgain)) { found = []; scanRun += 1 }
+            }
+            if !manual && picked == nil {
+                PSDivider()
+                PSRow(icon: "square.and.pencil", label: t(.discoverManual)) { manual = true }
+            }
+        }
+    }
+
+    private func pick(_ f: FoundPrinter) {
+        picked = f.address
+        type = Lan.types.contains(f.type) ? f.type : "elegoo_sdcp"
+        address = f.address
+        cosmos = f.cosmos
+        // Centauri / Klipper report a real name; for Prusa and OctoPrint the model (chosen below) names the printer
+        name = f.type == "elegoo_sdcp" || f.type == "moonraker" ? f.name : ""
+        test = nil
+        error = ""
+    }
+
+    /// The bridge searches its own network (one request), else this phone searches the Wi-Fi.
+    private func runScan() async {
+        guard isNew else { return }
+        scan = .running(pct: 0)
+        if let bridge {
+            guard let api = app.api else { scan = .done; return }
+            do {
+                let list = try await api.bridgeDiscover(id: bridge)
+                found = list
+                known = list.filter(\.added).map(\.address)
+            } catch {
+                if !Task.isCancelled { self.error = errorText(app.l10n, error) }
+            }
+            if !Task.isCancelled { scan = .done }
+            return
+        }
+        known = app.lanAccess().values.map { $0.address.replacingRegex("^https?://", with: "") }
+        do {
+            for try await event in Discovery.printers() {
+                switch event {
+                case .found(let f): found.append(f)
+                case .progress(let done, let total): scan = .running(pct: total > 0 ? done * 100 / total : 100)
+                }
+            }
+            if !Task.isCancelled { scan = .done }
+        } catch {
+            if !Task.isCancelled { scan = error is Discovery.NoWifi ? .noWifi : .done }
         }
     }
 
@@ -159,6 +285,8 @@ struct CloudPrinterView: View {
     private func load() async {
         guard !loaded else { return }
         defer { loaded = true }
+        manual = !isNew
+        if viaBridge == nil { viaBridge = bridge }
         guard !isNew, let api = app.api else { return }
         do {
             if let p = try await api.printers().first(where: { $0.id == id }) {
@@ -166,14 +294,24 @@ struct CloudPrinterView: View {
                 type = Lan.types.contains(p.type) ? p.type : "elegoo_sdcp"
                 cosmos = p.cosmos
                 machine = p.machine.isEmpty ? nil : p.machine
+                if let b = p.bridge { viaBridge = b }
             }
         } catch {
-            self.error = error.localizedDescription
+            self.error = errorText(app.l10n, error)
         }
+        if viaBridge != nil { return }                          // a bridge keeps the address, not this phone
         let stored = app.lanAccess()[id]
         address = stored?.address ?? ""
         password = stored?.password ?? ""
         apiKey = stored?.apiKey ?? ""
+    }
+
+    /// Name and public key of the bridge this printer sits behind.
+    private func loadBridge() async {
+        guard let viaBridge, let api = app.api else { return }
+        if let b = try? await api.bridges().first(where: { $0.id == viaBridge }) {
+            bridgeInfo = (b.name, b.publicKey)
+        }
     }
 
     private func loadMachines() async {
@@ -181,7 +319,7 @@ struct CloudPrinterView: View {
         do {
             machines = try await api.machines()
         } catch {
-            self.error = error.localizedDescription
+            self.error = errorText(app.l10n, error)
             sheet = nil
         }
     }
@@ -199,7 +337,9 @@ struct CloudPrinterView: View {
             let temp = st.nozzle.map { "\(Int($0.rounded())) °C" } ?? "–"
             test = (true, t(.lanReachable, ["state": state, "temp": temp]))
         } catch {
-            test = (false, "\(t(.lanUnreachable)) (\(error.localizedDescription))")
+            let friendly = errorText(t, error)
+            test = (false, friendly != error.localizedDescription ? friendly
+                    : "\(t(.lanUnreachable)) (\(error.localizedDescription))")
         }
     }
 
@@ -208,17 +348,44 @@ struct CloudPrinterView: View {
         busy = true
         error = ""
         defer { busy = false }
-        let settings = PrinterSettings(name: name.trimmingCharacters(in: .whitespaces), type: type,
+        let trimmed = name.trimmingCharacters(in: .whitespaces)
+        let settings = PrinterSettings(name: trimmed.isEmpty ? autoName : trimmed, type: type,
                                        cosmos: type == "moonraker" ? cosmos : false,
                                        machine: needsModel || type == "moonraker" ? machine : nil)
         do {
+            if let viaBridge {
+                // address and secrets go sealed to the bridge; the cloud and this phone don't keep them
+                let secrets = Self.secrets(access)
+                func sealed() throws -> String {
+                    guard let key = bridgeInfo?.key, !key.isEmpty else { throw LanError(app.l10n(.errBridgeKey)) }
+                    do { return try Seal.seal(publicKey: key, secrets) } catch { throw LanError(app.l10n(.errBridgeKey)) }
+                }
+                if isNew {
+                    _ = try await api.bridgeAddPrinter(bridge: viaBridge, settings, sealed: try sealed())
+                } else {
+                    _ = try await api.updatePrinter(id: id, settings)
+                    if !secrets.isEmpty { try await api.bridgePrinterAccess(printer: id, sealed: try sealed()) }
+                }
+                dismiss()
+                return
+            }
             let p: Printer
             if isNew { p = try await api.addPrinter(settings) } else { p = try await api.updatePrinter(id: id, settings) }
             app.saveLanAccess(p.id, access)
             dismiss()
         } catch {
-            self.error = error.localizedDescription
+            self.error = errorText(app.l10n, error)
         }
+    }
+
+    /// What is sealed for the bridge: only the fields that are filled in.
+    static func secrets(_ a: LanAccess) -> Seal.Secrets {
+        func value(_ s: String?) -> String? {
+            let v = s?.trimmingCharacters(in: .whitespaces) ?? ""
+            return v.isEmpty ? nil : v
+        }
+        return Seal.Secrets(address: value(a.address), password: a.password.flatMap { $0.isEmpty ? nil : $0 },
+                            apiKey: value(a.apiKey))
     }
 
     private func remove() async {
@@ -228,7 +395,7 @@ struct CloudPrinterView: View {
             app.saveLanAccess(id, nil)
             dismiss()
         } catch {
-            self.error = error.localizedDescription
+            self.error = errorText(app.l10n, error)
         }
     }
 }

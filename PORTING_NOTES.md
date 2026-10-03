@@ -160,6 +160,35 @@ if it contradicts `printshare/api.py` the server wins; otherwise the simplest id
     Thumbnails (0.20) and klipper_estimator (0.22) are server-side only.
   - Not verified against a real Orca Cloud link, SpoolmanDB, Manyfold or Obico ML API; only stubs and server shapes.
 
+- **Server 0.24.0-0.34.0** (upstream `ae96cbd`, 2026-10-03), ported from `docs/API.md`, `docs/BRIDGE.md`,
+  `printshare/api.py` and the Expo app of the same commit:
+  - **Bridges** (0.24-0.27, cloud only): Settings → Erweitert → Brücken (`BridgesView`): pairing code (`POST
+    /api/bridges/pair`, typed as `XXXX-XXXX`), list with online state and printers, remove. Printers with `bridge` go
+    through the server like on an own server (`AppModel.viaServer`): status, control, camera, `send`. New bridge
+    printers: the bridge searches its network (`/api/bridges/<id>/discover`), address / password / API key are sealed
+    for the bridge (`Seal`, scheme "pp3d-seal-v1" with CryptoKit X25519 + HKDF-SHA256 + ChaCha20-Poly1305, zero nonce;
+    checked against a blob made by the server's `seal.py`) and sent as `sealed`; this phone keeps nothing.
+  - **Pi bridge on the Wi-Fi** (0.34): `GET /api/bridge/hello` on ports 80 / 8484 of the /24 network and
+    `pocketprint3d.local`; "Verbinden" fetches `/api/bridge/local-code` and pairs with it.
+  - **Printers on the Wi-Fi** (app feature of the same commits, `Discovery`): HTTP probes like the Expo app (Moonraker
+    `/server/info` on 80 / 7125, COSMOS by its macros, PrusaLink 401 realm "Printer API", OctoPrint page). Centauri
+    SDCP: iOS needs Apple's multicast entitlement for broadcasts, so "M99999" goes by unicast UDP to every address of
+    the /24 (one BSD socket, answers collected for 2.5 s). Wi-Fi address from `getifaddrs` (en0).
+  - **Jobs follow the print** (0.33): states `finished` / `cancelled` / `uploading`, `printer_file`; after a phone
+    send `POST /api/jobs/<id>/relayed`, the printers tab posts LAN statuses to `POST /api/observe` (at most every
+    30 s). "Nochmal drucken" on finished jobs. The plate-empty switch became the confirm question `confirmStartPlateQ`.
+  - **Time-lapse** (0.32): switch on the review screen when the printer has a camera through the server, `send`
+    `timelapse: true` with a start only; `job.timelapse` state; `TimelapseView` plays
+    `/api/jobs/<id>/timelapse?token=` with AVKit and shares a downloaded copy.
+  - **Cloud bookings** (0.29): with cloud spools the bookings live in the account (`/api/bookings`, `/observe`,
+    `/<id>/resolve`); an own Spoolman keeps the phone's list as before.
+  - **Send from OrcaSlicer** (0.31): cloud printer → "Aus OrcaSlicer senden" (`/api/printers/<id>/orca-upload`; the
+    key is shown once).
+  - Settings got the "Erweitert" section; home shows the first-printer card for a cloud account without printers and
+    the "own server" link when not connected; new error texts (`friendlyError`, LAN / bridge / Orca rules first).
+  - **Not ported**: the web app (0.28: cookies, drag & drop) and the Pi image itself; job persistence (0.30) is
+    server-side only. Not verified against a real bridge, a real printer search on a phone, a time-lapse or Orca upload.
+
 - **Model files in 3D** (not in the Expo app): the file row on the model page opens a sheet with the files of
   `/api/files` (same order and index as the prepare screen). STL is read by `STLReader` (binary + ASCII; ModelIO returned no mesh for STL on CI), 3MF by `ThreeMFReader` (own zip reader: stored/deflate via `NSData.decompressed(.zlib)`, zip64; `XMLParser` for the
   model files incl. Orca/Bambu `3D/Objects/*.model` components and build transforms; colour per object/part from

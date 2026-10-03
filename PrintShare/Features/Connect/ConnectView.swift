@@ -28,7 +28,7 @@ struct ConnectView: View {
         _url = State(initialValue: own?.url ?? "")
         _remote = State(initialValue: own?.remoteUrl ?? "")
         _token = State(initialValue: own?.token ?? "")
-        _mode = State(initialValue: own != nil ? .own : .cloud)
+        _mode = State(initialValue: own != nil || request.own ? .own : .cloud)
         _email = State(initialValue: current?.isCloud == true ? current?.email ?? "" : "")
     }
 
