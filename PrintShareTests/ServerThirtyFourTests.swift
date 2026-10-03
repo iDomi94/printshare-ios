@@ -258,10 +258,9 @@ final class ServerThirtyFourTests: XCTestCase {
     // MARK: requests
 
     func testRequestBodies() async throws {
-        var seen: [URLRequest] = []
-        let lock = NSLock()
+        let seen = Seen()
         StubProtocol.install { req in
-            lock.lock(); seen.append(req); lock.unlock()
+            seen.add(req)
             switch req.url?.path ?? "" {
             case "/api/bridges/pair": return StubResponse(body: Data(#"{"id": "b1", "name": "Tower"}"#.utf8))
             case "/api/bridges/b1/printers": return StubResponse(body: Data(#"{"id": "cc", "name": "CC", "type": "elegoo_sdcp", "bridge": "b1"}"#.utf8))
@@ -290,7 +289,7 @@ final class ServerThirtyFourTests: XCTestCase {
         try await api.deleteBridge(id: "b1")                                               // 12
         let video = await api.timelapseURL(job: "j1")
 
-        lock.lock(); let r = seen; lock.unlock()
+        let r = seen.all
         XCTAssertEqual(body(r[0])?["timelapse"] as? Bool, true)
         XCTAssertNil(body(r[1])?["timelapse"])
         let relayed = try XCTUnwrap(body(r[2]))
@@ -342,4 +341,12 @@ final class ServerThirtyFourTests: XCTestCase {
         XCTAssertEqual(errorText(l, LanError("the bridge went offline")), l(.errBridgeOffline))
         XCTAssertEqual(errorText(l, APIError(message: "as is", status: 500, detail: "bridge is offline")), "as is")
     }
+}
+
+/// Requests seen by the stub, readable from async tests (NSLock can't be used there directly).
+private final class Seen: @unchecked Sendable {
+    private let lock = NSLock()
+    private var list: [URLRequest] = []
+    func add(_ r: URLRequest) { lock.lock(); list.append(r); lock.unlock() }
+    var all: [URLRequest] { lock.lock(); defer { lock.unlock() }; return list }
 }
