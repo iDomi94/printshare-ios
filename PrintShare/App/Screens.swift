@@ -46,6 +46,8 @@ enum Screen: Hashable {
     case failureDetection
     /// The time-lapse video of a job (server 0.32.0): job id and the model's name.
     case timelapse(job: String, name: String)
+    /// Cloud: send from OrcaSlicer on the computer - upload address and key of one printer (server 0.31.0).
+    case orcaUpload(id: String, name: String)
     /// printables.com in a web view with the user's own Printables login (test build).
     case printablesWeb
 }

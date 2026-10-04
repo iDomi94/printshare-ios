@@ -27,6 +27,7 @@ struct RootView: View {
                             case .manyfold: ManyfoldView()
                             case .failureDetection: FailureDetectionView()
                             case .timelapse(let job, let name): TimelapseView(job: job, name: name)
+                            case .orcaUpload(let id, let name): OrcaUploadView(printer: id, name: name)
                             case .printablesWeb: PrintablesWebView()
                             }
                         }
