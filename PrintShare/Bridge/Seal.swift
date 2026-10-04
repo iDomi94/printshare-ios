@@ -20,8 +20,10 @@ enum Seal {
         var address: String?
         var password: String?
         var apiKey: String?
+        /// Own camera of the printer (RTSP / HTTP, server 0.36.0); "" removes it. Carries a password, so it is sealed too.
+        var cameraUrl: String?
 
-        enum CodingKeys: String, CodingKey { case address, password, apiKey = "api_key" }
+        enum CodingKeys: String, CodingKey { case address, password, apiKey = "api_key", cameraUrl = "camera_url" }
     }
 
     private static let info = Data("pp3d-seal-v1".utf8)

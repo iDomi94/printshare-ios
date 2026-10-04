@@ -5,6 +5,19 @@ struct BookingUse: Codable, Sendable, Equatable {
     var spool: Int
     var grams: Double
     var label: String
+
+    enum CodingKeys: String, CodingKey { case spool, grams, label }
+
+    init(spool: Int, grams: Double, label: String) {
+        self.spool = spool; self.grams = grams; self.label = label
+    }
+
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        spool = try c.decode(Int.self, forKey: .spool)
+        grams = c.lenient(Double.self, .grams) ?? 0
+        label = c.lenient(String.self, .label) ?? "#\(spool)"
+    }
 }
 
 /// A started print whose filament the app books after it ended (printers that don't book it themselves).
@@ -31,6 +44,8 @@ struct Booking: Codable, Sendable, Equatable, Identifiable {
     var ready: Bool?
     /// outcome unclear (cancelled, missed): the user decides
     var ask: Ask?
+    /// Kept in the cloud account (cloud spools, server 0.29.0): the server settles it, not this phone.
+    var account: Bool?
 
     var grams: Double { uses.reduce(0) { $0 + $1.grams } }
 }
@@ -108,4 +123,68 @@ struct SettleResult: Sendable {
     var booked: [Booking] = []
     var open: [Booking] = []
     var error: String?
+}
+
+/// A spool booking kept in the cloud account (server 0.29.0, `/api/bookings`).
+struct ServerBooking: Decodable, Sendable, Equatable {
+    var id: String
+    var printer: String
+    var printerName: String?
+    var file: String
+    var uses: [BookingUse]
+    var bookedUses: [BookingUse]
+    /// Unix seconds.
+    var created: Double
+    var seen: Bool
+    var progress: Double?
+    /// "wait", "ready", "ask", "booked" or "dropped".
+    var state: String
+    var askPart: Double?
+
+    enum CodingKeys: String, CodingKey {
+        case id, printer, file, uses, created, seen, progress, state
+        case printerName = "printer_name"
+        case bookedUses = "booked_uses"
+        case askPart = "ask_part"
+    }
+
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        id = try c.decode(String.self, forKey: .id)
+        printer = c.lenient(String.self, .printer) ?? ""
+        printerName = c.lenient(String.self, .printerName)
+        file = c.lenient(String.self, .file) ?? ""
+        uses = c.lenient([BookingUse].self, .uses) ?? []
+        bookedUses = c.lenient([BookingUse].self, .bookedUses) ?? []
+        created = c.lenient(Double.self, .created) ?? 0
+        seen = c.lenient(Bool.self, .seen) ?? false
+        progress = c.lenient(Double.self, .progress)
+        state = c.lenient(String.self, .state) ?? "wait"
+        askPart = c.lenient(Double.self, .askPart)
+    }
+
+    /// Same shape as the phone's own bookings, so the booking card and the lists work unchanged.
+    var booking: Booking {
+        Booking(id: id, printer: printer, printerName: printerName ?? printer, file: file,
+                uses: state == "booked" ? bookedUses : uses, created: (created * 1000).rounded(), seen: seen,
+                progress: progress, ready: nil, ask: state == "ask" ? .init(part: askPart ?? 1) : nil, account: true)
+    }
+}
+
+struct ServerBookings: Decodable, Sendable, Equatable {
+    var waiting: [ServerBooking]
+    var open: [ServerBooking]
+    var booked: [ServerBooking]
+    /// Only from `/api/bookings/observe`: what was booked by this very call.
+    var bookedNow: [ServerBooking]
+
+    enum CodingKeys: String, CodingKey { case waiting, open, booked, bookedNow = "booked_now" }
+
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        waiting = c.lenient([ServerBooking].self, .waiting) ?? []
+        open = c.lenient([ServerBooking].self, .open) ?? []
+        booked = c.lenient([ServerBooking].self, .booked) ?? []
+        bookedNow = c.lenient([ServerBooking].self, .bookedNow) ?? []
+    }
 }

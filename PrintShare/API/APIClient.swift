@@ -45,12 +45,28 @@ private struct SendBody: Encodable {
     var lanes: [String: Int]?
     /// Server 0.16.0: Spoolman spool Moonraker books the print on (left out when nil).
     var spoolId: Int?
+    /// Server 0.32.0: record a time-lapse (only sent when on, i.e. for a print start with a camera).
+    var timelapse: Bool?
 
     enum CodingKeys: String, CodingKey {
-        case start, confirm, leveling, lanes
+        case start, confirm, leveling, lanes, timelapse
         case spoolId = "spool_id"
     }
 }
+private struct RelayedBody: Encodable { var start: Bool; var file: String }
+private struct StatusesBody: Encodable { var statuses: [String: PrinterStatus?] }
+private struct BookingBody: Encodable {
+    var printer: String
+    var printerName: String
+    var file: String
+    var uses: [BookingUse]
+    var job: String?
+
+    enum CodingKeys: String, CodingKey { case printer, file, uses, job, printerName = "printer_name" }
+}
+private struct PartBody: Encodable { var part: Double }
+/// `subnet` only when the phone's Wi-Fi is known (server 0.35.1); the body is left out otherwise.
+private struct DiscoverBody: Encodable { var subnet: String }
 private struct AdjustBody: Encodable {
     var kind: String
     var id: String
@@ -453,16 +469,82 @@ actor APIClient {
     func job(id: String) async throws -> Job { try await request("/api/jobs/\(enc(id))") }
 
     /// `lanes` only when the printer reports lanes; sent with uploads too, so the file on the printer matches.
-    func send(job id: String, start: Bool, leveling: Bool? = nil, lanes: [Int: Int]? = nil, spoolId: Int? = nil) async throws {
+    func send(job id: String, start: Bool, leveling: Bool? = nil, lanes: [Int: Int]? = nil, spoolId: Int? = nil,
+              timelapse: Bool = false) async throws {
         var mapping: [String: Int]?
         if let lanes, !lanes.isEmpty {
             mapping = Dictionary(uniqueKeysWithValues: lanes.map { (String($0.key), $0.value) })
         }
         let _: Ack = try await request("/api/jobs/\(enc(id))/send", method: "POST",
                                        body: SendBody(start: start, confirm: start, leveling: start ? leveling : nil,
-                                                      lanes: mapping, spoolId: start ? spoolId : nil))
+                                                      lanes: mapping, spoolId: start ? spoolId : nil,
+                                                      timelapse: start && timelapse ? true : nil))
     }
 
+    /// Cloud: the phone sent the G-code to the printer itself (Wi-Fi) - the server follows the print from now on
+    /// (server 0.33.0). Best effort; the caller ignores a failure.
+    func markRelayed(job id: String, start: Bool, file: String) async throws {
+        let _: Ack = try await request("/api/jobs/\(enc(id))/relayed", method: "POST", body: RelayedBody(start: start, file: file))
+    }
+
+    /// Cloud: statuses of the printers the phone reaches on its Wi-Fi - started jobs learn that they finished
+    /// (server 0.33.0). nil = not reachable.
+    func observe(_ statuses: [String: PrinterStatus?]) async throws {
+        let _: Ack = try await request("/api/observe", method: "POST", body: StatusesBody(statuses: statuses))
+    }
+
+    // MARK: time-lapse (server 0.32.0)
+
+    /// The MP4 of a job and the headers a player needs (AVPlayer can send them; the token stays out of the URL).
+    func timelapseRequest(job id: String) async -> (url: URL, headers: [String: String])? {
+        guard let url = URL(string: await base() + "/api/jobs/\(enc(id))/timelapse") else { return nil }
+        return (url, headers(json: false))
+    }
+
+    /// The video as a temporary file, for the share sheet (save to Photos / Files).
+    func downloadTimelapse(job id: String) async throws -> URL {
+        let (data, res) = try await perform("/api/jobs/\(enc(id))/timelapse", method: "GET", body: nil, timeout: 300)
+        guard (200..<300).contains(res.statusCode) else { throw failure(data, status: res.statusCode) }
+        let dir = FileManager.default.temporaryDirectory.appendingPathComponent("timelapse-\(UUID().uuidString)", isDirectory: true)
+        try FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+        let url = dir.appendingPathComponent("timelapse.mp4")
+        try data.write(to: url, options: .atomic)
+        return url
+    }
+
+    // MARK: send from OrcaSlicer (cloud, server 0.31.0)
+
+    func orcaUpload(printer id: String) async throws -> OrcaUpload {
+        try await request("/api/printers/\(enc(id))/orca-upload")
+    }
+
+    /// Creates (or renews) the key; it is only returned here.
+    func createOrcaUpload(printer id: String) async throws -> OrcaUpload {
+        try await request("/api/printers/\(enc(id))/orca-upload", method: "POST")
+    }
+
+    func deleteOrcaUpload(printer id: String) async throws {
+        let _: Ack = try await request("/api/printers/\(enc(id))/orca-upload", method: "DELETE")
+    }
+
+    // MARK: spool bookings in the account (cloud spools, server 0.29.0)
+
+    func bookings() async throws -> ServerBookings { try await request("/api/bookings") }
+
+    func createBooking(printer: String, printerName: String, file: String, uses: [BookingUse], job: String?) async throws {
+        let _: Ack = try await request("/api/bookings", method: "POST",
+                                       body: BookingBody(printer: printer, printerName: printerName, file: file, uses: uses, job: job))
+    }
+
+    /// Fresh printer statuses in, bookings out: the server books what is finished (`bookedNow`) and lists what waits
+    /// for a decision (`open`).
+    func observeBookings(_ statuses: [String: PrinterStatus?]) async throws -> ServerBookings {
+        try await request("/api/bookings/observe", method: "POST", body: StatusesBody(statuses: statuses))
+    }
+
+    func resolveBooking(id: String, part: Double) async throws {
+        let _: Ack = try await request("/api/bookings/\(enc(id))/resolve", method: "POST", body: PartBody(part: part))
+    }
     /// Layer data for the G-code viewer. Format 2 (server 0.6.0) adds the filament per path; older servers ignore
     /// the parameter and answer with format 1.
     func preview(job id: String) async throws -> Preview {
@@ -535,8 +617,11 @@ actor APIClient {
     }
 
     /// Printers the bridge finds in its home network. The bridge scans, so this takes a while.
-    func bridgeDiscover(id: String) async throws -> [BridgeFound] {
-        try await request("/api/bridges/\(enc(id))/discover", method: "POST", timeout: 40)
+    /// `subnet` ("192.168.86.0/24"): the phone's Wi-Fi when it is at home - a bridge in Docker's bridge network searches
+    /// there (server 0.35.1).
+    func bridgeDiscover(id: String, subnet: String? = nil) async throws -> [BridgeFound] {
+        try await request("/api/bridges/\(enc(id))/discover", method: "POST", body: subnet.map { DiscoverBody(subnet: $0) },
+                          timeout: 75)
     }
 
     /// `sealed` = `Seal.seal(...)` of address / password / API key for this bridge's public key.

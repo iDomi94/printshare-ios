@@ -226,12 +226,14 @@ struct BridgeFound: Codable, Sendable, Equatable, Identifiable {
     var name: String
     var cosmos: Bool
     var detail: String?
+    /// OrcaSlicer printer preset when the printer tells its model (Bambu: from the serial number, server 0.35.0).
+    var machine: String?
     /// Already a printer of the account.
     var added: Bool
 
     var id: String { "\(type)@\(address)" }
 
-    enum CodingKeys: String, CodingKey { case type, address, name, cosmos, detail, added }
+    enum CodingKeys: String, CodingKey { case type, address, name, cosmos, detail, machine, added }
 
     init(from decoder: Decoder) throws {
         let c = try decoder.container(keyedBy: CodingKeys.self)
@@ -240,6 +242,7 @@ struct BridgeFound: Codable, Sendable, Equatable, Identifiable {
         name = c.lenient(String.self, .name) ?? address
         cosmos = c.lenient(Bool.self, .cosmos) ?? false
         detail = c.lenient(String.self, .detail)
+        machine = c.lenient(String.self, .machine)
         added = c.lenient(Bool.self, .added) ?? false
     }
 }
@@ -944,6 +947,8 @@ struct ModelFile: Codable, Sendable, Hashable, Identifiable {
 
 enum JobState: String, Codable, Sendable {
     case slicing, sliced, sending, uploaded, started, error, running, done, unknown
+    /// Server 0.33.0: the server follows a started print. 0.31.0: `uploading` = G-code sent from OrcaSlicer.
+    case finished, cancelled, uploading
 
     init(from decoder: Decoder) throws {
         let raw = (try? decoder.singleValueContainer().decode(String.self)) ?? ""
@@ -1048,8 +1053,15 @@ struct Job: Codable, Sendable, Equatable, Identifiable {
     var created: Double
     var printer: String?
     var request: JobRequest
+    /// Sent through a bridge: the file's name on the printer (server 0.29.0).
+    var printerFile: String?
+    /// Time-lapse of this print (server 0.32.0); nil when none was asked for.
+    var timelapse: Timelapse?
 
-    enum CodingKeys: String, CodingKey { case id, kind, state, log, result, error, created, printer, request }
+    enum CodingKeys: String, CodingKey {
+        case id, kind, state, log, result, error, created, printer, request, timelapse
+        case printerFile = "printer_file"
+    }
 
     init(from decoder: Decoder) throws {
         let c = try decoder.container(keyedBy: CodingKeys.self)
@@ -1062,12 +1074,43 @@ struct Job: Codable, Sendable, Equatable, Identifiable {
         created = c.lenient(Double.self, .created) ?? 0
         printer = c.lenient(String.self, .printer)
         request = c.lenient(JobRequest.self, .request) ?? JobRequest(link: "")
+        printerFile = c.lenient(String.self, .printerFile)
+        timelapse = c.lenient(Timelapse.self, .timelapse)
     }
 
     init(id: String, kind: String = "prepare", state: JobState, log: [String] = [], result: JobResult? = nil,
          error: String? = nil, created: Double = 0, printer: String? = nil, request: JobRequest) {
         self.id = id; self.kind = kind; self.state = state; self.log = log; self.result = result
         self.error = error; self.created = created; self.printer = printer; self.request = request
+    }
+}
+
+/// Time-lapse of a print (server 0.32.0): pictures per layer while it prints, then one MP4.
+struct Timelapse: Codable, Sendable, Equatable {
+    enum Phase: String, Codable, Sendable {
+        case recording, rendering, ready, failed, unknown
+
+        init(from decoder: Decoder) throws {
+            let raw = (try? decoder.singleValueContainer().decode(String.self)) ?? ""
+            self = Phase(rawValue: raw) ?? .unknown
+        }
+    }
+
+    var state: Phase
+    var frames: Int
+    var error: String?
+
+    enum CodingKeys: String, CodingKey { case state, frames, error }
+
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        state = c.lenient(Phase.self, .state) ?? .unknown
+        frames = c.lenient(Int.self, .frames) ?? 0
+        error = c.lenient(String.self, .error)
+    }
+
+    init(state: Phase, frames: Int = 0, error: String? = nil) {
+        self.state = state; self.frames = frames; self.error = error
     }
 }
 
@@ -1332,4 +1375,30 @@ struct Preview: Codable, Sendable, Equatable {
 
     /// Paths carry the filament (tool) as second entry.
     var hasTools: Bool { version >= 2 }
+}
+
+/// Send from OrcaSlicer (cloud, server 0.31.0): OctoPrint-compatible upload address of one printer.
+/// `key` only comes with `POST` (shown once; the server keeps a hash).
+struct OrcaUpload: Decodable, Sendable, Equatable {
+    var enabled: Bool
+    var url: String
+    var key: String?
+    /// Unix seconds.
+    var created: Double?
+    var lastUsed: Double?
+
+    enum CodingKeys: String, CodingKey { case enabled, url, key, created, lastUsed = "last_used" }
+
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        enabled = c.lenient(Bool.self, .enabled) ?? false
+        url = c.lenient(String.self, .url) ?? ""
+        key = c.lenient(String.self, .key)
+        created = c.lenient(Double.self, .created)
+        lastUsed = c.lenient(Double.self, .lastUsed)
+    }
+
+    init(enabled: Bool, url: String, key: String? = nil, created: Double? = nil, lastUsed: Double? = nil) {
+        self.enabled = enabled; self.url = url; self.key = key; self.created = created; self.lastUsed = lastUsed
+    }
 }
