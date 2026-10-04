@@ -151,7 +151,9 @@ enum JobBadge {
     static func kind(_ state: JobState, home: Bool = false) -> PSBadgeKind {
         switch state {
         case .error: return .error
-        case .started: return .ok
+        case .finished: return .ok
+        case .cancelled: return .warn
+        case .started: return .accent
         case .done: return home ? .neutral : .ok
         case .sliced: return .accent
         default: return .neutral

@@ -44,6 +44,8 @@ enum Screen: Hashable {
     case manyfold
     /// AI failure detection with Obico's ML API (server 0.23.0, own servers only).
     case failureDetection
+    /// The time-lapse video of a job (server 0.32.0): job id and the model's name.
+    case timelapse(job: String, name: String)
     /// printables.com in a web view with the user's own Printables login (test build).
     case printablesWeb
 }

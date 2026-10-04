@@ -21,6 +21,10 @@ struct JobView: View {
     @State private var laneSheet: LaneSheet?
     @State private var camera: CameraTarget?
     @State private var hasCamera = false
+    /// Time-lapse (server 0.32.0): only where the server or a bridge reaches the camera; off by default.
+    @State private var timelapse = false
+    /// "Print again" after a finished or cancelled print brings the review back.
+    @State private var again = false
     @State private var showLog = false
     @State private var elapsed = 0
     @State private var startedAt = Date()
@@ -101,7 +105,8 @@ struct JobView: View {
         .sheet(item: $spoolSheet) { sheet in spoolSheetView(t, sheet.colour) }
         .task(id: reviewing) { await loadSpools() }
         .sheet(item: $camera) { CameraView(printer: $0.printer, title: $0.name) }
-        .task(id: job?.state == .started) { await loadCamera() }
+        .task(id: cameraKey) { await loadCamera() }
+        .task(id: following) { await follow() }
         .alert(t(.deleteJobQ), isPresented: $confirmDelete) {
             Button(t(.cancelBtn), role: .cancel) {}
             Button(t(.del), role: .destructive) { Task { await delete() } }
@@ -111,10 +116,20 @@ struct JobView: View {
     /// Own server, or a cloud printer behind a bridge (the server forwards the camera, server 0.26.0).
     private var serverReachesPrinter: Bool { printerInfo.map { app.viaServer($0) } ?? !app.isCloud }
 
-    private var reviewing: Bool { job?.state == .sliced || job?.state == .uploaded }
+    private var reviewing: Bool { job?.state == .sliced || job?.state == .uploaded || (again && isOver) }
+
+    /// The print is over (server 0.33.0 follows it): the result is shown, "print again" brings the review back.
+    private var isOver: Bool { job?.state == .finished || job?.state == .cancelled }
+
+    /// A started print, or a time-lapse that is still being made: reload the job every 15 s.
+    private var following: Bool {
+        job?.state == .started || job?.timelapse?.state == .recording || job?.timelapse?.state == .rendering
+    }
+
+    private var cameraKey: String { "\(job?.state == .started)|\(reviewing)|\(printerInfo?.id ?? "")" }
 
     private var statusKey: String {
-        guard let job, job.state == .sliced || job.state == .uploaded else { return "" }
+        guard reviewing else { return "" }
         // the cloud needs the printer list (type) before it can ask the printer on the Wi-Fi
         return (printerId ?? "") + (app.isCloud && printerInfo == nil ? "?" : "")
     }
@@ -205,7 +220,8 @@ struct JobView: View {
         let arranged = r?.knowsPlate == true ? PlateOptions.summary(t, job.request.options, placed: r?.copies) : ""
         let fewer = PlateOptions.fewerHint(t, r)
         let name = Format.jobName(file: r?.sourceFile, link: job.request.link)
-        let done = job.state == .started || relayed == .print
+        let over = job.state == .finished || job.state == .cancelled
+        let done = !again && (job.state == .started || over || relayed == .print)
         let uploaded = job.state == .uploaded || relayed == .upload
         let busy = printerKind?.isBusy ?? false
         let offline = printerKind == .offline
@@ -216,13 +232,17 @@ struct JobView: View {
         if !gcodeLoading { shareAction = { Task { await shareGcode(job) } } }
         return PSScreen {
             if done || uploaded {
+                let cancelled = job.state == .cancelled
                 VStack(spacing: 6) {
-                    Image(systemName: done ? "checkmark.circle.fill" : "checkmark.icloud.fill")
-                        .font(.system(size: 60)).foregroundStyle(Theme.ok).accessibilityHidden(true)
-                    Text(t(done ? .startedTitle : .uploadedTitle)).font(.title2.bold()).foregroundStyle(Theme.text)
+                    Image(systemName: cancelled ? "xmark.circle.fill" : done ? "checkmark.circle.fill" : "checkmark.icloud.fill")
+                        .font(.system(size: 60)).foregroundStyle(cancelled ? Theme.warn : Theme.ok).accessibilityHidden(true)
+                    Text(t(job.state == .finished ? .finishedTitle : cancelled ? .cancelledTitle
+                           : done ? .startedTitle : .uploadedTitle)).font(.title2.bold()).foregroundStyle(Theme.text)
                         .padding(.top, 6)
-                    Text(t(done ? .startedSub : .uploadedSub)).font(.subheadline).foregroundStyle(Theme.sub)
+                    Text(t(job.state == .finished ? .finishedSub : cancelled ? .cancelledSub
+                           : done ? .startedSub : .uploadedSub)).font(.subheadline).foregroundStyle(Theme.sub)
                         .multilineTextAlignment(.center)
+                    if let tl = job.timelapse { timelapseStatus(t, job, tl) }
                 }
                 .frame(maxWidth: .infinity).padding(.vertical, 20)
             } else {
@@ -316,13 +336,30 @@ struct JobView: View {
                     }
                     .padding(.top, 12)
                 }
+                if cameraAvailable {
+                    PSCard(padding: 16) {
+                        Toggle(isOn: $timelapse) {
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(t(.timelapse)).font(.body).foregroundStyle(Theme.text)
+                                Text(t(.timelapseSub)).font(.footnote).foregroundStyle(Theme.sub)
+                            }
+                        }
+                        .tint(Theme.accent)
+                        .onChange(of: timelapse) { _, _ in Haptics.tap() }
+                    }
+                    .padding(.top, 12)
+                }
                 PSButton(title: t(.editSettings), kind: .plain, icon: "slider.horizontal.3") { editSettings(job) }
                     .padding(.top, 12)
             }
             PSButton(title: t(.deleteJob), kind: .plain) { confirmDelete = true }.padding(.top, 4)
         } footer: {
             if done {
-                PSButton(title: t(.toPrinter), icon: "printer") { app.navigate(to: .printers) }
+                if over {
+                    PSButton(title: t(.printAgain), icon: "arrow.clockwise") { relayed = nil; again = true }
+                } else {
+                    PSButton(title: t(.toPrinter), icon: "printer") { app.navigate(to: .printers) }
+                }
                 if hasCamera, serverReachesPrinter, let p = printerId {
                     PSButton(title: t(.camera), kind: .secondary, icon: "video") {
                         camera = CameraTarget(printer: p, name: printerName)
@@ -339,6 +376,28 @@ struct JobView: View {
                     }
                 }
             }
+        }
+    }
+
+    /// A camera the server (own server or bridge) can record from.
+    private var cameraAvailable: Bool { hasCamera && serverReachesPrinter }
+
+    @ViewBuilder
+    private func timelapseStatus(_ t: L10n, _ job: Job, _ tl: Timelapse) -> some View {
+        switch tl.state {
+        case .ready:
+            PSButton(title: t(.timelapseWatch), icon: "film") {
+                app.push(.timelapse(job: job.id, name: Format.jobName(file: job.result?.sourceFile, link: job.request.link)))
+            }
+            .padding(.top, 12)
+        case .recording:
+            Text(t(.timelapseRecording, ["n": String(tl.frames)])).font(.footnote).foregroundStyle(Theme.sub).padding(.top, 8)
+        case .rendering:
+            Text(t(.timelapseRendering)).font(.footnote).foregroundStyle(Theme.sub).padding(.top, 8)
+        case .failed:
+            Text(t(.timelapseFailed, ["error": tl.error ?? ""])).font(.footnote).foregroundStyle(Theme.danger).padding(.top, 8)
+        case .unknown:
+            EmptyView()
         }
     }
 
@@ -419,7 +478,7 @@ struct JobView: View {
         if !afcSpools { app.saveLastSpools(p, Dictionary(uniqueKeysWithValues: chosen.map { (String($0.key), $0.value) })) }
         if printerBooks { return }
         app.addBooking(printer: p, printerName: printerName, file: fileName,
-                       uses: SpoolPlan.uses(colours: spoolColours, spoolFor: chosen, known: spools))
+                       uses: SpoolPlan.uses(colours: spoolColours, spoolFor: chosen, known: spools), job: job?.id)
     }
 
     private func laneSheetView(_ t: L10n, _ colour: Int) -> some View {
@@ -539,7 +598,8 @@ struct JobView: View {
             return
         }
         do {
-            try await api.send(job: job.id, start: start, leveling: levelValue, lanes: lanes, spoolId: start ? activeSpool : nil)
+            try await api.send(job: job.id, start: start, leveling: levelValue, lanes: lanes, spoolId: start ? activeSpool : nil,
+                               timelapse: start && cameraAvailable && timelapse)
             var latest: Job?
             for _ in 0..<600 {
                 try await Task.sleep(for: .seconds(1))
@@ -547,12 +607,15 @@ struct JobView: View {
                 if latest?.state != .sending { break }
             }
             if let latest { self.job = latest }
+            again = false
             if let e = latest?.error, !e.isEmpty {
                 actionError = friendlyError(app.l10n, status: 0, detail: e)
             } else {
                 if start, let latest, latest.state == .started {
+                    // through a bridge the file on the printer has its own name (server 0.29.0)
                     let onServer = ((latest.result?.gcode ?? "") as NSString).lastPathComponent
-                    afterStart(fileName: onServer.isEmpty ? Lan.fileName(source: latest.result?.sourceFile, job: latest.id) : onServer)
+                    let fallback = onServer.isEmpty ? Lan.fileName(source: latest.result?.sourceFile, job: latest.id) : onServer
+                    afterStart(fileName: latest.printerFile.flatMap { $0.isEmpty ? nil : $0 } ?? fallback)
                 }
                 Haptics.success()
             }
@@ -582,6 +645,12 @@ struct JobView: View {
             let fileName = Lan.fileName(source: job.result?.sourceFile, job: job.id)
             try await app.relay(job: job.id, printer: printer, fileName: fileName, lanes: lanes, options: options)
             relayed = start ? .print : .upload
+            again = false
+            // the server follows the print from now on (server 0.33.0); best effort
+            Task {
+                try? await app.api?.markRelayed(job: job.id, start: start, file: fileName)
+                if let j = try? await app.api?.job(id: job.id) { self.job = j }
+            }
             if start { afterStart(fileName: fileName) }
             Haptics.success()
         } catch is NoLanAddress {
@@ -593,8 +662,18 @@ struct JobView: View {
     }
 
     private func loadCamera() async {
-        guard job?.state == .started, serverReachesPrinter, let api = app.api, let p = printerId else { return }
+        guard job?.state == .started || reviewing, serverReachesPrinter, let api = app.api, let p = printerId else { return }
         hasCamera = (try? await api.cameraInfo(printer: p))?.available ?? false
+    }
+
+    /// Follow a running print (→ finished / cancelled) and its time-lapse until the video is ready.
+    private func follow() async {
+        guard following else { return }
+        while !Task.isCancelled {
+            try? await Task.sleep(for: .seconds(15))
+            if Task.isCancelled { return }
+            if let j = try? await app.api?.job(id: id) { job = j }
+        }
     }
 
     /// SL-10: fetch the G-code and hand it to the share sheet (Files, AirDrop, another slicer app …).

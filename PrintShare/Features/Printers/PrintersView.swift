@@ -23,6 +23,8 @@ struct PrintersView: View {
     /// Spoolman bookings waiting for a decision, and the ones just booked (shown for a minute).
     @State private var openBookings: [Booking] = []
     @State private var booked: [Booked] = []
+    /// Cloud: when the printers on this Wi-Fi were last reported to the server (at most every 30 s, server 0.33.0).
+    @State private var lastObserve = Date.distantPast
 
     private struct Booked: Identifiable {
         var booking: Booking
@@ -36,7 +38,7 @@ struct PrintersView: View {
             if !error.isEmpty { PSBanner(kind: .error, text: error) }
             ForEach(booked) { PSBanner(kind: .ok, text: BookingCard.bookedText(t, $0.booking)) }
             ForEach(openBookings) { b in
-                BookingCard(booking: b) { openBookings = app.bookings().filter { $0.ask != nil } }
+                BookingCard(booking: b) { Task { openBookings = await app.loadBookings().filter { $0.ask != nil } } }
             }
             if let entries {
                 if entries.isEmpty {
@@ -262,6 +264,7 @@ struct PrintersView: View {
 
     /// Book the filament of finished prints in Spoolman (or ask when a print was cancelled or its end was missed).
     private func settle(_ list: [Entry]) async {
+        await observe(list)
         var statuses: [String: PrinterStatus?] = [:]
         for e in list { statuses[e.id] = .some(e.status) }
         let result = await app.settleBookings(statuses)
@@ -269,6 +272,17 @@ struct PrintersView: View {
         booked = booked.filter { now.timeIntervalSince($0.at) < 60 } + result.booked.map { Booked(booking: $0, at: now) }
         openBookings = result.open
         if let e = result.error { error = app.l10n(.spoolmanUnreachable, ["error": e]) }
+    }
+
+    /// Cloud: tell the server what the printers on this Wi-Fi do, so started jobs learn that they finished (server 0.33.0).
+    /// Bridge printers are watched by the server itself.
+    private func observe(_ list: [Entry]) async {
+        guard app.isCloud, let api = app.api, Date().timeIntervalSince(lastObserve) > 30 else { return }
+        var seen: [String: PrinterStatus?] = [:]
+        for e in list where !app.viaServer(e.printer) && e.status != nil { seen[e.id] = .some(e.status) }
+        guard !seen.isEmpty else { return }
+        lastObserve = Date()
+        try? await api.observe(seen)
     }
 
     /// "False alarm" of the AI failure detection: no more alerts for this print.

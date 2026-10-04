@@ -49,7 +49,7 @@ struct BookingCard: View {
         Task {
             defer { busy = nil }
             do {
-                try await app.resolveBooking(booking.id, part: part)
+                try await app.resolveBooking(booking.id, part: part, inAccount: booking.account == true)
                 onDone()
             } catch {
                 self.error = error.localizedDescription

@@ -162,6 +162,19 @@ final class AppModel {
         keychain.setJSON(StoreKey.spools(accountKey, printer), spools)
     }
 
+    /// Cloud spools: the bookings live in the account (server 0.29.0), so the cloud books them even when no app is open.
+    /// An own Spoolman: this phone keeps them, as before.
+    var bookingsInAccount: Bool { isCloud && api != nil && spoolmanSetting() == Spoolman.cloudSetting }
+
+    /// Bookings that still wait for the print or a decision, wherever they are kept.
+    func loadBookings() async -> [Booking] {
+        if bookingsInAccount, let api {
+            guard let r = try? await api.bookings() else { return [] }
+            return (r.waiting + r.open).map(\.booking)
+        }
+        return bookings()
+    }
+
     func bookings() -> [Booking] {
         accountKey.flatMap { keychain.getJSON(StoreKey.bookings($0), as: [Booking].self) } ?? []
     }
@@ -172,7 +185,12 @@ final class AppModel {
     }
 
     /// After a started print: book the filament once it is over.
-    func addBooking(printer: String, printerName: String, file: String, uses: [BookingUse]) {
+    func addBooking(printer: String, printerName: String, file: String, uses: [BookingUse], job: String? = nil) {
+        guard !uses.isEmpty else { return }
+        if bookingsInAccount, let api {
+            Task { try? await api.createBooking(printer: printer, printerName: printerName, file: file, uses: uses, job: job) }
+            return
+        }
         let b = Booking(id: Lan.randomHex(6), printer: printer, printerName: printerName, file: file, uses: uses,
                         created: Bookings.now())
         saveBookings(Bookings.adding(b, to: bookings()))
@@ -185,6 +203,14 @@ final class AppModel {
         guard !settling else { return SettleResult(open: bookings().filter { $0.ask != nil }) }
         settling = true
         defer { settling = false }
+        if bookingsInAccount, let api {
+            do {
+                let r = try await api.observeBookings(statuses)
+                return SettleResult(booked: r.bookedNow.map(\.booking), open: r.open.map(\.booking))
+            } catch {
+                return SettleResult(error: error.localizedDescription)
+            }
+        }
         let before = bookings()
         guard !before.isEmpty else { return SettleResult() }
         var list = before.map { b in statuses.keys.contains(b.printer) ? Bookings.judge(b, statuses[b.printer] ?? nil) : b }
@@ -221,7 +247,11 @@ final class AppModel {
     }
 
     /// The user's decision on an open booking: book `part` of the filament (0 = discard).
-    func resolveBooking(_ id: String, part: Double) async throws {
+    func resolveBooking(_ id: String, part: Double, inAccount: Bool = false) async throws {
+        if inAccount, let api {
+            try await api.resolveBooking(id: id, part: part)
+            return
+        }
         var list = bookings()
         guard let i = list.firstIndex(where: { $0.id == id }) else { return }
         if part > 0 {

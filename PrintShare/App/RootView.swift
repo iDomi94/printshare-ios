@@ -26,6 +26,7 @@ struct RootView: View {
                             case .spool(let id, let copy): SpoolFormView(id: id, copy: copy)
                             case .manyfold: ManyfoldView()
                             case .failureDetection: FailureDetectionView()
+                            case .timelapse(let job, let name): TimelapseView(job: job, name: name)
                             case .printablesWeb: PrintablesWebView()
                             }
                         }
