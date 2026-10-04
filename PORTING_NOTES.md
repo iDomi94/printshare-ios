@@ -190,6 +190,30 @@ if it contradicts `printshare/api.py` the server wins; otherwise the simplest id
   opens the prepare screen with that file preselected. The file comes from `GET /api/model-file` (server 0.10.1, upstream PR #11); older
   servers answer 404 and the app says the server is too old.
 
+## Server 0.29.0-0.36.0 (upstream a738200, sync of 2026-10-04)
+
+- **Jobs follow the print (0.33.0)**: `JobState` has `finished`, `cancelled` (and `uploading` for G-code sent from
+  OrcaSlicer). The job screen shows a result page for them and "Print again" brings the review back (`again`). Cloud
+  printers the phone reaches itself: `POST /api/jobs/<id>/relayed {start, file}` after a send, and the printers tab reports
+  the statuses of those printers (`POST /api/observe`, at most every 30 s); bridge printers are watched by the server.
+- **Bookings in the account (0.29.0)**: with cloud spools (`spoolmanSetting() == "cloud"`) bookings are kept and settled
+  by the server (`/api/bookings`, `/observe`, `/{id}/resolve`); `ServerBooking.booking` maps them to the app's `Booking`
+  (seconds -> ms, `ask_part`, label fallback "#<spool>") so the booking card and lists are unchanged. An own Spoolman keeps
+  the phone-side bookings. Observe errors show as the "Spoolman unreachable" banner (the Expo app routes them to its generic error).
+- **Time-lapse (0.32.0)**: switch on the review screen when `cameraInfo` says a camera is available and the server reaches the
+  printer (own server or bridge); `send` gets `timelapse: true` only with a print start. `TimelapseView` plays the MP4 with
+  `AVPlayer` and sends the session token as a header (`AVURLAssetHTTPHeaderFieldsKey`, undocumented but long stable) instead
+  of the Expo app's `?token=` URL; "download" fetches the file for the share sheet.
+- **Send from OrcaSlicer (0.31.0)**: `OrcaUploadView` (printer edit screen, cloud only), same texts and flow as `orca-upload/[id].tsx`.
+- **Bambu Lab (0.35.0) and own camera (0.36.0)**: `bambu_lan` is only offered for printers added through a bridge
+  (`Lan.bridgeTypes`; the phone cannot do MQTT + FTPS). Access code = `password` in the sealed secrets, no API key.
+  Found printers carry `machine` (model from the serial number). The own camera URL is sealed as `camera_url` (`""` removes it).
+  The URL check is the Expo app's (`rtsp(s)://` or `http(s)://` plus a host).
+- **Discover hint (0.35.1)**: `WifiSubnet.current()` (`getifaddrs`, `en0`) sends the phone's /24-/30 network with the bridge search.
+- **Not ported**: bridges found on the Wi-Fi (Raspberry Pi image, 0.34.0: needs the Local Network permission, Bonjour /
+  `NSAllowsLocalNetworking` for plain HTTP and its own search, see below), web-app-only changes (0.28.0 cookie session,
+  drop zone, "Nur Handy" printers), server-only work (job store 0.30.0, Pi image build, website).
+
 ## Verification
 
 - The session that wrote this code had **no macOS, no Xcode and no Swift toolchain** (download of a toolchain is

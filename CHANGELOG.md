@@ -4,6 +4,19 @@ Jeder Abschnitt `## X.Y.Z` wird beim Tag `vX.Y.Z` automatisch als „Was testen�
 (`.github/workflows/testflight.yml`). Text auf Deutsch, höchstens 4000 Zeichen. Fehlt der Abschnitt, stehen dort
 die Commit-Titel seit dem letzten Tag.
 
+## 0.10.0
+
+Aufgeholt mit Server 0.36.0 (Upstream 0.29–0.36). Die meisten Neuerungen gibt es nur mit PocketPrint3D Cloud.
+
+- Aufträge folgen ihrem Druck: „Gedruckt“ / „Abgebrochen“ statt für immer „Gestartet“, mit Ergebnisseite und „Erneut drucken“. Drucke, die das Handy selbst per WLAN an den Drucker schickt, meldet die App dem Server (Druckertab, alle 30 s)
+- Zeitraffer: Schalter beim Drucken (nur wenn der Server oder die Brücke die Kamera erreicht, standardmäßig aus), nach dem Druck „Zeitraffer ansehen“ mit Video-Player und „Video herunterladen“
+- Spulen-Buchungen im Konto: Bei Cloud-Spulen bucht die Cloud selbst, wenn der Druck fertig ist, auch ohne geöffnete App und bei Drucken aus dem Browser. Eigener Spoolman: wie bisher auf dem Handy
+- „Senden aus OrcaSlicer“ (Drucker bearbeiten): Adresse und Key für OrcaSlicers „Octo/Klipper“-Drucker; der Druck erscheint als Auftrag, das Filament wird gebucht
+- Bambu Lab (LAN-Modus) über eine Brücke: Typ „Bambu Lab“ mit Zugangscode, das Modell kommt aus der Seriennummer
+- Eigene Kamera (RTSP / HTTP) für Drucker hinter einer Brücke, verschlüsselt wie das Passwort
+- Druckersuche über die Brücke: das WLAN des Handys geht als Hinweis mit (hilft Brücken im Docker-Netz)
+- Bitte testen: ein Druck mit Zeitraffer über eine Brücke, Auftrag nach dem Druck (Gedruckt), Buchung bei Cloud-Spulen nach einem Druck, Bambu über die Brücke hinzufügen; kein Druck ohne Absicht starten
+
 ## 0.9.0
 
 Aufgeholt mit Server 0.27.0 (Brücken). Nur mit PocketPrint3D Cloud.
