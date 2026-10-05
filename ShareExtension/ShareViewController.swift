@@ -4,6 +4,10 @@ import UniformTypeIdentifiers
 /// Share sheet target: hands the shared link, text or file to the app through the App Group and opens the app.
 final class ShareViewController: UIViewController {
     private let label = UILabel()
+    /// The app can only be opened once this sheet is on screen: before that the responder chain ends at this
+    /// controller and never reaches the application.
+    private var appeared = false
+    private var waitingForAppearance: CheckedContinuation<Void, Never>?
 
     private var german: Bool { (Locale.preferredLanguages.first ?? "").lowercased().hasPrefix("de") }
 
@@ -26,6 +30,18 @@ final class ShareViewController: UIViewController {
         Task { await handle() }
     }
 
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        appeared = true
+        waitingForAppearance?.resume()
+        waitingForAppearance = nil
+    }
+
+    private func onScreen() async {
+        if appeared { return }
+        await withCheckedContinuation { waitingForAppearance = $0 }
+    }
+
     private func handle() async {
         let items = (extensionContext?.inputItems as? [NSExtensionItem]) ?? []
         let providers = items.flatMap { $0.attachments ?? [] }
@@ -33,11 +49,22 @@ final class ShareViewController: UIViewController {
         for provider in providers {
             if let item = await extract(provider) { shared = item; break }
         }
+        var opened = false
         if let shared, (try? SharedInbox.write(shared)) != nil, let url = URL(string: "printshare://share") {
-            open(url)
+            await onScreen()
+            opened = open(url)
         }
-        // if the app did not come up by itself it processes the inbox the next time it becomes active
-        try? await Task.sleep(for: .milliseconds(1200))
+        if !opened {
+            // the app processes the inbox the next time it becomes active
+            label.text = shared == nil
+                ? (german ? "Nichts zum Übernehmen gefunden." : "Nothing to take over.")
+                : (german ? "Gespeichert. Öffne PocketPrint3D, um weiterzumachen."
+                          : "Saved. Open PocketPrint3D to continue.")
+            try? await Task.sleep(for: .milliseconds(1800))
+        } else {
+            // closing the sheet right away can cancel the switch to the app
+            try? await Task.sleep(for: .milliseconds(800))
+        }
         extensionContext?.completeRequest(returningItems: nil)
     }
 
@@ -104,19 +131,24 @@ final class ShareViewController: UIViewController {
 
     /// `UIApplication.shared` is unavailable in extensions: walk the responder chain to the application instead
     /// (same trick as expo-share-intent; the selector form keeps working on iOS 18).
-    private func open(_ url: URL) {
+    /// Only the application itself: the window scene comes first in the chain and answers the same selector
+    /// (`UIScene.open(_:options:completionHandler:)`), but it is the extension's own scene and silently opens
+    /// nothing - 0.7.91 and 0.8.0 stopped there.
+    /// Must run while the sheet is on screen (see `onScreen`). False when no responder can open URLs.
+    private func open(_ url: URL) -> Bool {
         typealias OpenFn = @convention(c) (AnyObject, Selector, URL, [UIApplication.OpenExternalURLOptionsKey: Any],
                                            ((Bool) -> Void)?) -> Void
         let selector = NSSelectorFromString("openURL:options:completionHandler:")
         var responder: UIResponder? = self
         while let current = responder {
-            if current.responds(to: selector) {
+            if current is UIApplication, current.responds(to: selector) {
                 let imp = current.method(for: selector)
                 let call = unsafeBitCast(imp, to: OpenFn.self)
                 call(current, selector, url, [:], nil)
-                return
+                return true
             }
             responder = current.next
         }
+        return false
     }
 }

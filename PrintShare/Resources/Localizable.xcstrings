@@ -33,6 +33,38 @@
         }
       }
     },
+    "aboutTextCloud": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open Source (MIT). Die Druckberechnung läuft mit OrcaSlicer in der PocketPrint3D Cloud (EU); an den Drucker sendet dein Handy direkt im WLAN."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open source (MIT). Prints are prepared with OrcaSlicer in the PocketPrint3D Cloud (EU); your phone sends them to the printer directly on your Wi-Fi."
+          }
+        }
+      }
+    },
+    "aboutTextCloudWeb": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open Source (MIT). Die Druckberechnung läuft mit OrcaSlicer in der PocketPrint3D Cloud (EU); an den Drucker geht der Druck über deine Brücke zu Hause oder über die App im WLAN."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open source (MIT). Prints are prepared with OrcaSlicer in the PocketPrint3D Cloud (EU); they reach the printer through your bridge at home or through the app on the Wi-Fi."
+          }
+        }
+      }
+    },
     "account": {
       "localizations": {
         "de": {
@@ -45,6 +77,38 @@
           "stringUnit": {
             "state": "translated",
             "value": "Account"
+          }
+        }
+      }
+    },
+    "actionNotify": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nur melden"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Notify only"
+          }
+        }
+      }
+    },
+    "actionPause": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pausieren"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pause"
           }
         }
       }
@@ -77,6 +141,38 @@
           "stringUnit": {
             "state": "translated",
             "value": "Add printer"
+          }
+        }
+      }
+    },
+    "addPrinterNow": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Drucker hinzufügen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add printer"
+          }
+        }
+      }
+    },
+    "advanced": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Erweitert"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Advanced"
           }
         }
       }
@@ -349,6 +445,518 @@
           "stringUnit": {
             "state": "translated",
             "value": "Spoolman: bookings to decide"
+          }
+        }
+      }
+    },
+    "bridgeAccessHint": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nur ausfüllen, um Adresse, Passwort oder API-Key zu ändern – sie werden verschlüsselt an die Brücke geschickt."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Only fill in to change the address, password or API key – they are sent encrypted to the bridge."
+          }
+        }
+      }
+    },
+    "bridgeAddHint": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wird über die Brücke „{bridge}“ hinzugefügt. Adresse und Passwort werden verschlüsselt, nur die Brücke kann sie lesen."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Added through the bridge “{bridge}”. Address and password are encrypted; only the bridge can read them."
+          }
+        }
+      }
+    },
+    "bridgeAddPrinter": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Drucker über die Brücke hinzufügen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add a printer through the bridge"
+          }
+        }
+      }
+    },
+    "bridgeAddressHint": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Adresse des Druckers im Netzwerk der Brücke, z. B. 192.168.1.50."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The printer's address in the bridge's network, e.g. 192.168.1.50."
+          }
+        }
+      }
+    },
+    "bridgeCode": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Code der Brücke"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Code of the bridge"
+          }
+        }
+      }
+    },
+    "bridgeCodeHint": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Der Code steht auf der Seite der Brücke (Raspberry Pi: http://pocketprint3d.local), im Protokoll des Containers bzw. auf der Seite des Add-ons und gilt 10 Minuten."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The code is on the bridge's page (Raspberry Pi: http://pocketprint3d.local), in the container's log or on the add-on's page, and is valid for 10 minutes."
+          }
+        }
+      }
+    },
+    "bridgeConnect": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Brücke verbinden"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connect a bridge"
+          }
+        }
+      }
+    },
+    "bridgeConnectBtn": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Verbinden"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connect"
+          }
+        }
+      }
+    },
+    "bridgeFindTitle": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Von der Brücke gefunden"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Found by the bridge"
+          }
+        }
+      }
+    },
+    "bridgeGuide": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Noch keine Brücke? Anleitung für Einsteiger"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No bridge yet? Guide for beginners"
+          }
+        }
+      }
+    },
+    "bridgeGuideSub": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Raspberry Pi für etwa 60 € – fertiges Image: Karte rein, Kabel dran, fertig"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Raspberry Pi for about €60 – ready-made image: card in, cable on, done"
+          }
+        }
+      }
+    },
+    "bridgeIntro": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eine Brücke ist ein kleiner Rechner bei dir zu Hause, der ständig läuft – am einfachsten ein Raspberry Pi mit unserem fertigen Image, oder dein eigener PocketPrint3D-Server (Unraid, Home Assistant, Docker). Ist sie mit deinem Konto verbunden, erreichst du deine Drucker auch unterwegs; nichts muss im Router freigegeben werden."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A bridge is a small computer at home that is always on – easiest is a Raspberry Pi with our ready-made image, or your own PocketPrint3D server (Unraid, Home Assistant, Docker). Once it is connected to your account, you reach your printers from anywhere; nothing has to be opened in your router."
+          }
+        }
+      }
+    },
+    "bridgeLanFree": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wartet auf ein Konto – tippen zum Verbinden"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Waiting for an account – tap to connect"
+          }
+        }
+      }
+    },
+    "bridgeLanHint": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eine fertige PocketPrint3D-Brücke (Raspberry Pi) im selben WLAN erscheint hier – ein Tipp verbindet sie mit deinem Konto."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A ready-made PocketPrint3D bridge (Raspberry Pi) on the same Wi-Fi shows up here – one tap connects it to your account."
+          }
+        }
+      }
+    },
+    "bridgeLanMine": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "In deinem Konto"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "In your account"
+          }
+        }
+      }
+    },
+    "bridgeLanNoWifi": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dein Handy ist gerade nicht in einem WLAN – verbinde es mit dem WLAN zu Hause, um die Brücke zu finden."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your phone isn't on a Wi-Fi right now – connect it to your home Wi-Fi to find the bridge."
+          }
+        }
+      }
+    },
+    "bridgeLanNone": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keine Brücke im WLAN gefunden. Ist der Raspberry Pi eingesteckt und per LAN-Kabel am Router? Nach dem ersten Einschalten dauert es etwa 3 Minuten."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No bridge found on your Wi-Fi. Is the Raspberry Pi plugged in and connected to the router with a network cable? After the first start it takes about 3 minutes."
+          }
+        }
+      }
+    },
+    "bridgeLanOther": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Verbunden mit {account}"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connected to {account}"
+          }
+        }
+      }
+    },
+    "bridgeLanSearching": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Suche Brücken im WLAN …"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Looking for bridges on your Wi-Fi …"
+          }
+        }
+      }
+    },
+    "bridgeLanServer": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Server – den Code findest du in seinen Einstellungen, unten eingeben"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Server – its code is in its settings, enter it below"
+          }
+        }
+      }
+    },
+    "bridgeLanStarting": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Startet gerade …"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Starting …"
+          }
+        }
+      }
+    },
+    "bridgeLanTitle": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Im WLAN gefunden"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Found on your Wi-Fi"
+          }
+        }
+      }
+    },
+    "bridgeLastSeen": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "zuletzt {v}"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "last seen {v}"
+          }
+        }
+      }
+    },
+    "bridgeNeedsOnline": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Geht, sobald die Brücke online ist."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Works once the bridge is online."
+          }
+        }
+      }
+    },
+    "bridgeNone": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Die Brücke hat keinen Drucker gefunden. Du kannst die Adresse auch selbst eingeben."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The bridge found no printer. You can also enter the address yourself."
+          }
+        }
+      }
+    },
+    "bridgePaired": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„{name}“ ist verbunden – die Drucker erscheinen in wenigen Sekunden."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "“{name}” is connected – its printers appear in a few seconds."
+          }
+        }
+      }
+    },
+    "bridgePrinterHint": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Erreichbar über die Brücke „{bridge}“."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reached through the bridge “{bridge}”."
+          }
+        }
+      }
+    },
+    "bridgeRemove": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Brücke entfernen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remove bridge"
+          }
+        }
+      }
+    },
+    "bridgeRemoveQ": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Brücke „{name}“ entfernen? Ihre Drucker verschwinden aus deinem Konto."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remove the bridge “{name}”? Its printers disappear from your account."
+          }
+        }
+      }
+    },
+    "bridgeSearching": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Die Brücke sucht in ihrem Netzwerk …"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The bridge is searching its network …"
+          }
+        }
+      }
+    },
+    "bridgesSub": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mit einer Brücke zu Hause – deine Drucker von überall"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "With a bridge at home – your printers from everywhere"
+          }
+        }
+      }
+    },
+    "bridgesTitle": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unterwegs drucken"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Print from anywhere"
           }
         }
       }
@@ -641,6 +1249,38 @@
         }
       }
     },
+    "cancelledSub": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Der Druck wurde abgebrochen oder ist nicht fertig geworden."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The print was cancelled or didn't finish."
+          }
+        }
+      }
+    },
+    "cancelledTitle": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Druck abgebrochen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Print cancelled"
+          }
+        }
+      }
+    },
     "category": {
       "localizations": {
         "de": {
@@ -673,6 +1313,22 @@
         }
       }
     },
+    "changeAccount": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Konto wechseln"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Switch account"
+          }
+        }
+      }
+    },
     "changeServer": {
       "localizations": {
         "de": {
@@ -694,13 +1350,13 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Geänderte Werte"
+            "value": "Eigene Änderungen"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Changed values"
+            "value": "Your changes"
           }
         }
       }
@@ -710,13 +1366,13 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "keine – Profilwerte"
+            "value": "keine"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "none – profile values"
+            "value": "none"
           }
         }
       }
@@ -813,6 +1469,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "No server of your own needed: search and slicing happen in the PocketPrint3D cloud, printing goes over your Wi-Fi at home. Free."
+          }
+        }
+      }
+    },
+    "cloudIntroWeb": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dasselbe Konto wie in der App: gesucht und geslict wird in der PocketPrint3D Cloud. Gedruckt wird über eine Brücke zu Hause – oder mit der App auf dem Handy im WLAN. Kostenlos."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The same account as in the app: searching and slicing happen in the PocketPrint3D Cloud. Printing goes through a bridge at home – or with the app on your phone on the Wi-Fi. Free."
           }
         }
       }
@@ -1025,6 +1697,22 @@
         }
       }
     },
+    "confirmStartPlateQ": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ist die Druckplatte leer und {material} geladen? Dann startet der Druck auf {printer}."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Is the build plate empty and {material} loaded? Then the print starts on {printer}."
+          }
+        }
+      }
+    },
     "confirmStartQ": {
       "localizations": {
         "de": {
@@ -1062,13 +1750,13 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Server verbinden"
+            "value": "Kostenlos anmelden"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Connect server"
+            "value": "Sign up for free"
           }
         }
       }
@@ -1165,6 +1853,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Cool down"
+          }
+        }
+      }
+    },
+    "copied": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "kopiert ✓"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "copied ✓"
           }
         }
       }
@@ -1457,6 +2161,118 @@
         }
       }
     },
+    "discoverAdded": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "bereits hinzugefügt"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "already added"
+          }
+        }
+      }
+    },
+    "discoverAgain": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Erneut suchen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Search again"
+          }
+        }
+      }
+    },
+    "discoverHint": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tippe auf deinen Drucker – Typ und Adresse werden übernommen."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tap your printer – its type and address are filled in."
+          }
+        }
+      }
+    },
+    "discoverManual": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Adresse selbst eingeben"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enter the address yourself"
+          }
+        }
+      }
+    },
+    "discoverNoWifi": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dein Handy ist gerade nicht in einem WLAN – verbinde es mit dem WLAN, in dem auch der Drucker ist."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your phone isn't on a Wi-Fi right now – connect it to the Wi-Fi your printer uses."
+          }
+        }
+      }
+    },
+    "discoverNone": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kein Drucker gefunden. Ist er eingeschaltet und ist dein Handy im selben WLAN?"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No printer found. Is it switched on and is your phone on the same Wi-Fi?"
+          }
+        }
+      }
+    },
+    "discoverRunning": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Suche im WLAN … {pct} %"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Searching your Wi-Fi … {pct} %"
+          }
+        }
+      }
+    },
     "discoverTitle": {
       "localizations": {
         "de": {
@@ -1489,6 +2305,38 @@
         }
       }
     },
+    "dropHere": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Modelldatei hier ablegen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Drop the model file here"
+          }
+        }
+      }
+    },
+    "dropWrongType": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Diese Datei kann nicht gedruckt werden – möglich sind STL, 3MF, OBJ und STEP."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This file can't be printed – STL, 3MF, OBJ and STEP work."
+          }
+        }
+      }
+    },
     "editSettings": {
       "localizations": {
         "de": {
@@ -1517,6 +2365,86 @@
           "stringUnit": {
             "state": "translated",
             "value": "E-mail address"
+          }
+        }
+      }
+    },
+    "errBridgeCode": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Diesen Code kennt die Cloud nicht (oder er ist abgelaufen) – die Brücke zeigt nach 10 Minuten einen neuen."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The cloud doesn't know this code (or it expired) – the bridge shows a new one after 10 minutes."
+          }
+        }
+      }
+    },
+    "errBridgeKey": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Die Brücke hat keinen Schlüssel gemeldet – bitte aktualisiere sie."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The bridge reported no key – please update it."
+          }
+        }
+      }
+    },
+    "errBridgeOffline": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Die Brücke ist offline – läuft dein Server zu Hause?"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The bridge is offline – is your server at home running?"
+          }
+        }
+      }
+    },
+    "errBridgeServerPrinter": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dieser Drucker ist direkt auf deinem Server eingerichtet – entferne ihn dort."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This printer is set up on your server itself – remove it there."
+          }
+        }
+      }
+    },
+    "errBridgeTimeout": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Die Brücke hat nicht rechtzeitig geantwortet – bitte noch einmal versuchen."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The bridge didn't answer in time – please try again."
           }
         }
       }
@@ -1601,6 +2529,86 @@
         }
       }
     },
+    "errLanAuth": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Der Drucker hat das Passwort bzw. den API-Key abgelehnt – prüfe sie in den Einstellungen beim Drucker."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The printer rejected the password or API key – check them in the printer's settings."
+          }
+        }
+      }
+    },
+    "errLanOcto": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "OctoPrint ist nicht mit dem Drucker verbunden – verbinde ihn in OctoPrint."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "OctoPrint isn't connected to the printer – connect it in OctoPrint."
+          }
+        }
+      }
+    },
+    "errLanOffline": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Der Drucker antwortet nicht im WLAN – ist er eingeschaltet und ist dein Handy im selben WLAN?"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The printer doesn't answer on the Wi-Fi – is it switched on and is your phone on the same Wi-Fi?"
+          }
+        }
+      }
+    },
+    "errLanStorage": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Der Drucker hat keinen beschreibbaren Speicher – steckt ein USB-Stick?"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The printer has no writable storage – is a USB stick inserted?"
+          }
+        }
+      }
+    },
+    "errLanUpload": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Die Datei konnte nicht auf den Drucker übertragen werden – versuche es noch einmal."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The file couldn't be sent to the printer – please try again."
+          }
+        }
+      }
+    },
     "errLink": {
       "localizations": {
         "de": {
@@ -1633,6 +2641,70 @@
         }
       }
     },
+    "errMakerWorld": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "MakerWorld erlaubt Downloads nur mit deinem Konto: lade das 3MF auf makerworld.com und teile es mit PocketPrint3D."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "MakerWorld only allows downloads with your account: download the 3MF on makerworld.com and share it with PocketPrint3D."
+          }
+        }
+      }
+    },
+    "errManyfoldKey": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Manyfold hat den API-Key abgelehnt – prüfe ihn in den Einstellungen."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Manyfold rejected the API key – check it in the settings."
+          }
+        }
+      }
+    },
+    "errManyfoldOffline": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Manyfold antwortet nicht – läuft es und stimmt die Adresse?"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Manyfold doesn't answer – is it running and is the address right?"
+          }
+        }
+      }
+    },
+    "errMlOffline": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Die KI-Fehlererkennung antwortet nicht – läuft der Obico-ML-Container und stimmt die Adresse?"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The AI failure detection doesn't answer – is the Obico ML container running and is the address right?"
+          }
+        }
+      }
+    },
     "errNoFiles": {
       "localizations": {
         "de": {
@@ -1645,6 +2717,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "This model has no printable files (STL, 3MF, OBJ, STEP)."
+          }
+        }
+      }
+    },
+    "errNoPrint": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Es läuft gerade kein Druck."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No print is running."
           }
         }
       }
@@ -1693,6 +2781,38 @@
           "stringUnit": {
             "state": "translated",
             "value": "The server is not reachable. Are you on the same network or connected to Tailscale?"
+          }
+        }
+      }
+    },
+    "errOrcaLink": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Das ist kein Orca-Cloud-Link – er sieht so aus: https://cloud.orcaslicer.com/b/…"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "That's not an Orca Cloud link – it looks like https://cloud.orcaslicer.com/b/…"
+          }
+        }
+      }
+    },
+    "errOrcaPrivate": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dieses Orca-Cloud-Bundle ist privat oder gelöscht – teile es öffentlich oder exportiere die Profile als Datei."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This Orca Cloud bundle is private or deleted – share it publicly or export the profiles as a file."
           }
         }
       }
@@ -1821,6 +2941,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Slicing failed. Often the model is larger than the build volume or broken."
+          }
+        }
+      }
+    },
+    "errSpoolmanOffline": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spoolman antwortet nicht – läuft es und stimmt die Adresse?"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spoolman doesn't answer – is it running and is the address right?"
           }
         }
       }
@@ -1985,6 +3121,198 @@
         }
       }
     },
+    "failureAction": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bei Verdacht"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "On suspicion"
+          }
+        }
+      }
+    },
+    "failureHint": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Starte nur den Dienst „ml_api“ von Obico (github.com/TheSpaghettiDetective/obico-server, docker compose up -d ml_api, Port 3333, ca. 4 GB RAM). Er holt die Kamerabilder von diesem Server – daher die Server-Adresse, wie der Container sie erreicht. Beim Speichern wird ein Testbild geprüft."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Run only Obico's “ml_api” service (github.com/TheSpaghettiDetective/obico-server, docker compose up -d ml_api, port 3333, about 4 GB RAM). It fetches the camera pictures from this server – hence this server's address as the container reaches it. Saving checks a test picture."
+          }
+        }
+      }
+    },
+    "failureMl": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Adresse der ML-API"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ML API address"
+          }
+        }
+      }
+    },
+    "failureNote": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Die Warnung erscheint in der App (noch keine Push-Mitteilung)."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The warning shows in the app (no push notification yet)."
+          }
+        }
+      }
+    },
+    "failureOk": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Verbunden – die ML-API hat das Testbild geprüft."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connected – the ML API checked the test picture."
+          }
+        }
+      }
+    },
+    "failureRemove": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fehlererkennung ausschalten"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Turn failure detection off"
+          }
+        }
+      }
+    },
+    "failureSensitivity": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Empfindlichkeit"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sensitivity"
+          }
+        }
+      }
+    },
+    "failureServer": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Adresse dieses Servers für die ML-API"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This server's address for the ML API"
+          }
+        }
+      }
+    },
+    "failureSub": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Erkennt Fehldrucke (Spaghetti, Ablösen) im Kamerabild – mit Obicos ML-API auf deinem Server."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spots failed prints (spaghetti, detaching) in the camera picture – with Obico's ML API on your server."
+          }
+        }
+      }
+    },
+    "failureTitle": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "KI-Fehlererkennung"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "AI failure detection"
+          }
+        }
+      }
+    },
+    "failureToken": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ML_API_TOKEN (optional)"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ML_API_TOKEN (optional)"
+          }
+        }
+      }
+    },
+    "failureTokenKept": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Token (gespeichert – leer lassen)"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Token (stored – leave empty)"
+          }
+        }
+      }
+    },
     "fan.aux": {
       "localizations": {
         "de": {
@@ -2145,6 +3473,86 @@
         }
       }
     },
+    "finishedSub": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Der Drucker hat den Druck abgeschlossen."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The printer has finished the print."
+          }
+        }
+      }
+    },
+    "finishedTitle": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Druck fertig"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Print finished"
+          }
+        }
+      }
+    },
+    "firstPrinterSub": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Typ wählen und die Adresse im WLAN eintragen – dann kann es losgehen."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choose its type and enter its address on the Wi-Fi – then you're ready."
+          }
+        }
+      }
+    },
+    "firstPrinterSubWeb": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Am einfachsten mit einer Brücke zu Hause – dann druckst du direkt aus dem Browser. Oder füge ihn in der App auf dem Handy hinzu."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Easiest with a bridge at home – then you print straight from the browser. Or add it in the app on your phone."
+          }
+        }
+      }
+    },
+    "firstPrinterTitle": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Erster Schritt: Drucker hinzufügen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "First step: add your printer"
+          }
+        }
+      }
+    },
     "fitModel": {
       "localizations": {
         "de": {
@@ -2157,6 +3565,70 @@
           "stringUnit": {
             "state": "translated",
             "value": "Model"
+          }
+        }
+      }
+    },
+    "gcode2d": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "2D (Schicht)"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "2D (layer)"
+          }
+        }
+      }
+    },
+    "gcode3d": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "3D"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "3D"
+          }
+        }
+      }
+    },
+    "gcode3dHint": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ein Finger: drehen · zwei Finger: zoomen und verschieben · Regler: bis zu welcher Schicht"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "One finger: rotate · two fingers: zoom and pan · slider: up to which layer"
+          }
+        }
+      }
+    },
+    "gcodeDownload": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "G-Code herunterladen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Download G-code"
           }
         }
       }
@@ -2230,13 +3702,13 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Teile einen Printables-Link direkt aus Safari oder Chrome mit PocketPrint3D – oder füge ihn hier ein."
+            "value": "Teile einen Link zu einem Modell aus deinem Browser mit PocketPrint3D – oder füge ihn hier ein."
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Share a Printables link straight from Safari or Chrome with PocketPrint3D – or paste it here."
+            "value": "Share a model link from your browser with PocketPrint3D – or paste it here."
           }
         }
       }
@@ -3009,6 +4481,22 @@
         }
       }
     },
+    "jobState.cancelled": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abgebrochen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cancelled"
+          }
+        }
+      }
+    },
     "jobState.done": {
       "localizations": {
         "de": {
@@ -3037,6 +4525,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Error"
+          }
+        }
+      }
+    },
+    "jobState.finished": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gedruckt"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Printed"
           }
         }
       }
@@ -3094,13 +4598,13 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Slicen …"
+            "value": "Wird berechnet …"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Slicing …"
+            "value": "Preparing …"
           }
         }
       }
@@ -3110,13 +4614,13 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Gestartet"
+            "value": "Druckt"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Started"
+            "value": "Printing"
           }
         }
       }
@@ -3133,6 +4637,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Uploaded"
+          }
+        }
+      }
+    },
+    "jobState.uploading": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wird empfangen …"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Receiving …"
           }
         }
       }
@@ -3213,6 +4733,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "The printer's IP address on the Wi-Fi, e.g. 192.168.1.50 (see the printer's network menu). It stays on this device only - the app talks to the printer directly."
+          }
+        }
+      }
+    },
+    "lanFindTitle": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Drucker im WLAN"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Printers on your Wi-Fi"
           }
         }
       }
@@ -3969,6 +5505,54 @@
         }
       }
     },
+    "makerworldOpen": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "MakerWorld öffnen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open MakerWorld"
+          }
+        }
+      }
+    },
+    "makerworldText": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "MakerWorld lässt sich nicht von außen durchsuchen. Öffne ein Modell in der MakerWorld-App oder im Browser und schick es über „Teilen → PocketPrint3D“ hierher – oder füge den Link oben ein."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "MakerWorld can't be searched from outside. Open a model in the MakerWorld app or your browser and send it here with “Share → PocketPrint3D” – or paste the link above."
+          }
+        }
+      }
+    },
+    "makerworldTitle": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Modelle von MakerWorld"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Models from MakerWorld"
+          }
+        }
+      }
+    },
     "makes": {
       "localizations": {
         "de": {
@@ -3997,6 +5581,150 @@
           "stringUnit": {
             "state": "translated",
             "value": "Enter manually"
+          }
+        }
+      }
+    },
+    "manyfoldAddress": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Manyfold-Adresse"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Manyfold address"
+          }
+        }
+      }
+    },
+    "manyfoldHint": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Adresse deines Manyfold (z. B. http://192.168.1.20:3214) und ein API-Key (in Manyfold: dein Name → API-Keys, Bereich „read“). Der PocketPrint3D-Server prüft beides und lädt die Modelle direkt von dort."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Address of your Manyfold (e.g. http://192.168.1.20:3214) and an API key (in Manyfold: your name → API keys, scope “read”). The PocketPrint3D server checks both and loads the models straight from there."
+          }
+        }
+      }
+    },
+    "manyfoldKey": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "API-Key"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "API key"
+          }
+        }
+      }
+    },
+    "manyfoldKeyKept": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "API-Key (gespeichert – leer lassen)"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "API key (stored – leave empty)"
+          }
+        }
+      }
+    },
+    "manyfoldOk": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Verbunden – {n} Modelle in deiner Bibliothek."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connected – {n} models in your library."
+          }
+        }
+      }
+    },
+    "manyfoldRemove": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Manyfold trennen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Disconnect Manyfold"
+          }
+        }
+      }
+    },
+    "manyfoldRemoveQ": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Manyfold-Verbindung entfernen?"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remove the Manyfold connection?"
+          }
+        }
+      }
+    },
+    "manyfoldSub": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Manyfold auf deinem Server: deine Modelle erscheinen in „Entdecken“."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Manyfold on your server: your models show up in “Discover”."
+          }
+        }
+      }
+    },
+    "manyfoldTitle": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eigene Modell-Bibliothek"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Own model library"
           }
         }
       }
@@ -4257,6 +5985,214 @@
         }
       }
     },
+    "nfcAdd": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Als neue Spule anlegen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add as a new spool"
+          }
+        }
+      }
+    },
+    "nfcCancel": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abbrechen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cancel"
+          }
+        }
+      }
+    },
+    "nfcFilled": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vom Tag übernommen: {tag}"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Taken from the tag: {tag}"
+          }
+        }
+      }
+    },
+    "nfcHold": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Halte das Handy an den NFC-Tag der Spule …"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hold the phone to the spool's NFC tag …"
+          }
+        }
+      }
+    },
+    "nfcMatched": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "{spool} gewählt (Tag: {tag})."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "{spool} chosen (tag: {tag})."
+          }
+        }
+      }
+    },
+    "nfcNoMatch": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keine passende Spule für „{tag}“."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No matching spool for “{tag}”."
+          }
+        }
+      }
+    },
+    "nfcNone": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dieses Handy hat kein NFC."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This phone has no NFC."
+          }
+        }
+      }
+    },
+    "nfcNotOpt": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Auf diesem Tag ist kein OpenPrintTag."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "There is no OpenPrintTag on this tag."
+          }
+        }
+      }
+    },
+    "nfcOff": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "NFC ist ausgeschaltet – schalte es in den Einstellungen des Handys ein."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "NFC is switched off – turn it on in the phone settings."
+          }
+        }
+      }
+    },
+    "nfcPick": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spule per NFC wählen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choose spool by NFC"
+          }
+        }
+      }
+    },
+    "nfcRead": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Von NFC-Tag lesen (OpenPrintTag)"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Read from NFC tag (OpenPrintTag)"
+          }
+        }
+      }
+    },
+    "nfcReadFailed": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Der Tag konnte nicht gelesen werden – Handy ruhig halten und noch einmal versuchen."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The tag could not be read – hold the phone still and try again."
+          }
+        }
+      }
+    },
+    "nfcTimeout": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kein Tag gefunden – halte das Handy ruhig an die Spule und versuche es noch einmal."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No tag found – hold the phone still on the spool and try again."
+          }
+        }
+      }
+    },
     "noPrintableFiles": {
       "localizations": {
         "de": {
@@ -4301,6 +6237,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Add your first printer - a name, its type and its address on the Wi-Fi are enough."
+          }
+        }
+      }
+    },
+    "noPrintersCloudWeb": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Verbinde eine Brücke zu Hause (Einstellungen → Erweitert → Unterwegs drucken) – ihre Drucker erscheinen dann hier."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connect a bridge at home (Settings → Advanced → Print from anywhere) – its printers then show up here."
           }
         }
       }
@@ -4390,13 +6342,29 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Verbinde die App einmalig mit deinem PocketPrint3D-Server."
+            "value": "Modelle finden und direkt vom Handy auf deinem 3D-Drucker drucken – kostenlos, nur mit deiner E-Mail."
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Connect the app to your PocketPrint3D server once."
+            "value": "Find models and print them on your 3D printer straight from your phone – free, just with your e-mail."
+          }
+        }
+      }
+    },
+    "notConnectedSubWeb": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Modelle finden, im Browser vorbereiten und auf deinem 3D-Drucker drucken – kostenlos, nur mit deiner E-Mail. Dasselbe Konto wie in der App."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Find models, prepare them in your browser and print them on your 3D printer – free, just with your e-mail. The same account as in the app."
           }
         }
       }
@@ -4406,13 +6374,13 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Noch nicht verbunden"
+            "value": "Willkommen bei PocketPrint3D"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Not connected yet"
+            "value": "Welcome to PocketPrint3D"
           }
         }
       }
@@ -4545,6 +6513,438 @@
         }
       }
     },
+    "orcaAccess": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zugang für OrcaSlicer"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Access for OrcaSlicer"
+          }
+        }
+      }
+    },
+    "orcaCloudChoose": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wähle oben das passende Druckerprofil."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choose the matching printer profile above."
+          }
+        }
+      }
+    },
+    "orcaCloudDone": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„{bundle}“: {n} Profile importiert."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "“{bundle}”: {n} profiles imported."
+          }
+        }
+      }
+    },
+    "orcaCloudHint": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Link eines öffentlichen Bundles von cloud.orcaslicer.com einfügen – Drucker-, Qualitäts- und Materialprofile werden übernommen, ohne Orca-Konto. Private Bundles lassen sich nur mit Orca-Anmeldung lesen: dann die Profile in OrcaSlicer exportieren und unten hochladen."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Paste the link of a public bundle on cloud.orcaslicer.com – printer, quality and material profiles are imported, no Orca account needed. Private bundles need an Orca login: export the presets in OrcaSlicer and upload the file below instead."
+          }
+        }
+      }
+    },
+    "orcaCloudImport": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Importieren"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Import"
+          }
+        }
+      }
+    },
+    "orcaCloudSkipped": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "{n} übersprungen (OrcaSlicer 2.4.2 kennt ihre Basis nicht)."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "{n} skipped (OrcaSlicer 2.4.2 doesn't know their base)."
+          }
+        }
+      }
+    },
+    "orcaCloudTitle": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aus Orca Cloud importieren"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Import from Orca Cloud"
+          }
+        }
+      }
+    },
+    "orcaCreate": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zugang erstellen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Create access"
+          }
+        }
+      }
+    },
+    "orcaHowTo": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1. Neben dem Drucker das WLAN-Symbol antippen (Physischen Drucker hinzufügen).\n2. Host-Typ: Octo/Klipper.\n3. Hostname, IP oder URL: die Adresse von oben.\n4. API-Key: der Key von oben.\n5. „Test“ – OrcaSlicer meldet die Verbindung als erfolgreich.\nDanach nach dem Slicen „Hochladen“ oder „Hochladen und drucken“."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1. Click the Wi-Fi icon next to the printer (Add physical printer).\n2. Host type: Octo/Klipper.\n3. Hostname, IP or URL: the address above.\n4. API key: the key above.\n5. “Test” – OrcaSlicer reports the connection as successful.\nAfter slicing, use “Upload” or “Upload and print”."
+          }
+        }
+      }
+    },
+    "orcaIntro": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Druckst du am Computer mit OrcaSlicer? Dann schickt OrcaSlicer den G-Code für „{printer}“ über PocketPrint3D: er erscheint hier als Auftrag (Vorschau, Spulen, Drucken) und die Spule wird gebucht."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Do you print from OrcaSlicer on your computer? Then OrcaSlicer sends the G-code for “{printer}” through PocketPrint3D: it shows up here as a job (preview, spools, print) and the spool is booked."
+          }
+        }
+      }
+    },
+    "orcaKey": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "API-Key (antippen zum Kopieren)"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "API key (tap to copy)"
+          }
+        }
+      }
+    },
+    "orcaKeyOnce": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Der Key wird nur jetzt angezeigt. Verloren? Einfach einen neuen erzeugen."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The key is only shown now. Lost it? Just create a new one."
+          }
+        }
+      }
+    },
+    "orcaKeySet": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "eingerichtet"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "set up"
+          }
+        }
+      }
+    },
+    "orcaLastUsed": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "zuletzt benutzt {v}"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "last used {v}"
+          }
+        }
+      }
+    },
+    "orcaNeverUsed": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "noch nicht benutzt"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "not used yet"
+          }
+        }
+      }
+    },
+    "orcaOff": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ausschalten"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Switch off"
+          }
+        }
+      }
+    },
+    "orcaOffQ": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Senden aus OrcaSlicer für diesen Drucker ausschalten?"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Switch off sending from OrcaSlicer for this printer?"
+          }
+        }
+      }
+    },
+    "orcaPrintNote": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "„Hochladen und drucken“ startet sofort, wenn der Drucker über eine Brücke erreichbar ist (gebucht wird die zuletzt benutzte Spule). Sonst liegt der Druck bereit und du startest ihn in der App."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "“Upload and print” starts right away when the printer is reached through a bridge (the spool used last is booked). Otherwise the print waits and you start it in the app."
+          }
+        }
+      }
+    },
+    "orcaRenew": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Neuen Key erzeugen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Create a new key"
+          }
+        }
+      }
+    },
+    "orcaRenewQ": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Neuen Key erzeugen? Der bisherige funktioniert dann nicht mehr."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Create a new key? The current one stops working."
+          }
+        }
+      }
+    },
+    "orcaRow": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aus OrcaSlicer am Computer senden"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Send from OrcaSlicer on your computer"
+          }
+        }
+      }
+    },
+    "orcaSteps": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "So geht's in OrcaSlicer"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "How to set it up in OrcaSlicer"
+          }
+        }
+      }
+    },
+    "orcaTitle": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aus OrcaSlicer senden"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Send from OrcaSlicer"
+          }
+        }
+      }
+    },
+    "orcaUrl": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Adresse (antippen zum Kopieren)"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Address (tap to copy)"
+          }
+        }
+      }
+    },
+    "orcaWhy": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "OrcaSlicer erreicht deinen Drucker oft auch direkt – dann geht der Druck aber an PocketPrint3D vorbei. Über PocketPrint3D:\n• Die Spulen stimmen: das Filament wird gebucht wie bei jedem anderen Druck.\n• Von überall: am Laptop slicen, zu Hause druckt es – über deine Brücke.\n• Ein Überblick: der Druck erscheint in App und Browser, mit Vorschau, Fortschritt und Kamera.\n• Erst prüfen, später starten: „Hochladen“ legt den Druck bereit, du startest ihn am Handy und wählst Spule und Slot."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "OrcaSlicer can often reach your printer directly – but then the print bypasses PocketPrint3D. Through PocketPrint3D:\n• Spools stay right: the filament is booked like for every other print.\n• From anywhere: slice on the laptop, the printer at home prints – through your bridge.\n• One overview: the print shows up in the app and the browser, with preview, progress and camera.\n• Check first, start later: “Upload” gets the print ready, you start it on your phone and choose spool and slot."
+          }
+        }
+      }
+    },
+    "orcaWhyNot": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keine Spulen und nur zu Hause? Dann ist direktes Senden aus OrcaSlicer genauso gut. In OrcaSlicer bekommt dein echter Drucker nur einen anderen Weg – über PocketPrint3D."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No spools and only printing at home? Then sending directly from OrcaSlicer is just as good. In OrcaSlicer your real printer only gets another way – through PocketPrint3D."
+          }
+        }
+      }
+    },
+    "orcaWhyTitle": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Warum über PocketPrint3D?"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Why through PocketPrint3D?"
+          }
+        }
+      }
+    },
     "otherEmail": {
       "localizations": {
         "de": {
@@ -4605,6 +7005,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Own profiles"
+          }
+        }
+      }
+    },
+    "ownServerLink": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eigener Server? (für Fortgeschrittene)"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Own server? (advanced)"
           }
         }
       }
@@ -4694,13 +7110,29 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "STL, 3MF, OBJ oder STEP aus Dateien / iCloud"
+            "value": "STL, 3MF, OBJ oder STEP aus deinen Dateien"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "STL, 3MF, OBJ or STEP from Files / iCloud"
+            "value": "STL, 3MF, OBJ or STEP from your files"
+          }
+        }
+      }
+    },
+    "pickFileSubWeb": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "STL, 3MF, OBJ oder STEP – oder einfach hierher ziehen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "STL, 3MF, OBJ or STEP – or just drag it here"
           }
         }
       }
@@ -5057,6 +7489,22 @@
         }
       }
     },
+    "preview3dError": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "3D-Ansicht nicht verfügbar – braucht Internet für die Grafik-Bibliothek"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "3D view not available – it needs the internet for its graphics library"
+          }
+        }
+      }
+    },
     "preview3dHint": {
       "localizations": {
         "de": {
@@ -5117,6 +7565,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Print"
+          }
+        }
+      }
+    },
+    "printAgain": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Erneut drucken"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Print again"
           }
         }
       }
@@ -5244,7 +7708,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sign out of Printables"
+            "value": "Log out of Printables"
           }
         }
       }
@@ -5254,13 +7718,29 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Anmeldung und Website-Daten von Printables in der App löschen?"
+            "value": "Abmelden und alle gespeicherten Daten der Printables-Seite in der App löschen?"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Remove the Printables login and site data from the app?"
+            "value": "Log out and delete all data the Printables website stored in the app?"
+          }
+        }
+      }
+    },
+    "printablesMenu": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Menü"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Menu"
           }
         }
       }
@@ -5292,7 +7772,7 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sign in to Printables here to see your likes and collections. The login stays in the app; PocketPrint3D never sees your password. On a model page, tap “Print with PocketPrint3D”."
+            "value": "Log in to Printables here to see your likes and collections. The login stays saved in the app; PocketPrint3D never sees your password. On a model page, tap “Print with PocketPrint3D”."
           }
         }
       }
@@ -5309,6 +7789,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Printables.com"
+          }
+        }
+      }
+    },
+    "printablesWebOpenSub": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mit deinem Konto: Likes und Sammlungen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "With your account: likes and collections"
           }
         }
       }
@@ -5501,6 +7997,38 @@
           "stringUnit": {
             "state": "translated",
             "value": "Name"
+          }
+        }
+      }
+    },
+    "printerNameAuto": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Name (optional)"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Name (optional)"
+          }
+        }
+      }
+    },
+    "printerNameAutoHint": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ohne eigenen Namen heißt er „{name}“."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Without a name of your own it is called “{name}”."
           }
         }
       }
@@ -6321,6 +8849,54 @@
         }
       }
     },
+    "sensHigh": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hoch"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "High"
+          }
+        }
+      }
+    },
+    "sensLow": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Niedrig"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Low"
+          }
+        }
+      }
+    },
+    "sensMedium": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mittel"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Medium"
+          }
+        }
+      }
+    },
     "sensorOnly": {
       "localizations": {
         "de": {
@@ -6518,13 +9094,13 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Slicen"
+            "value": "Druck berechnen"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Slice"
+            "value": "Prepare print"
           }
         }
       }
@@ -6534,13 +9110,13 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "{used} von {limit} Slices heute"
+            "value": "Heute {used} von {limit} Drucken berechnet"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "{used} of {limit} slices today"
+            "value": "{used} of {limit} prints prepared today"
           }
         }
       }
@@ -6550,13 +9126,13 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Wird geslict …"
+            "value": "Druck wird berechnet …"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Slicing …"
+            "value": "Preparing the print …"
           }
         }
       }
@@ -6929,6 +9505,38 @@
         }
       }
     },
+    "spoolDbCount": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "{n} Filamente"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "{n} filaments"
+          }
+        }
+      }
+    },
+    "spoolDbHint": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hersteller und Filament aus SpoolmanDB (offene Filament-Datenbank) – füllt Bezeichnung, Material, Farbe und Gewicht aus."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Brand and filament from SpoolmanDB (open filament database) – fills in name, material, colour and weight."
+          }
+        }
+      }
+    },
     "spoolDelete": {
       "localizations": {
         "de": {
@@ -6973,6 +9581,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Spool #{id}"
+          }
+        }
+      }
+    },
+    "spoolFromDb": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aus Datenbank wählen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choose from the database"
           }
         }
       }
@@ -7190,13 +9814,13 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Spoolman"
+            "value": "Filament-Spulen"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Spoolman"
+            "value": "Filament spools"
           }
         }
       }
@@ -7286,13 +9910,13 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Spulen wählen, Verbrauch abbuchen"
+            "value": "Spulen wählen, Verbrauch abbuchen (mit Spoolman)"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Choose spools, book the used filament"
+            "value": "Choose spools, book the used filament (with Spoolman)"
           }
         }
       }
@@ -7517,6 +10141,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Moonraker tracks one spool only. With several colours and no AFC the printer books everything on the active spool."
+          }
+        }
+      }
+    },
+    "spoolsOptional": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "optional"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "optional"
           }
         }
       }
@@ -8033,6 +10673,134 @@
         }
       }
     },
+    "timelapse": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zeitraffer aufnehmen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Record a time-lapse"
+          }
+        }
+      }
+    },
+    "timelapseFailed": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kein Zeitraffer: {error}"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No time-lapse: {error}"
+          }
+        }
+      }
+    },
+    "timelapseRecording": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zeitraffer läuft (Bilder: {n})"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Time-lapse running (pictures: {n})"
+          }
+        }
+      }
+    },
+    "timelapseRendering": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zeitraffer wird erstellt …"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Creating the time-lapse …"
+          }
+        }
+      }
+    },
+    "timelapseSave": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Video herunterladen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Download the video"
+          }
+        }
+      }
+    },
+    "timelapseSub": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ein Bild pro Schicht – am Ende ein kurzes Video. Braucht die Kamera des Druckers."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "One picture per layer – a short video at the end. Needs the printer's camera."
+          }
+        }
+      }
+    },
+    "timelapseTitle": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zeitraffer"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Time-lapse"
+          }
+        }
+      }
+    },
+    "timelapseWatch": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zeitraffer ansehen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Watch the time-lapse"
+          }
+        }
+      }
+    },
     "toPrinter": {
       "localizations": {
         "de": {
@@ -8118,13 +10886,13 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Nur hochladen"
+            "value": "Nur senden, nicht starten"
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Upload only"
+            "value": "Send only, don't start"
           }
         }
       }
@@ -8237,6 +11005,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Version"
+          }
+        }
+      }
+    },
+    "viaBridge": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "über Brücke"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "through a bridge"
           }
         }
       }
@@ -8465,6 +11249,150 @@
         }
       }
     },
+    "watchActive": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "KI-Überwachung aktiv"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "AI watch active"
+          }
+        }
+      }
+    },
+    "watchAlert": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Möglicher Fehldruck erkannt"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Possible print failure detected"
+          }
+        }
+      }
+    },
+    "watchCheck": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prüfe das Bild – bei einem Fehler den Druck pausieren."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Check the picture – pause the print if it failed."
+          }
+        }
+      }
+    },
+    "watchError": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "KI-Überwachung: {error}"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "AI watch: {error}"
+          }
+        }
+      }
+    },
+    "watchFalseAlarm": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fehlalarm"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "False alarm"
+          }
+        }
+      }
+    },
+    "watchMuted": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "KI-Überwachung für diesen Druck aus"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "AI watch off for this print"
+          }
+        }
+      }
+    },
+    "watchPaused": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Der Druck wurde pausiert. Prüfe das Bild und setze fort oder brich ab."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The print was paused. Check the picture, then resume or cancel."
+          }
+        }
+      }
+    },
+    "watchWarming": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "KI-Überwachung startet (erste Schichten)"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "AI watch starting (first layers)"
+          }
+        }
+      }
+    },
+    "webAddPrinterHint": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Im Browser wird der Drucker nur für dein Konto angelegt (Druckprofil). Drucken geht dann mit dem Handy im WLAN – oder von hier aus über eine Brücke."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "In the browser the printer is only added to your account (print profile). You print with your phone on the Wi-Fi – or from here through a bridge."
+          }
+        }
+      }
+    },
     "webBack": {
       "localizations": {
         "de": {
@@ -8493,6 +11421,54 @@
           "stringUnit": {
             "state": "translated",
             "value": "Forward"
+          }
+        }
+      }
+    },
+    "webLanBadge": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nur Handy"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Phone only"
+          }
+        }
+      }
+    },
+    "webLanHint": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Diesen Drucker erreicht nur dein Handy im WLAN. Im Browser geht er über eine Brücke zu Hause."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Only your phone on the Wi-Fi reaches this printer. In the browser it works through a bridge at home."
+          }
+        }
+      }
+    },
+    "webLanJob": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "{printer} erreicht nur dein Handy im WLAN: Druck dort in der App starten, über eine Brücke – oder den G-Code herunterladen."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Only your phone on the Wi-Fi reaches {printer}: start the print in the app there, through a bridge – or download the G-code."
           }
         }
       }

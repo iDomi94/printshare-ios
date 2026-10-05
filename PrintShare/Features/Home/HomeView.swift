@@ -8,6 +8,8 @@ struct HomeView: View {
     @State private var error = ""
     @State private var recent: [JobSummary] = []
     @State private var pickingFile = false
+    /// Cloud account without printers: the card that leads to adding the first one (server 0.26).
+    @State private var noPrinter = false
 
     var body: some View {
         let t = app.l10n
@@ -15,7 +17,12 @@ struct HomeView: View {
             if app.server == nil {
                 ScrollView {
                     PSEmpty(icon: "shippingbox", title: t(.notConnectedTitle), sub: t(.notConnectedSub)) {
-                        PSButton(title: t(.connectNow), icon: "link") { app.showConnect() }
+                        PSButton(title: t(.connectNow), icon: "envelope") { app.showConnect() }
+                        Button { app.showConnect(ConnectRequest(own: true)) } label: {
+                            Text(t(.ownServerLink)).font(.subheadline).underline().foregroundStyle(Theme.sub)
+                                .multilineTextAlignment(.center).padding(8)
+                        }
+                        .padding(.top, 10)
                     }
                 }
                 .background(Theme.bg)
@@ -33,6 +40,7 @@ struct HomeView: View {
                     .accessibilityAddTraits(.isHeader).padding(.top, 12)
                 Text(t(.homeSub)).font(.body).foregroundStyle(Theme.sub).padding(.top, 8).padding(.bottom, 22)
 
+                if noPrinter { firstPrinter(t) }
                 if !error.isEmpty { PSBanner(kind: .warn, text: error) }
                 PSCard(padding: 12) {
                     VStack(spacing: 12) {
@@ -76,7 +84,24 @@ struct HomeView: View {
         .fileImporter(isPresented: $pickingFile, allowedContentTypes: [.item]) { result in
             if case .success(let url) = result { pick(url) }
         }
-        .task { await loadRecent() }
+        .onAppear { Task { await loadRecent() } }
+    }
+
+    private func firstPrinter(_ t: L10n) -> some View {
+        VStack(alignment: .leading, spacing: 0) {
+            HStack(spacing: 10) {
+                Image(systemName: "printer").font(.title2).foregroundStyle(Theme.accent).accessibilityHidden(true)
+                Text(t(.firstPrinterTitle)).font(.headline).foregroundStyle(Theme.text)
+                Spacer(minLength: 0)
+            }
+            Text(t(.firstPrinterSub)).font(.subheadline).foregroundStyle(Theme.sub).padding(.top, 6).padding(.bottom, 12)
+            PSButton(title: t(.addPrinterNow), icon: "plus.circle") { app.push(.cloudPrinter(id: CloudPrinterView.new)) }
+        }
+        .padding(16)
+        .background(Theme.card)
+        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+        .overlay(RoundedRectangle(cornerRadius: 14, style: .continuous).stroke(Theme.accent, lineWidth: 2))
+        .padding(.bottom, 16)
     }
 
     private func recentSection(_ t: L10n) -> some View {
@@ -115,6 +140,7 @@ struct HomeView: View {
     private func loadRecent() async {
         guard let api = app.api else { return }
         if let jobs = try? await api.jobs() { recent = Array(jobs.prefix(3)) }
+        if app.isCloud, let printers = try? await api.printers() { noPrinter = printers.isEmpty } else { noPrinter = false }
     }
 
     private func go(_ text: String) {
@@ -151,9 +177,11 @@ enum JobBadge {
     static func kind(_ state: JobState, home: Bool = false) -> PSBadgeKind {
         switch state {
         case .error: return .error
-        case .started: return .ok
+        // server 0.33.0 follows the print: started = running (accent), finished = ok, cancelled = warn
+        case .finished: return .ok
+        case .cancelled: return .warn
+        case .started, .sliced: return .accent
         case .done: return home ? .neutral : .ok
-        case .sliced: return .accent
         default: return .neutral
         }
     }

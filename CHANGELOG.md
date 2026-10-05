@@ -4,6 +4,43 @@ Jeder Abschnitt `## X.Y.Z` wird beim Tag `vX.Y.Z` automatisch als „Was testen�
 (`.github/workflows/testflight.yml`). Text auf Deutsch, höchstens 4000 Zeichen. Fehlt der Abschnitt, stehen dort
 die Commit-Titel seit dem letzten Tag.
 
+## 0.9.0
+
+Aufgeholt mit Server 0.34.0.
+
+- Drucker hinzufügen: die App sucht ihn selbst im WLAN (Centauri Carbon, Klipper/COSMOS, Prusa, OctoPrint) – antippen, fertig. „Selbst eingeben“ bleibt. iOS fragt einmal nach dem Zugriff auf das lokale Netzwerk
+- Cloud: Einstellungen → Erweitert → „Von überall drucken“ (Brücken). Code der Brücke eingeben oder eine Raspberry-Pi-Brücke im WLAN mit einem Tipp verbinden; ihre Drucker erscheinen von selbst, weitere kommen über die Brücke dazu. Adresse und Passwort werden für die Brücke verschlüsselt
+- Drucker hinter einer Brücke: Status, Kamera, Steuerung und Drucken laufen über die Cloud, auch unterwegs
+- Aufträge folgen dem Druck: „Fertig“ oder „Abgebrochen“ statt „Gestartet“, dazu „Nochmal drucken“
+- Zeitraffer (Drucker mit Kamera): Schalter vor dem Start, danach Video ansehen und teilen
+- Cloud-Drucker → „Aus OrcaSlicer senden“: Adresse und Schlüssel für OrcaSlicer am Computer
+- Cloud-Spulen: Buchungen liegen im Konto und werden gebucht, wenn der Druck fertig ist, auch ohne offene App
+- Vor dem Start fragt die App, ob die Druckplatte leer und das Material geladen ist (statt des Schalters)
+- Bitte testen: Drucker im WLAN finden, Brücke verbinden, Zeitraffer
+
+## 0.8.1
+
+- Teilen → PocketPrint3D: zweiter Anlauf, damit sich die App öffnet. Die Erweiterung hat den Link an das eigene Teilen-Fenster geschickt statt an iOS; das hat nichts geöffnet
+- Bitte testen: Link aus Safari / Printables-App, und eine STL- oder 3MF-Datei aus „Dateien“ teilen
+
+## 0.8.0
+
+Aufgeholt mit Server 0.23.0. Enthält die Teilen-Korrektur aus 0.7.91.
+
+- Druckereinstellungen → „Aus der Orca Cloud“: Link einer geteilten Profilsammlung (cloud.orcaslicer.com/b/…) einfügen, die Profile landen auf dem Server, ein passendes Druckerprofil wird gleich verwendet
+- Neue Spule → „Aus Datenbank wählen“: Marke und Filament aus SpoolmanDB, Name, Material, Farbe, Gewicht und Leerspulengewicht werden ausgefüllt
+- Entdecken: Karte „MakerWorld“, und ein MakerWorld-Link im Suchfeld öffnet die Modellseite
+- Einstellungen → Manyfold (eigener Server): eigene Modellbibliothek als Quelle in „Entdecken“
+- Einstellungen → KI-Fehlererkennung (eigener Server, Obico-ML-Dienst nötig): Druckertab zeigt „wird überwacht“, bei Verdacht ein rotes Feld mit Kamerabild, „Fehlalarm“ oder „Pausieren“
+- Teilen → PocketPrint3D öffnet die App wieder von selbst
+- Bitte testen: Orca-Cloud-Link, Spule aus Datenbank, Manyfold-Suche mit Vorschaubildern
+
+## 0.7.91
+
+- Teilen → PocketPrint3D: die App öffnet sich danach wieder von selbst. Die Erweiterung wollte die App öffnen, bevor das Teilen-Fenster ganz zu sehen war; das hat iOS still ignoriert
+- Klappt es trotzdem nicht, steht im Teilen-Fenster „Gespeichert. Öffne PocketPrint3D, um weiterzumachen.“ und das Modell erscheint beim nächsten Öffnen der App
+- Bitte testen: Link aus Safari / Printables-App, und eine STL- oder 3MF-Datei aus „Dateien“ teilen
+
 ## 0.7.90
 
 Printables.com in der App (enthält alles aus 0.7.0).

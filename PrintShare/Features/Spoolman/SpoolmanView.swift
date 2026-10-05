@@ -104,6 +104,7 @@ struct SpoolmanView: View {
         if mode == nil { mode = s != nil && s != Spoolman.cloudSetting ? .own : app.isCloud ? .cloud : .own }
         if let s, s != Spoolman.cloudSetting, url.isEmpty { url = s }
         bookings = app.bookings()
+        Task { bookings = await app.loadBookings() }
         if s == Spoolman.cloudSetting, let sm = app.openSpoolman(Spoolman.cloudSetting) {
             Task { count = (try? await sm.spools())?.count }
         }

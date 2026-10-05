@@ -69,9 +69,11 @@ struct SpoolInput: Encodable, Sendable, Equatable {
         var material: String?
         var colorHex: String?
         var weight: Double?
+        /// from SpoolmanDB (server 0.19.0); left out when unknown
+        var density: Double?
 
         enum CodingKeys: String, CodingKey {
-            case name, vendor, material, weight
+            case name, vendor, material, weight, density
             case colorHex = "color_hex"
         }
 
@@ -83,6 +85,7 @@ struct SpoolInput: Encodable, Sendable, Equatable {
             try c.encode(material, forKey: .material)
             try c.encode(colorHex, forKey: .colorHex)
             try c.encode(weight, forKey: .weight)
+            try c.encodeIfPresent(density, forKey: .density)
         }
     }
 
@@ -92,16 +95,20 @@ struct SpoolInput: Encodable, Sendable, Equatable {
     var location: String?
     var comment: String?
     var archived: Bool?
+    /// Weight of the empty spool (SpoolmanDB, server 0.19.0); left out when unknown.
+    var spoolWeight: Double?
 
     enum CodingKeys: String, CodingKey {
         case filament, location, comment, archived
         case remainingWeight = "remaining_weight"
+        case spoolWeight = "spool_weight"
     }
 
     func encode(to encoder: Encoder) throws {
         var c = encoder.container(keyedBy: CodingKeys.self)
         try c.encodeIfPresent(filament, forKey: .filament)
         try c.encodeIfPresent(remainingWeight, forKey: .remainingWeight)
+        try c.encodeIfPresent(spoolWeight, forKey: .spoolWeight)
         if filament != nil {
             try c.encode(location, forKey: .location)
             try c.encode(comment, forKey: .comment)
