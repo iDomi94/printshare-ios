@@ -4,6 +4,15 @@ Jeder Abschnitt `## X.Y.Z` wird beim Tag `vX.Y.Z` automatisch als „Was testen�
 (`.github/workflows/testflight.yml`). Text auf Deutsch, höchstens 4000 Zeichen. Fehlt der Abschnitt, stehen dort
 die Commit-Titel seit dem letzten Tag.
 
+## 0.9.1
+
+Aufgeholt mit Server 0.36.0. Nur für Drucker hinter einer Brücke (PocketPrint3D Cloud).
+
+- Bambu Lab (LAN-Modus) über eine Brücke hinzufügen: Typ „Bambu Lab“ mit Zugangscode, das Modell kommt aus der Seriennummer. Wichtig: Der Drucker muss im LAN-Modus sein
+- Eigene Kamera (RTSP / HTTP) für Drucker hinter einer Brücke, z. B. eine IP-Kamera; die Adresse wird für die Brücke verschlüsselt, „Eigene Kamera entfernen“ löscht sie wieder
+- Druckersuche über die Brücke: das WLAN des Handys geht als Hinweis mit (hilft Brücken im Docker-Netz, die das Heimnetz sonst nicht sehen)
+- Bitte testen: Bambu über die Brücke hinzufügen (nur Hinzufügen und Status, kein Druck ohne Absicht starten), eigene Kamera eintragen und im Druckertab ansehen
+
 ## 0.9.0
 
 Aufgeholt mit Server 0.34.0.
