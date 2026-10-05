@@ -219,7 +219,8 @@ final class ServerThirtySixTests: XCTestCase {
 
     func testTimelapseRequestUsesTheHeaderNotTheURL() async throws {
         let api = cloudClient()
-        let target = try await XCTUnwrap(api.timelapseRequest(job: "j1"))
+        let found = await api.timelapseRequest(job: "j1")
+        let target = try XCTUnwrap(found)
         XCTAssertEqual(target.url.absoluteString, "https://cloud.test/api/jobs/j1/timelapse")
         XCTAssertEqual(target.headers["Authorization"], "Bearer pp3d_x")
     }
