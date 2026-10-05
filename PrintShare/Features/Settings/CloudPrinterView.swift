@@ -27,6 +27,9 @@ struct CloudPrinterView: View {
     @State private var address = ""
     @State private var password = ""
     @State private var apiKey = ""
+    /// Own camera (RTSP / HTTP webcam) instead of the built-in one - bridge printers only, sealed like a password.
+    @State private var cameraUrl = ""
+    @State private var cameraMsg = ""
     @State private var machines: [Machine]?
     @State private var sheet: Sheet?
     @State private var busy = false
@@ -44,13 +47,21 @@ struct CloudPrinterView: View {
     @State private var bridgeInfo: (name: String, key: String?)?
 
     private var isNew: Bool { id == Self.new }
-    /// PrusaLink / OctoPrint printers are sliced with the chosen model; there is no default for them.
-    private var needsModel: Bool { type == "prusalink" || type == "octoprint" }
+    /// PrusaLink / OctoPrint printers are sliced with the chosen model; there is no default for them. Bambu Lab too:
+    /// the model comes from the serial number when the bridge found the printer.
+    private var needsModel: Bool { type == "prusalink" || type == "octoprint" || type == "bambu_lan" }
     private var showsModel: Bool { needsModel || (type == "moonraker" && !cosmos) }
     private var missingModel: Bool { needsModel && machine == nil }
     private var missingCreds: Bool {
         (type == "prusalink" && password.isEmpty && apiKey.isEmpty) || (type == "octoprint" && apiKey.isEmpty)
+            || (type == "bambu_lan" && password.isEmpty)
     }
+    private var cameraText: String { cameraUrl.trimmingCharacters(in: .whitespaces) }
+    /// rtsp(s):// or http(s):// with a host.
+    private var badCamera: Bool {
+        !cameraText.isEmpty && !cameraText.matches(#"^(rtsps?|https?)://[^\s/]+"#, options: .caseInsensitive)
+    }
+    private var bridgeTypes: [String] { viaBridge != nil || bridge != nil ? Lan.bridgeTypes : Lan.types }
     /// A name is optional: without one the printer is called after its model or type.
     private var autoName: String {
         if let machine, needsModel || type == "moonraker" {
@@ -61,8 +72,8 @@ struct CloudPrinterView: View {
         return app.l10n.printerTypeName(type)
     }
     private var access: LanAccess {
-        LanAccess(address: address, password: type == "prusalink" ? password : nil,
-                  apiKey: type == "elegoo_sdcp" ? nil : apiKey)
+        LanAccess(address: address, password: type == "prusalink" || type == "bambu_lan" ? password : nil,
+                  apiKey: type == "elegoo_sdcp" || type == "bambu_lan" ? nil : apiKey)
     }
 
     var body: some View {
@@ -122,7 +133,11 @@ struct CloudPrinterView: View {
                         PSDivider()
                         secret(t(.prusaPassword), $password)
                     }
-                    if type != "elegoo_sdcp" {
+                    if type == "bambu_lan" {
+                        PSDivider()
+                        secret(t(.bambuCode), $password)
+                    }
+                    if type != "elegoo_sdcp" && type != "bambu_lan" {
                         PSDivider()
                         secret(type == "octoprint" ? t(.octoApiKey) : t(.apiKeyOptional), $apiKey)
                     }
@@ -141,9 +156,26 @@ struct CloudPrinterView: View {
                     }
                 }
                 .onChange(of: access) { _, _ in test = nil }
-                if type == "prusalink" || type == "octoprint" {
-                    Text(t(type == "prusalink" ? .prusaHint : .octoHint)).font(.footnote).foregroundStyle(Theme.sub)
+                if type == "prusalink" || type == "octoprint" || type == "bambu_lan" {
+                    Text(t(type == "prusalink" ? .prusaHint : type == "octoprint" ? .octoHint : .bambuHint))
+                        .font(.footnote).foregroundStyle(Theme.sub)
                         .padding(.horizontal, 16).padding(.top, -12).padding(.bottom, 20)
+                }
+
+                if viaBridge != nil {
+                    PSSection(title: t(.ownCamera),
+                              footer: badCamera ? t(.ownCameraBad)
+                                  : cameraMsg.isEmpty ? t(isNew ? .ownCameraHint : .ownCameraEditHint) : cameraMsg) {
+                        TextField("rtsp://benutzer:passwort@192.168.1.60:554/stream1",
+                                  text: Binding(get: { cameraUrl }, set: { cameraUrl = $0; cameraMsg = "" }))
+                            .textInputAutocapitalization(.never).autocorrectionDisabled().keyboardType(.URL)
+                            .padding(.horizontal, Theme.space).padding(.vertical, 14)
+                            .accessibilityLabel(t(.ownCamera))
+                        if !isNew {
+                            PSDivider()
+                            PSRow(icon: "xmark.circle", label: t(.ownCameraRemove)) { Task { await removeCamera() } }
+                        }
+                    }
                 }
 
                 PSSection(title: t(.printerNameAuto),
@@ -173,7 +205,7 @@ struct CloudPrinterView: View {
     }
 
     private var saveDisabled: Bool {
-        missingModel || (isNew && address.trimmingCharacters(in: .whitespaces).isEmpty)
+        missingModel || badCamera || (isNew && address.trimmingCharacters(in: .whitespaces).isEmpty)
             || (isNew && viaBridge != nil && missingCreds)
     }
 
@@ -217,9 +249,10 @@ struct CloudPrinterView: View {
 
     private func pick(_ f: FoundPrinter) {
         picked = f.address
-        type = Lan.types.contains(f.type) ? f.type : "elegoo_sdcp"
+        type = bridgeTypes.contains(f.type) ? f.type : "elegoo_sdcp"
         address = f.address
         cosmos = f.cosmos
+        if let m = f.machine { machine = m }                   // Bambu: the model comes from the serial number
         // Centauri / Klipper report a real name; for Prusa and OctoPrint the model (chosen below) names the printer
         name = f.type == "elegoo_sdcp" || f.type == "moonraker" ? f.name : ""
         test = nil
@@ -233,7 +266,9 @@ struct CloudPrinterView: View {
         if let bridge {
             guard let api = app.api else { scan = .done; return }
             do {
-                let list = try await api.bridgeDiscover(id: bridge)
+                // the phone's Wi-Fi goes along as a hint: a bridge in Docker's bridge network can't see it (server 0.35.1)
+                let hint = Discovery.wifiAddress().flatMap { Discovery.subnet(address: $0.address, prefix: $0.prefix) }
+                let list = try await api.bridgeDiscover(id: bridge, subnet: hint)
                 found = list
                 known = list.filter(\.added).map(\.address)
             } catch {
@@ -268,7 +303,7 @@ struct CloudPrinterView: View {
         switch which {
         case .type:
             PickerSheet(title: t(.printerType),
-                        choices: Lan.types.map { Choice(value: $0, label: t.printerTypeName($0), sub: t.printerTypeHint($0)) },
+                        choices: bridgeTypes.map { Choice(value: $0, label: t.printerTypeName($0), sub: t.printerTypeHint($0)) },
                         selected: type, searchLabel: t(.search), closeLabel: "OK") { type = $0 }
         case .model:
             if let machines {
@@ -291,7 +326,7 @@ struct CloudPrinterView: View {
         do {
             if let p = try await api.printers().first(where: { $0.id == id }) {
                 name = p.name
-                type = Lan.types.contains(p.type) ? p.type : "elegoo_sdcp"
+                type = Lan.bridgeTypes.contains(p.type) ? p.type : "elegoo_sdcp"
                 cosmos = p.cosmos
                 machine = p.machine.isEmpty ? nil : p.machine
                 if let b = p.bridge { viaBridge = b }
@@ -355,7 +390,7 @@ struct CloudPrinterView: View {
         do {
             if let viaBridge {
                 // address and secrets go sealed to the bridge; the cloud and this phone don't keep them
-                let secrets = Self.secrets(access)
+                let secrets = Self.secrets(access, camera: cameraText)
                 func sealed() throws -> String {
                     guard let key = bridgeInfo?.key, !key.isEmpty else { throw LanError(app.l10n(.errBridgeKey)) }
                     do { return try Seal.seal(publicKey: key, secrets) } catch { throw LanError(app.l10n(.errBridgeKey)) }
@@ -379,13 +414,26 @@ struct CloudPrinterView: View {
     }
 
     /// What is sealed for the bridge: only the fields that are filled in.
-    static func secrets(_ a: LanAccess) -> Seal.Secrets {
+    static func secrets(_ a: LanAccess, camera: String? = nil) -> Seal.Secrets {
         func value(_ s: String?) -> String? {
             let v = s?.trimmingCharacters(in: .whitespaces) ?? ""
             return v.isEmpty ? nil : v
         }
         return Seal.Secrets(address: value(a.address), password: a.password.flatMap { $0.isEmpty ? nil : $0 },
-                            apiKey: value(a.apiKey))
+                            apiKey: value(a.apiKey), cameraUrl: value(camera))
+    }
+
+    /// "" tells the bridge to forget the own camera.
+    private func removeCamera() async {
+        guard let api = app.api, viaBridge != nil else { return }
+        do {
+            guard let key = bridgeInfo?.key, !key.isEmpty else { throw LanError(app.l10n(.errBridgeKey)) }
+            try await api.bridgePrinterAccess(printer: id, sealed: try Seal.seal(publicKey: key, Seal.Secrets(cameraUrl: "")))
+            cameraUrl = ""
+            cameraMsg = app.l10n(.ownCameraRemoved)
+        } catch {
+            self.error = errorText(app.l10n, error)
+        }
     }
 
     private func remove() async {

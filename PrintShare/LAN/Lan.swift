@@ -77,6 +77,9 @@ enum Lan {
     /// Printer types the app can talk to directly (server 0.15.3).
     static let types = ["elegoo_sdcp", "moonraker", "prusalink", "octoprint"]
 
+    /// Types a bridge can drive: Bambu Lab in LAN mode (MQTT + FTPS, server 0.35.0) needs the bridge, the phone can't.
+    static let bridgeTypes = types + ["bambu_lan"]
+
     static func canRelay(_ type: String) -> Bool { types.contains(type) }
 
     /// Host of an address the user typed: scheme and path dropped (`http://192.168.1.5/x` -> `192.168.1.5`).

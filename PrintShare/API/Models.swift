@@ -215,12 +215,15 @@ struct FoundPrinter: Codable, Sendable, Equatable, Hashable {
     var detail: String?
     /// bridge search: already a printer of that bridge
     var added: Bool = false
+    /// OrcaSlicer printer preset when the printer tells its model (Bambu: from the serial number, server 0.35.0).
+    var machine: String?
 
-    enum CodingKeys: String, CodingKey { case type, address, name, cosmos, detail, added }
+    enum CodingKeys: String, CodingKey { case type, address, name, cosmos, detail, added, machine }
 
-    init(type: String, address: String, name: String, cosmos: Bool = false, detail: String? = nil, added: Bool = false) {
+    init(type: String, address: String, name: String, cosmos: Bool = false, detail: String? = nil, added: Bool = false,
+         machine: String? = nil) {
         self.type = type; self.address = address; self.name = name; self.cosmos = cosmos; self.detail = detail
-        self.added = added
+        self.added = added; self.machine = machine
     }
 
     init(from decoder: Decoder) throws {
@@ -231,6 +234,7 @@ struct FoundPrinter: Codable, Sendable, Equatable, Hashable {
         cosmos = c.lenient(Bool.self, .cosmos) ?? false
         detail = c.lenient(String.self, .detail)
         added = c.lenient(Bool.self, .added) ?? false
+        machine = c.lenient(String.self, .machine)
     }
 }
 

@@ -55,6 +55,7 @@ private struct ObserveBody: Encodable { var statuses: [String: PrinterStatus?] }
 private struct PairBody: Encodable { var code: String; var name: String? }
 private struct NameBody: Encodable { var name: String }
 private struct SealedBody: Encodable { var sealed: String }
+private struct DiscoverBody: Encodable { var subnet: String }
 private struct BridgePrinterBody: Encodable { var printer: PrinterSettings; var sealed: String }
 private struct ResolveBody: Encodable { var part: Double }
 struct BookingRequest: Encodable, Sendable, Equatable {
@@ -613,8 +614,11 @@ actor APIClient {
     }
 
     /// Printers the bridge finds on its home network.
-    func bridgeDiscover(id: String) async throws -> [FoundPrinter] {
-        try await request("/api/bridges/\(enc(id))/discover", method: "POST", timeout: 40)
+    /// `subnet` ("192.168.86.0/24"): the phone's Wi-Fi when it is at home - a bridge in Docker's bridge network can't see
+    /// the home network itself (server 0.35.1). Left out without one.
+    func bridgeDiscover(id: String, subnet: String? = nil) async throws -> [FoundPrinter] {
+        try await request("/api/bridges/\(enc(id))/discover", method: "POST", body: subnet.map { DiscoverBody(subnet: $0) },
+                          timeout: 75)
     }
 
     /// A new printer behind the bridge; `sealed` = address and secrets sealed for the bridge (`Seal`).
