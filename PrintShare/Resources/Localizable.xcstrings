@@ -289,6 +289,38 @@
         }
       }
     },
+    "bambuCode": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Access Code"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Access code"
+          }
+        }
+      }
+    },
+    "bambuHint": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Am Drucker unter Einstellungen → WLAN „LAN Only Mode“ einschalten, bei neuerer Firmware zusätzlich „Developer Mode“ (erscheint darunter) – dort steht auch der Access Code (8 Zeichen). Ohne LAN-Modus nimmt der Drucker keine Druckaufträge an. Hinweis: Im LAN-Modus ist der Drucker nicht mehr mit der Bambu-Cloud verbunden."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "On the printer, under Settings → WLAN, switch on “LAN Only Mode”, and with newer firmware also “Developer Mode” (shown below it) – the access code (8 characters) is there too. Without LAN mode the printer takes no print jobs. Note: in LAN mode the printer is no longer connected to the Bambu cloud."
+          }
+        }
+      }
+    },
     "basedOn": {
       "localizations": {
         "de": {
@@ -6961,6 +6993,102 @@
         }
       }
     },
+    "ownCamera": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eigene Kamera (optional)"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Own camera (optional)"
+          }
+        }
+      }
+    },
+    "ownCameraBad": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Die Adresse muss mit rtsp://, rtsps://, http:// oder https:// beginnen."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The address must start with rtsp://, rtsps://, http:// or https://."
+          }
+        }
+      }
+    },
+    "ownCameraEditHint": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Leer lassen = unverändert. RTSP-Adresse (z. B. Tapo, Reolink) oder Webcam-Adresse (http://…); wird verschlüsselt an die Brücke geschickt."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Leave empty = unchanged. An RTSP address (e.g. Tapo, Reolink) or a webcam address (http://…); sent encrypted to the bridge."
+          }
+        }
+      }
+    },
+    "ownCameraHint": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Statt der eingebauten Kamera eine IP-Kamera nutzen: RTSP-Adresse (z. B. Tapo, Reolink) oder Webcam-Adresse (http://…). Wird verschlüsselt an die Brücke geschickt."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Use an IP camera instead of the built-in one: an RTSP address (e.g. Tapo, Reolink) or a webcam address (http://…). Sent encrypted to the bridge."
+          }
+        }
+      }
+    },
+    "ownCameraRemove": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eigene Kamera entfernen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remove own camera"
+          }
+        }
+      }
+    },
+    "ownCameraRemoved": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eigene Kamera entfernt – die eingebaute wird wieder genutzt."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Own camera removed – the built-in one is used again."
+          }
+        }
+      }
+    },
     "ownPresetsHelp": {
       "localizations": {
         "de": {
@@ -8081,6 +8209,22 @@
         }
       }
     },
+    "printerTypeHint.bambu_lan": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bambu Lab P1S, P1P, X1, A1 im LAN-Modus – nur über eine Brücke."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bambu Lab P1S, P1P, X1, A1 in LAN mode – through a bridge only."
+          }
+        }
+      }
+    },
     "printerTypeHint.elegoo_sdcp": {
       "localizations": {
         "de": {
@@ -8141,6 +8285,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Prusa MK4/MK4S, MK3.9, CORE One, XL or MINI with PrusaLink (switched on in the printer's network menu)."
+          }
+        }
+      }
+    },
+    "printerTypeName.bambu_lan": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bambu Lab (LAN-Modus)"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bambu Lab (LAN mode)"
           }
         }
       }
