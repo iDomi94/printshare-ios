@@ -36,6 +36,18 @@ TestFlight upload (workflow `testflight.yml` exists, needs the secrets listed in
 printer, no lane choice / printer control / profile upload against a real printer or server, Spoolman (own or cloud), Orca Cloud import, SpoolmanDB, Manyfold, AI failure detection, the booking after a print and MakerWorld links never tried for real, cloud login and the Wi-Fi printer clients (SDCP WebSocket, Moonraker, PrusaLink digest, OctoPrint) never run against the real cloud or a real printer (only the HTTP parts against stubs), Keychain migration: the key layout was checked against the expo-secure-store 57 source, but its test is skipped in the
 unsigned CI (no keychain) and it was never run against a real Expo install.
 
+## Upstream sync (scheduled routine) - check what exists first
+
+Before porting anything, look at **all open PRs and all branches** of this repository, not only those titled
+"[Upstream-Sync]": other sessions work here too (2026-10-04: PR #19 had already ported server 0.34.0 while the routine
+ported the same again in #20/#21, which then had to be closed).
+- List open PRs (title, head branch, last commit date) and recent commits on `main`; read the PR descriptions and diffs
+  (changed files) to see which server versions / features they cover.
+- Check the code too: `grep` for the feature (type names, endpoints, text keys) on `main` and in the open PR branches.
+- Port only what neither `main` nor an open PR covers. Base the sync branch on `main`; build on an open PR's branch only
+  if the user asked for it. If an open PR overlaps the new upstream changes, port nothing twice: report it instead.
+- State in the PR which open PRs / branches were checked and what was skipped because of them.
+
 ## Rules
 
 - Never start a print without the confirmation dialog (NF-05); never cancel a print without confirmation; never
