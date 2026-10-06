@@ -209,6 +209,16 @@ if it contradicts `printshare/api.py` the server wins; otherwise the simplest id
   bridge search may take; the timeout is 75 s like in the Expo app.
 - Not needed: Bambu camera (0.35.2) and the Bambu start check are server work.
 
+## Server 0.36.1 (upstream af6524c)
+
+- **Turned own camera (0.36.1)**: `#rotate=90|180|270` at the end of the own camera address turns the picture on the server.
+  Nothing to port: the URL check already accepts the fragment, and the server then reports `stream: false`, so the app shows
+  stills.
+- **Not ported: Bambu Lab without a bridge** (Expo app only, upstream `0e0e8a7`, native Android module `bambu-lan`: MQTT over
+  TLS, FTPS with TLS session resumption on the data channel, 3MF wrap). iOS would need its own MQTT and FTPS clients on
+  Network.framework (no third-party packages); `bambu_lan` stays bridge-only here, so the 0.36.0 text "– nur über eine
+  Brücke" is kept (upstream dropped it with that commit).
+
 ## Verification
 
 - The session that wrote this code had **no macOS, no Xcode and no Swift toolchain** (download of a toolchain is
