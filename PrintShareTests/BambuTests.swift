@@ -125,8 +125,8 @@ final class BambuTests: XCTestCase {
         let md5 = Insecure.MD5.hash(data: gcode).map { String(format: "%02X", $0) }.joined()
         XCTAssertEqual(try zip.read("Metadata/plate_1.gcode.md5").map { String(decoding: $0, as: UTF8.self) }, md5)
         let info = String(decoding: try XCTUnwrap(zip.read("Metadata/slice_info.config")), as: UTF8.self)
-        XCTAssertTrue(info.contains(#"type="PETG" color="#00FF00""#))
-        XCTAssertTrue(info.contains(#"type="PLA" color="#F2754E""#))
+        XCTAssertTrue(info.contains(##"type="PETG" color="#00FF00""##))
+        XCTAssertTrue(info.contains(##"type="PLA" color="#F2754E""##))
         XCTAssertTrue(zip.has("3D/3dmodel.model"))
         XCTAssertTrue(zip.has("[Content_Types].xml"))
         // no footer: one PLA filament
