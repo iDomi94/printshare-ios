@@ -6,10 +6,11 @@ die Commit-Titel seit dem letzten Tag.
 
 ## 0.9.1
 
-Aufgeholt mit Server 0.36.0. Nur für Drucker hinter einer Brücke (PocketPrint3D Cloud).
+Aufgeholt mit Server 0.36.1. Nur für Drucker hinter einer Brücke (PocketPrint3D Cloud).
 
 - Bambu Lab (LAN-Modus) über eine Brücke hinzufügen: Typ „Bambu Lab“ mit Zugangscode, das Modell kommt aus der Seriennummer. Wichtig: Der Drucker muss im LAN-Modus sein
 - Eigene Kamera (RTSP / HTTP) für Drucker hinter einer Brücke, z. B. eine IP-Kamera; die Adresse wird für die Brücke verschlüsselt, „Eigene Kamera entfernen“ löscht sie wieder
+- Seitlich montierte Kamera: `#rotate=90` (oder 180, 270) ans Ende der Kamera-Adresse hängen, dann dreht der Server das Bild (braucht Server 0.36.1)
 - Druckersuche über die Brücke: das WLAN des Handys geht als Hinweis mit (hilft Brücken im Docker-Netz, die das Heimnetz sonst nicht sehen)
 - Bitte testen: Bambu über die Brücke hinzufügen (nur Hinzufügen und Status, kein Druck ohne Absicht starten), eigene Kamera eintragen und im Druckertab ansehen
 
