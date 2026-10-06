@@ -66,6 +66,14 @@ enum Discovery {
         return n
     }
 
+    /// The Wi-Fi as a network for the bridge search ("192.168.86.0/24"): /24 ... /30, anything wider as /24 (Expo app
+    /// `wifiSubnet`). nil for anything that isn't dotted IPv4.
+    static func subnet(address: String, prefix: Int) -> String? {
+        guard let own = ip2n(address) else { return nil }
+        let p = max(24, min(30, prefix == 0 ? 24 : prefix))
+        return "\(n2ip(own - own % (UInt32(1) << UInt32(32 - p))))/\(p)"
+    }
+
     static func n2ip(_ n: UInt32) -> String { [24, 16, 8, 0].map { String((n >> UInt32($0)) & 255) }.joined(separator: ".") }
 
     /// Addresses to probe: at most the /24 around the phone's own address (bigger networks are rare at home and would

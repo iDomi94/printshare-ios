@@ -198,6 +198,17 @@ if it contradicts `printshare/api.py` the server wins; otherwise the simplest id
   opens the prepare screen with that file preselected. The file comes from `GET /api/model-file` (server 0.10.1, upstream PR #11); older
   servers answer 404 and the app says the server is too old.
 
+## Server 0.35.0-0.36.0 (upstream a738200)
+
+- **Bambu Lab (0.35.0)**: `bambu_lan` is only offered for printers added through a bridge (`Lan.bridgeTypes`; the phone cannot
+  do MQTT + FTPS). The access code travels as `password` in the sealed secrets, there is no API key. A found printer carries
+  `machine` (model from the serial number), which preselects the model.
+- **Own camera (0.36.0)**: sealed as `camera_url` (`""` removes it, so `Seal.Secrets.isEmpty` counts it as content). The URL
+  check is the Expo app's (`rtsp(s)://` or `http(s)://` plus a host). The camera pictures use the existing camera endpoints.
+- **Bridge search hint (0.35.1)**: `Discovery.subnet` turns the phone's Wi-Fi (/24 to /30, wider as /24) into the `subnet` the
+  bridge search may take; the timeout is 75 s like in the Expo app.
+- Not needed: Bambu camera (0.35.2) and the Bambu start check are server work.
+
 ## Verification
 
 - The session that wrote this code had **no macOS, no Xcode and no Swift toolchain** (download of a toolchain is
