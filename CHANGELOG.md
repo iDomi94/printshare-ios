@@ -4,6 +4,15 @@ Jeder Abschnitt `## X.Y.Z` wird beim Tag `vX.Y.Z` automatisch als „Was testen�
 (`.github/workflows/testflight.yml`). Text auf Deutsch, höchstens 4000 Zeichen. Fehlt der Abschnitt, stehen dort
 die Commit-Titel seit dem letzten Tag.
 
+## 0.9.2
+
+Bambu Lab ohne Brücke, wie in der Android-App (Server 0.36.1). Ohne echten Bambu-Drucker gebaut: bitte vorsichtig testen.
+
+- Cloud-Drucker hinzufügen → Typ „Bambu Lab“: die App spricht selbst im WLAN mit dem Drucker (MQTT und FTPS), eine Brücke ist nicht mehr nötig. Die Suche im WLAN findet Bambu-Drucker jetzt auch, das Modell kommt aus der Seriennummer
+- Status, AMS-Fächer als Slots, Pause/Fortsetzen/Abbrechen, Hochladen und Drucken mit der Fächerwahl
+- Der Drucker muss im LAN-Modus sein (neuere Firmware: zusätzlich Entwicklermodus). Startet er nicht, sagt die App das nach 45 Sekunden
+- Bitte testen: Bambu im WLAN finden und mit Zugangscode hinzufügen, Status und AMS ansehen, „Nur hochladen“ (die Datei liegt dann auf der SD-Karte), erst danach einen kleinen Druck
+
 ## 0.9.1
 
 Aufgeholt mit Server 0.36.1. Nur für Drucker hinter einer Brücke (PocketPrint3D Cloud).

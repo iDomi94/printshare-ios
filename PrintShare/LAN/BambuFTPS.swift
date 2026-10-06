@@ -151,7 +151,7 @@ final class FTPChannel {
         let id = Array(peerID.utf8)
         SSLSetPeerID(ctx, id, id.count)
         var status: OSStatus
-        repeat { status = SSLHandshake(ctx) } while status == errSSLServerAuthCompleted || status == errSSLWouldBlock
+        repeat { status = SSLHandshake(ctx) } while status == errSSLPeerAuthCompleted || status == errSSLWouldBlock
         guard status == noErr else { throw LanError("TLS with the printer failed (\(status))") }
         self.ctx = ctx
     }
