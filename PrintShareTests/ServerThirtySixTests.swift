@@ -25,9 +25,9 @@ final class ServerThirtySixTests: XCTestCase {
         return data.flatMap { try? JSONSerialization.jsonObject(with: $0) } as? [String: Any]
     }
 
-    func testBambuIsABridgeOnlyType() throws {
+    func testBambuWorksThroughABridgeAndFromThePhone() throws {
         XCTAssertTrue(Lan.bridgeTypes.contains("bambu_lan"))
-        XCTAssertFalse(Lan.types.contains("bambu_lan"))                 // the phone can't do MQTT + FTPS
+        XCTAssertTrue(Lan.types.contains("bambu_lan"))                  // the phone does MQTT + FTPS itself since 0.9.2
         let f = try JSONDecoder().decode(FoundPrinter.self, from: Data(#"""
         {"type": "bambu_lan", "address": "192.168.86.53", "name": "01P00A", "machine": "Bambu Lab P1S 0.4 nozzle", "added": false}
         """#.utf8))

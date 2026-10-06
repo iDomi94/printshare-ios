@@ -8214,13 +8214,13 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Bambu Lab P1S, P1P, X1, A1 im LAN-Modus – nur über eine Brücke."
+            "value": "Bambu Lab P1S, P1P, X1, A1 im LAN-Modus."
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Bambu Lab P1S, P1P, X1, A1 in LAN mode – through a bridge only."
+            "value": "Bambu Lab P1S, P1P, X1, A1 in LAN mode."
           }
         }
       }

@@ -9,6 +9,7 @@ import Foundation
 ///  - Klipper/Moonraker, PrusaLink, OctoPrint: a short HTTP probe of every address: Moonraker `GET /server/info`
 ///    (port 80 behind Mainsail/Fluidd/COSMOS, else 7125), PrusaLink `GET /api/v1/info` → 401 with digest realm
 ///    "Printer API", OctoPrint's web page. COSMOS by its macros (`_COSMOS_SETTINGS`).
+///  - Bambu Lab: port 8883 with a certificate from "BBL CA" (the serial number names the model).
 ///  - PocketPrint3D bridges (Raspberry Pi image on port 80, also `pocketprint3d.local`; bridge containers on 8484):
 ///    `GET /api/bridge/hello`.
 enum Discovery {
@@ -172,6 +173,13 @@ enum Discovery {
         return nil
     }
 
+    /// A Bambu printer found by its certificate: the model from the serial number preselects the slicing profile.
+    static func bambu(_ address: String, serial: String) -> FoundPrinter {
+        let model = BambuState.model(serial: serial)
+        return FoundPrinter(type: "bambu_lan", address: address, name: model.map { "Bambu Lab \($0)" } ?? "Bambu Lab",
+                            detail: "LAN", machine: BambuState.machine(serial: serial))
+    }
+
     /// SDCP discovery by unicast UDP: "M99999" to port 3000 of every host, answers collected for `timeout` seconds.
     static func sdcpProbe(hosts: [String], port: UInt16 = 3000, timeout: TimeInterval = 2.5) async -> [FoundPrinter] {
         await Task.detached(priority: .utility) { () -> [FoundPrinter] in
@@ -221,7 +229,8 @@ enum Discovery {
 
     /// Printers on the Wi-Fi, each reported as soon as it answers, plus progress. Finishes with an error `NoWifi` when
     /// the phone isn't on a Wi-Fi; cancelling the consuming task stops the scan.
-    static func printers(hosts fixed: [String]? = nil, concurrency: Int = 24) -> AsyncThrowingStream<Event, Error> {
+    static func printers(hosts fixed: [String]? = nil, concurrency: Int = 24,
+                         bambuPort: UInt16 = 8883) -> AsyncThrowingStream<Event, Error> {
         AsyncThrowingStream { continuation in
             let task = Task {
                 let hosts: [String]
@@ -241,6 +250,9 @@ enum Discovery {
                 await withTaskGroup(of: Void.self) { group in
                     group.addTask {
                         for p in await sdcpProbe(hosts: hosts) { await report(p) }
+                    }
+                    group.addTask {
+                        for b in await BambuNet.probe(hosts: hosts, port: bambuPort) { await report(bambu(b.address, serial: b.serial)) }
                     }
                     let queue = Queue(hosts)
                     let done = Counter()
