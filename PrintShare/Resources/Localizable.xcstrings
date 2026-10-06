@@ -4497,6 +4497,54 @@
         }
       }
     },
+    "jobExternal": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Direkt am Drucker gestartet"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Started on the printer"
+          }
+        }
+      }
+    },
+    "jobExternalSub": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dieser Druck kam nicht über PocketPrint3D, zum Beispiel direkt aus OrcaSlicer. Die App verfolgt ihn trotzdem bis zum Ende."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This print didn't come through PocketPrint3D, for example straight from OrcaSlicer. The app still follows it to the end."
+          }
+        }
+      }
+    },
+    "jobProgress": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fortschritt"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Progress"
+          }
+        }
+      }
+    },
     "jobSlotsHint": {
       "localizations": {
         "de": {
@@ -10845,6 +10893,70 @@
           "stringUnit": {
             "state": "translated",
             "value": "Record a time-lapse"
+          }
+        }
+      }
+    },
+    "timelapseAlways": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zeitraffer immer erstellen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Always make a time-lapse"
+          }
+        }
+      }
+    },
+    "timelapseAlwaysOld": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dein Server ist älter als 0.37.0: Die Einstellung gilt nur für Drucke aus dieser App."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your server is older than 0.37.0: the setting only applies to prints from this app."
+          }
+        }
+      }
+    },
+    "timelapseAlwaysSub": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bei jedem Druck mit Kamera, auch bei Drucken, die direkt am Drucker gestartet wurden (zum Beispiel aus OrcaSlicer). Vor dem Drucken lässt er sich für einen Druck abschalten."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "For every print with a camera, also prints started on the printer itself (for example from OrcaSlicer). You can still switch it off for one print before printing."
+          }
+        }
+      }
+    },
+    "timelapseAlwaysSubCloud": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Der Schalter „Zeitraffer aufnehmen“ ist vor jedem Druck schon an (Drucker hinter einer Brücke mit Kamera)."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The “Record a time-lapse” switch is already on before every print (printers behind a bridge with a camera)."
           }
         }
       }

@@ -1171,11 +1171,17 @@ struct Job: Codable, Sendable, Equatable, Identifiable {
     var printerFile: String?
     /// Time-lapse of this print (server 0.32.0).
     var timelapse: Timelapse?
+    /// % of a started print, as last seen by the server (0.33.0).
+    var progress: Double?
 
     enum CodingKeys: String, CodingKey {
-        case id, kind, state, log, result, error, created, printer, request, timelapse
+        case id, kind, state, log, result, error, created, printer, request, timelapse, progress
         case printerFile = "printer_file"
     }
+
+    /// Started on the printer itself, not through PocketPrint3D (server 0.37.0): no G-code, nothing to send again.
+    var isExternal: Bool { kind == Job.external }
+    static let external = "external"
 
     init(from decoder: Decoder) throws {
         let c = try decoder.container(keyedBy: CodingKeys.self)
@@ -1190,6 +1196,7 @@ struct Job: Codable, Sendable, Equatable, Identifiable {
         request = c.lenient(JobRequest.self, .request) ?? JobRequest(link: "")
         printerFile = c.lenient(String.self, .printerFile).flatMap { $0.isEmpty ? nil : $0 }
         timelapse = c.lenient(Timelapse.self, .timelapse)
+        progress = c.lenient(Double.self, .progress)
     }
 
     init(id: String, kind: String = "prepare", state: JobState, log: [String] = [], result: JobResult? = nil,
@@ -1212,12 +1219,16 @@ struct JobSummary: Codable, Sendable, Equatable, Identifiable {
     var file: String?
     var printTime: String?
     var filamentG: Double?
+    /// Server 0.37.0: % of a started print.
+    var progress: Double?
 
     enum CodingKeys: String, CodingKey {
-        case id, kind, state, error, created, printer, link, file
+        case id, kind, state, error, created, printer, link, file, progress
         case printTime = "print_time"
         case filamentG = "filament_g"
     }
+
+    var isExternal: Bool { kind == Job.external }
 
     init(from decoder: Decoder) throws {
         let c = try decoder.container(keyedBy: CodingKeys.self)
@@ -1231,7 +1242,13 @@ struct JobSummary: Codable, Sendable, Equatable, Identifiable {
         file = c.lenient(String.self, .file)
         printTime = c.lenient(String.self, .printTime)
         filamentG = c.lenient(Double.self, .filamentG)
+        progress = c.lenient(Double.self, .progress)
     }
+}
+
+/// "Always make a time-lapse" on an own server (0.37.0).
+struct TimelapseConfig: Codable, Sendable, Equatable {
+    var always: Bool
 }
 
 struct Upload: Codable, Sendable, Equatable {

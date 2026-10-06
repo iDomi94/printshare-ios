@@ -42,7 +42,7 @@ private struct SendBody: Encodable {
     var lanes: [String: Int]?
     /// Server 0.16.0: Spoolman spool Moonraker books the print on (left out when nil).
     var spoolId: Int?
-    /// Server 0.32.0: record a time-lapse (only sent when true).
+    /// Server 0.32.0: record a time-lapse. Left out = the server's "always" setting (0.37.0).
     var timelapse: Bool?
 
     enum CodingKeys: String, CodingKey {
@@ -474,7 +474,7 @@ actor APIClient {
 
     /// `lanes` only when the printer reports lanes; sent with uploads too, so the file on the printer matches.
     func send(job id: String, start: Bool, leveling: Bool? = nil, lanes: [Int: Int]? = nil, spoolId: Int? = nil,
-              timelapse: Bool = false) async throws {
+              timelapse: Bool? = nil) async throws {
         var mapping: [String: Int]?
         if let lanes, !lanes.isEmpty {
             mapping = Dictionary(uniqueKeysWithValues: lanes.map { (String($0.key), $0.value) })
@@ -482,7 +482,14 @@ actor APIClient {
         let _: Ack = try await request("/api/jobs/\(enc(id))/send", method: "POST",
                                        body: SendBody(start: start, confirm: start, leveling: start ? leveling : nil,
                                                       lanes: mapping, spoolId: start ? spoolId : nil,
-                                                      timelapse: start && timelapse ? true : nil))
+                                                      timelapse: start ? timelapse : nil))
+    }
+
+    /// Own server (0.37.0): record every print with a camera, also prints started on the printer itself.
+    func timelapseConfig() async throws -> TimelapseConfig { try await request("/api/timelapse/config") }
+
+    func setTimelapseConfig(always: Bool) async throws -> TimelapseConfig {
+        try await request("/api/timelapse/config", method: "PUT", body: TimelapseConfig(always: always))
     }
 
     /// Cloud: the phone sent the G-code itself on the Wi-Fi; the server follows the print from now on (0.33.0).

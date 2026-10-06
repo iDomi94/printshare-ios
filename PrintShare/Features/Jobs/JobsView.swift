@@ -29,11 +29,14 @@ struct JobsView: View {
 
     private func row(_ t: L10n, _ j: JobSummary) -> some View {
         let printer = j.printer.map { names[$0] ?? $0 }
-        let meta = [printer, j.printTime.map { Format.printTime($0) }, j.filamentG.map { String(format: "%.1f g", $0) },
+        // a running print shows how far it is (server 0.37.0), also one started on the printer itself
+        let progress = j.state == .started ? j.progress.map { "\(Int($0.rounded())) %" } : nil
+        let meta = [printer, progress, j.printTime.map { Format.printTime($0) }, j.filamentG.map { String(format: "%.1f g", $0) },
                     Format.ago(t, j.created)].compactMap { $0 }.joined(separator: " · ")
+        let icon = j.state == .error ? "exclamationmark.circle" : j.isExternal ? "printer" : "cube"
         return Button { Haptics.tap(); app.push(.job(j.id)) } label: {
             HStack(spacing: 12) {
-                Image(systemName: j.state == .error ? "exclamationmark.circle" : "cube")
+                Image(systemName: icon)
                     .font(.title2).foregroundStyle(j.state == .error ? Theme.danger : Theme.accent)
                     .frame(width: 30).accessibilityHidden(true)
                 VStack(alignment: .leading, spacing: 3) {
