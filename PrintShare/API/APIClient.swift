@@ -42,7 +42,7 @@ private struct SendBody: Encodable {
     var lanes: [String: Int]?
     /// Server 0.16.0: Spoolman spool Moonraker books the print on (left out when nil).
     var spoolId: Int?
-    /// Server 0.32.0: record a time-lapse. Left out = the server's "always" setting (0.39.0).
+    /// Server 0.32.0: record a time-lapse. Left out = the server's "always" setting (0.40.0).
     var timelapse: Bool?
 
     enum CodingKeys: String, CodingKey {
@@ -485,7 +485,7 @@ actor APIClient {
                                                       timelapse: start ? timelapse : nil))
     }
 
-    /// Own server (0.39.0): record every print with a camera, also prints started on the printer itself.
+    /// Own server (0.40.0): record every print with a camera, also prints started on the printer itself.
     func timelapseConfig() async throws -> TimelapseConfig { try await request("/api/timelapse/config") }
 
     func setTimelapseConfig(always: Bool) async throws -> TimelapseConfig {

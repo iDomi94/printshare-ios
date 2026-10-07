@@ -1179,7 +1179,7 @@ struct Job: Codable, Sendable, Equatable, Identifiable {
         case printerFile = "printer_file"
     }
 
-    /// Started on the printer itself, not through PocketPrint3D (server 0.39.0): no G-code, nothing to send again.
+    /// Started on the printer itself, not through PocketPrint3D (server 0.40.0): no G-code, nothing to send again.
     var isExternal: Bool { kind == Job.external }
     static let external = "external"
 
@@ -1219,7 +1219,7 @@ struct JobSummary: Codable, Sendable, Equatable, Identifiable {
     var file: String?
     var printTime: String?
     var filamentG: Double?
-    /// Server 0.39.0: % of a started print.
+    /// Server 0.40.0: % of a started print.
     var progress: Double?
 
     enum CodingKeys: String, CodingKey {
@@ -1246,7 +1246,7 @@ struct JobSummary: Codable, Sendable, Equatable, Identifiable {
     }
 }
 
-/// "Always make a time-lapse" on an own server (0.39.0).
+/// "Always make a time-lapse" on an own server (0.40.0).
 struct TimelapseConfig: Codable, Sendable, Equatable {
     var always: Bool
 }
