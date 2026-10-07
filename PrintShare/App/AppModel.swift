@@ -152,6 +152,17 @@ final class AppModel {
         if v.isEmpty { keychain.set(StoreKey.spoolman(accountKey), nil) } else { keychain.setJSON(StoreKey.spoolman(accountKey), SpoolmanSetting(url: v)) }
     }
 
+    /// "Always make a time-lapse": the switch before printing starts on. On an own server the server keeps the setting
+    /// too, so it also records prints started on the printer itself (0.39.0); this copy is the phone's default.
+    var timelapseAlways: Bool {
+        accountKey.map { keychain.get(StoreKey.timelapseAlways($0)) == "1" } ?? false
+    }
+
+    func saveTimelapseAlways(_ on: Bool) {
+        guard let accountKey else { return }
+        keychain.set(StoreKey.timelapseAlways(accountKey), on ? "1" : nil)
+    }
+
     func openSpoolman(_ setting: String) -> Spoolman? {
         server.map { Spoolman.open(server: $0, setting: setting) }
     }

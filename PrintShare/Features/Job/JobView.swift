@@ -12,8 +12,10 @@ struct JobView: View {
     @State private var job: Job?
     @State private var loadError = ""
     @State private var actionError = ""
-    /// Time-lapse (server 0.32.0): only where the server or a bridge reaches the camera; off by default.
+    /// Time-lapse (server 0.32.0): only where the server or a bridge reaches the camera; starts as the
+    /// "always make a time-lapse" setting says (off unless set).
     @State private var timelapse = false
+    @State private var timelapseDefaulted = false
     /// "Print again" on a finished / cancelled job brings the review back.
     @State private var again = false
     @State private var sending: SendMode?
@@ -157,7 +159,8 @@ struct JobView: View {
         switch job.state {
         case .slicing, .running: slicingView(t, job)
         case .error: errorView(t, job)
-        default: reviewView(t, job)
+        default:
+            if job.isExternal { externalView(t, job) } else { reviewView(t, job) }
         }
     }
 
@@ -212,6 +215,53 @@ struct JobView: View {
         } footer: {
             PSButton(title: t(.editSettings), icon: "slider.horizontal.3") { editSettings(job) }
             PSButton(title: t(.deleteJob), kind: .plain) { confirmDelete = true }
+        }
+    }
+
+    // MARK: started on the printer itself (server 0.39.0)
+
+    private func externalView(_ t: L10n, _ job: Job) -> some View {
+        let name = job.printerFile ?? "–"
+        let cancelled = job.state == .cancelled
+        let finished = job.state == .finished
+        return PSScreen {
+            VStack(spacing: 6) {
+                Image(systemName: cancelled ? "xmark.circle.fill" : finished ? "checkmark.circle.fill" : "printer.fill")
+                    .font(.system(size: 60)).foregroundStyle(cancelled ? Theme.warn : finished ? Theme.ok : Theme.accent)
+                    .accessibilityHidden(true)
+                Text(t(finished ? .finishedTitle : cancelled ? .cancelledTitle : .jobExternal))
+                    .font(.title2.bold()).foregroundStyle(Theme.text).padding(.top, 6)
+                Text(t(.jobExternalSub)).font(.subheadline).foregroundStyle(Theme.sub).multilineTextAlignment(.center)
+                if let tl = job.timelapse { timelapseInfo(t, tl, name: name) }
+            }
+            .frame(maxWidth: .infinity).padding(.vertical, 20)
+            if !actionError.isEmpty { PSBanner(kind: .error, text: actionError) }
+            if job.state == .started, let p = job.progress {
+                PSCard(padding: 16) {
+                    VStack(alignment: .leading, spacing: 8) {
+                        HStack {
+                            Text(t(.jobProgress)).font(.body).foregroundStyle(Theme.text)
+                            Spacer()
+                            Text("\(Int(p.rounded())) %").font(.body.monospacedDigit()).foregroundStyle(Theme.sub)
+                        }
+                        ProgressView(value: min(max(p, 0), 100), total: 100).tint(Theme.accent)
+                    }
+                }
+                .padding(.bottom, 12)
+            }
+            PSSection(title: t(.details)) {
+                PSRow(label: t(.printer), value: printerName)
+                PSDivider()
+                PSRow(label: t(.file), sub: name)
+            }
+            PSButton(title: t(.deleteJob), kind: .plain) { confirmDelete = true }.padding(.top, 4)
+        } footer: {
+            PSButton(title: t(.toPrinter), icon: "printer") { app.navigate(to: .printers) }
+            if hasCamera, let p = printerId {
+                PSButton(title: t(.camera), kind: .secondary, icon: "video") {
+                    camera = CameraTarget(printer: p, name: printerName)
+                }
+            }
         }
     }
 
@@ -603,7 +653,7 @@ struct JobView: View {
         }
         do {
             try await api.send(job: job.id, start: start, leveling: levelValue, lanes: lanes, spoolId: start ? activeSpool : nil,
-                               timelapse: start && hasCamera && timelapse)
+                               timelapse: hasCamera && timelapse)
             var latest: Job?
             for _ in 0..<600 {
                 try await Task.sleep(for: .seconds(1))
@@ -668,6 +718,10 @@ struct JobView: View {
     private func loadCamera() async {
         guard !cameraKey.isEmpty, let api = app.api else { hasCamera = false; return }
         hasCamera = (try? await api.cameraInfo(printer: cameraKey))?.available ?? false
+        if hasCamera && !timelapseDefaulted {
+            timelapse = app.timelapseAlways
+            timelapseDefaulted = true
+        }
     }
 
     /// SL-10: fetch the G-code and hand it to the share sheet (Files, AirDrop, another slicer app …).

@@ -4,6 +4,14 @@ Jeder Abschnitt `## X.Y.Z` wird beim Tag `vX.Y.Z` automatisch als „Was testen�
 (`.github/workflows/testflight.yml`). Text auf Deutsch, höchstens 4000 Zeichen. Fehlt der Abschnitt, stehen dort
 die Commit-Titel seit dem letzten Tag.
 
+## 0.9.3
+
+Braucht Server 0.39.0 (mit älteren Servern läuft alles wie bisher).
+
+- Alle Drucke erscheinen unter „Aufträge“, auch solche, die direkt am Drucker gestartet wurden (zum Beispiel aus OrcaSlicer an den Drucker gesendet). Sie zeigen den Fortschritt und werden bis „Gedruckt“ oder „Abgebrochen“ verfolgt
+- Einstellungen → Zeitraffer → „Zeitraffer immer erstellen“: der Schalter vor dem Drucken ist dann schon an. Beim eigenen Server nimmt der Server außerdem jeden Druck mit Kamera auf, auch die direkt gestarteten
+- Bitte testen: aus OrcaSlicer direkt an den Drucker senden und nach etwa 30 Sekunden in „Aufträge“ schauen; „Zeitraffer immer erstellen“ einschalten und einen Druck aus OrcaSlicer starten, am Ende sollte „Zeitraffer ansehen“ erscheinen
+
 ## 0.9.2
 
 Bambu Lab ohne Brücke, wie in der Android-App (Server 0.36.1). Ohne echten Bambu-Drucker gebaut: bitte vorsichtig testen.

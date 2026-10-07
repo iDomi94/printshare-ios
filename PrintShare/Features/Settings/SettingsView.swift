@@ -14,6 +14,10 @@ struct SettingsView: View {
     @State private var confirmDeleteAgain = false
     @State private var accountError: String?
     @State private var spoolman: String?
+    /// "Always make a time-lapse" (server 0.39.0); `timelapseOld` = own server without the setting.
+    @State private var timelapseAlways = false
+    @State private var timelapseOld = false
+    @State private var timelapseError = ""
 
     private var appVersion: String {
         Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "–"
@@ -38,7 +42,10 @@ struct SettingsView: View {
                 .pickerStyle(.segmented).labelsHidden().padding(12)
             }
 
-            if let server { advanced(t, cloud: server.isCloud) }
+            if let server {
+                timelapseSection(t, cloud: server.isCloud)
+                advanced(t, cloud: server.isCloud)
+            }
 
             PSSection(title: t(.about), footer: t(server?.isCloud == true ? .aboutTextCloud : .aboutText)) {
                 PSRow(icon: "info.circle", label: t(.version), value: appVersion)
@@ -64,6 +71,7 @@ struct SettingsView: View {
         .navigationBarTitleDisplayMode(.inline)
         .toolbar(.visible, for: .navigationBar)
         .task(id: app.server) { await loadInfo() }
+        .task(id: app.server) { await loadTimelapse() }
         .onAppear { spoolman = app.spoolmanSetting() }
         .alert(t(.disconnectQ), isPresented: $confirmDisconnect) {
             Button(t(.cancelBtn), role: .cancel) {}
@@ -143,6 +151,56 @@ struct SettingsView: View {
                     }
                 }
             }
+        }
+    }
+
+    /// The switch before printing starts on; an own server also records prints started on the printer itself.
+    @ViewBuilder
+    private func timelapseSection(_ t: L10n, cloud: Bool) -> some View {
+        let footer = cloud ? t(.timelapseAlwaysSubCloud) : timelapseOld ? t(.timelapseAlwaysOld) : t(.timelapseAlwaysSub)
+        PSSection(title: t(.timelapseTitle), footer: timelapseError.isEmpty ? footer : timelapseError) {
+            Toggle(isOn: Binding(get: { timelapseAlways }, set: { on in Task { await setTimelapseAlways(on, cloud: cloud) } })) {
+                Label {
+                    Text(t(.timelapseAlways)).font(.body).foregroundStyle(Theme.text)
+                } icon: {
+                    Image(systemName: "film").foregroundStyle(Theme.accent)
+                }
+            }
+            .tint(Theme.accent)
+            .padding(.horizontal, 14).padding(.vertical, 10)
+        }
+    }
+
+    private func setTimelapseAlways(_ on: Bool, cloud: Bool) async {
+        Haptics.tap()
+        timelapseAlways = on
+        timelapseError = ""
+        if !cloud && !timelapseOld, let api = app.api {
+            do {
+                timelapseAlways = try await api.setTimelapseConfig(always: on).always
+            } catch let e as APIError where e.status == 404 {
+                timelapseOld = true
+            } catch {
+                timelapseAlways = !on
+                timelapseError = error.localizedDescription
+                return
+            }
+        }
+        app.saveTimelapseAlways(timelapseAlways)
+    }
+
+    private func loadTimelapse() async {
+        timelapseAlways = app.timelapseAlways
+        timelapseOld = false
+        timelapseError = ""
+        guard !app.isCloud, let api = app.api else { return }
+        do {
+            timelapseAlways = try await api.timelapseConfig().always
+            app.saveTimelapseAlways(timelapseAlways)
+        } catch let e as APIError where e.status == 404 {
+            timelapseOld = true
+        } catch {
+            // offline: keep the phone's copy
         }
     }
 
