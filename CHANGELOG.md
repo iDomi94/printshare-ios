@@ -6,7 +6,7 @@ die Commit-Titel seit dem letzten Tag.
 
 ## 0.9.3
 
-Braucht Server 0.37.0 (mit älteren Servern läuft alles wie bisher).
+Braucht Server 0.39.0 (mit älteren Servern läuft alles wie bisher).
 
 - Alle Drucke erscheinen unter „Aufträge“, auch solche, die direkt am Drucker gestartet wurden (zum Beispiel aus OrcaSlicer an den Drucker gesendet). Sie zeigen den Fortschritt und werden bis „Gedruckt“ oder „Abgebrochen“ verfolgt
 - Einstellungen → Zeitraffer → „Zeitraffer immer erstellen“: der Schalter vor dem Drucken ist dann schon an. Beim eigenen Server nimmt der Server außerdem jeden Druck mit Kamera auf, auch die direkt gestarteten

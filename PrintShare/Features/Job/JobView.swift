@@ -218,7 +218,7 @@ struct JobView: View {
         }
     }
 
-    // MARK: started on the printer itself (server 0.37.0)
+    // MARK: started on the printer itself (server 0.39.0)
 
     private func externalView(_ t: L10n, _ job: Job) -> some View {
         let name = job.printerFile ?? "–"

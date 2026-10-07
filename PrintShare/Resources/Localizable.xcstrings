@@ -10918,13 +10918,13 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Dein Server ist älter als 0.37.0: Die Einstellung gilt nur für Drucke aus dieser App."
+            "value": "Dein Server ist älter als 0.39.0: Die Einstellung gilt nur für Drucke aus dieser App."
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Your server is older than 0.37.0: the setting only applies to prints from this app."
+            "value": "Your server is older than 0.39.0: the setting only applies to prints from this app."
           }
         }
       }

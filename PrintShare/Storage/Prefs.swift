@@ -27,6 +27,6 @@ enum StoreKey {
         "ps_spools_\(account)_\(printer.replacingRegex("[^A-Za-z0-9_.-]", with: "_"))"
     }
     static func bookings(_ account: String) -> String { "ps_bookings_\(account)" }
-    /// "Always make a time-lapse" (server 0.37.0), per server / account.
+    /// "Always make a time-lapse" (server 0.39.0), per server / account.
     static func timelapseAlways(_ account: String) -> String { "ps_timelapse_always_\(account)" }
 }
