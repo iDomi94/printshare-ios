@@ -8262,13 +8262,13 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Bambu Lab P1S, P1P, X1, A1 im LAN-Modus – nur über eine Brücke."
+            "value": "Bambu Lab P1S, P1P, X1, A1 im LAN-Modus."
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Bambu Lab P1S, P1P, X1, A1 in LAN mode – through a bridge only."
+            "value": "Bambu Lab P1S, P1P, X1, A1 in LAN mode."
           }
         }
       }
@@ -10918,13 +10918,13 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Dein Server ist älter als 0.37.0: Die Einstellung gilt nur für Drucke aus dieser App."
+            "value": "Dein Server ist älter als 0.39.0: Die Einstellung gilt nur für Drucke aus dieser App."
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Your server is older than 0.37.0: the setting only applies to prints from this app."
+            "value": "Your server is older than 0.39.0: the setting only applies to prints from this app."
           }
         }
       }

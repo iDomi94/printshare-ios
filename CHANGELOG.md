@@ -6,11 +6,20 @@ die Commit-Titel seit dem letzten Tag.
 
 ## 0.9.3
 
-Braucht Server 0.37.0 (mit älteren Servern läuft alles wie bisher).
+Braucht Server 0.39.0 (mit älteren Servern läuft alles wie bisher).
 
 - Alle Drucke erscheinen unter „Aufträge“, auch solche, die direkt am Drucker gestartet wurden (zum Beispiel aus OrcaSlicer an den Drucker gesendet). Sie zeigen den Fortschritt und werden bis „Gedruckt“ oder „Abgebrochen“ verfolgt
 - Einstellungen → Zeitraffer → „Zeitraffer immer erstellen“: der Schalter vor dem Drucken ist dann schon an. Beim eigenen Server nimmt der Server außerdem jeden Druck mit Kamera auf, auch die direkt gestarteten
 - Bitte testen: aus OrcaSlicer direkt an den Drucker senden und nach etwa 30 Sekunden in „Aufträge“ schauen; „Zeitraffer immer erstellen“ einschalten und einen Druck aus OrcaSlicer starten, am Ende sollte „Zeitraffer ansehen“ erscheinen
+
+## 0.9.2
+
+Bambu Lab ohne Brücke, wie in der Android-App (Server 0.36.1). Ohne echten Bambu-Drucker gebaut: bitte vorsichtig testen.
+
+- Cloud-Drucker hinzufügen → Typ „Bambu Lab“: die App spricht selbst im WLAN mit dem Drucker (MQTT und FTPS), eine Brücke ist nicht mehr nötig. Die Suche im WLAN findet Bambu-Drucker jetzt auch, das Modell kommt aus der Seriennummer
+- Status, AMS-Fächer als Slots, Pause/Fortsetzen/Abbrechen, Hochladen und Drucken mit der Fächerwahl
+- Der Drucker muss im LAN-Modus sein (neuere Firmware: zusätzlich Entwicklermodus). Startet er nicht, sagt die App das nach 45 Sekunden
+- Bitte testen: Bambu im WLAN finden und mit Zugangscode hinzufügen, Status und AMS ansehen, „Nur hochladen“ (die Datei liegt dann auf der SD-Karte), erst danach einen kleinen Druck
 
 ## 0.9.1
 

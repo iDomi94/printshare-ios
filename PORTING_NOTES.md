@@ -214,10 +214,17 @@ if it contradicts `printshare/api.py` the server wins; otherwise the simplest id
 - **Turned own camera (0.36.1)**: `#rotate=90|180|270` at the end of the own camera address turns the picture on the server.
   Nothing to port: the URL check already accepts the fragment, and the server then reports `stream: false`, so the app shows
   stills.
-- **Not ported: Bambu Lab without a bridge** (Expo app only, upstream `0e0e8a7`, native Android module `bambu-lan`: MQTT over
-  TLS, FTPS with TLS session resumption on the data channel, 3MF wrap). iOS would need its own MQTT and FTPS clients on
-  Network.framework (no third-party packages); `bambu_lan` stays bridge-only here, so the 0.36.0 text "– nur über eine
-  Brücke" is kept (upstream dropped it with that commit).
+- **Bambu Lab without a bridge** (Expo app upstream `0e0e8a7`, app 0.9.2): `PrintShare/LAN/Bambu*.swift`.
+  `BambuState` = `bambuState.ts` (merge of partial reports, AMS trays as lanes, `ams_mapping`, start command);
+  `BambuLink` = own MQTT 3.1.1 client on Network.framework (TLS, certificate accepted as it is, CONNECT/SUBSCRIBE/
+  PUBLISH QoS 0/PING), one connection per printer kept open by `BambuLinks` like the Expo app; `Bambu3MF` wraps the
+  G-code with an own zip writer (deflate via the Compression framework); `BambuFTPS` uploads with **SecureTransport**
+  because it is the only iOS TLS API that lets the data channel resume the control channel's session on purpose
+  (`SSLSetPeerID` "host:990" on both, the Android app's `createSocket(raw, host, 990, true)`). SecureTransport is
+  deprecated: the code sits in deprecated declarations and is reached through the `BambuUploading` protocol, so the
+  build stays free of warnings. Discovery probes port 8883 for a certificate from "BBL CA". Relay: lanes go to the
+  printer as `ams_mapping`, the G-code is downloaded without lane rewriting (as in `printerAccess.ts`). Tested against a
+  fake printer (plain MQTT + FTP on localhost); **TLS, session reuse and a real printer are untested.**
 
 ## Verification
 
