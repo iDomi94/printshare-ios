@@ -17,6 +17,8 @@ struct SendOptions: Sendable {
     var leveling: Bool?
     /// Klipper: Spoolman spool Moonraker books the print on (server 0.16.0).
     var spoolId: Int?
+    /// Bambu: AMS tray per filament of the print (`ams_mapping`; the G-code isn't rewritten).
+    var tools: [Int: Int]? = nil
     var onStep: (@Sendable (SendStep) -> Void)?
     /// 0...1 of the upload.
     var onProgress: (@Sendable (Double) -> Void)?
@@ -40,8 +42,8 @@ struct LanError: Error, LocalizedError, Sendable, Equatable {
 /// The printer has no Wi-Fi address on this phone yet.
 struct NoLanAddress: Error, Sendable {}
 
-/// How the app reaches one printer: address, plus the PrusaLink password or an API key (PrusaLink, OctoPrint,
-/// Moonraker). Stored only on this phone, never sent to the cloud.
+/// How the app reaches one printer: address, plus the PrusaLink password (Bambu: the access code) or an API key
+/// (PrusaLink, OctoPrint, Moonraker). Stored only on this phone, never sent to the cloud.
 struct LanAccess: Codable, Sendable, Equatable {
     var address: String
     var password: String?
@@ -74,11 +76,11 @@ struct LanAccess: Codable, Sendable, Equatable {
 }
 
 enum Lan {
-    /// Printer types the app can talk to directly (server 0.15.3).
-    static let types = ["elegoo_sdcp", "moonraker", "prusalink", "octoprint"]
+    /// Printer types the app can talk to directly (server 0.15.3; Bambu Lab in LAN mode since upstream 0e0e8a7).
+    static let types = ["elegoo_sdcp", "moonraker", "prusalink", "octoprint", "bambu_lan"]
 
-    /// Types a bridge can drive: Bambu Lab in LAN mode (MQTT + FTPS, server 0.35.0) needs the bridge, the phone can't.
-    static let bridgeTypes = types + ["bambu_lan"]
+    /// Types a bridge can drive (server 0.35.0): the same ones.
+    static let bridgeTypes = types
 
     static func canRelay(_ type: String) -> Bool { types.contains(type) }
 
@@ -97,6 +99,7 @@ enum Lan {
         case "prusalink":
             return try PrusaLinkPrinter(address: address, password: access.password, apiKey: access.apiKey, session: session)
         case "octoprint": return try OctoPrintPrinter(address: address, apiKey: access.apiKey ?? "", session: session)
+        case "bambu_lan": return BambuPrinter(host: host(address).replacingRegex(":\\d+$", with: ""), code: access.password ?? "")
         default: throw LanError("printer type \(type) can't be reached from the app yet")
         }
     }

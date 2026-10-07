@@ -118,13 +118,17 @@ final class AppModel {
         try await lan.control(action)
     }
 
-    /// Cloud: download the sliced G-code (slots already mapped by the server) and send it to the printer.
+    /// Cloud: download the sliced G-code (slots already mapped by the server) and send it to the printer. Bambu: the
+    /// trays go to the printer as `ams_mapping` instead, the G-code stays as sliced.
     func relay(job: String, printer p: Printer, fileName: String, lanes: [Int: Int]?, options: SendOptions) async throws {
         let api = try requireAPI()
         let lan = try lanPrinter(p)
         defer { Task { await lan.close() } }
+        var options = options
+        let bambu = p.type == "bambu_lan"
+        if bambu, let lanes { options.tools = lanes }
         options.onStep?(.download)
-        let file = try await api.downloadGcode(job: job, name: fileName, lanes: lanes)
+        let file = try await api.downloadGcode(job: job, name: fileName, lanes: bambu ? nil : lanes)
         defer { try? FileManager.default.removeItem(at: file.deletingLastPathComponent()) }
         try await lan.send(file: file, name: fileName, options: options)
     }
