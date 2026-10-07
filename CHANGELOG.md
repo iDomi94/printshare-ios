@@ -4,6 +4,15 @@ Jeder Abschnitt `## X.Y.Z` wird beim Tag `vX.Y.Z` automatisch als „Was testen�
 (`.github/workflows/testflight.yml`). Text auf Deutsch, höchstens 4000 Zeichen. Fehlt der Abschnitt, stehen dort
 die Commit-Titel seit dem letzten Tag.
 
+## 0.9.4
+
+Aufgeholt mit Server 0.44.0 (Bewegen, Laden/Entladen, Orca-Cloud-Konto). Mit älteren Servern fehlen die neuen Bereiche einfach.
+
+- Steuerung → „Bewegen“: Achsen homen, mit dem Steuerkreuz X/Y/Z verfahren (Schrittweite wählbar), extrudieren und zurückziehen, Motoren aus, Makros des Druckers. Während eines Drucks gesperrt
+- Filament laden und entladen: Material wählen, die Düse heizt vorher auf dessen Temperatur. Bei Bambu mit Fachwahl. Der Centauri führt beides als kurzen Auftrag aus
+- Einstellungen → Erweitert → „Orca-Cloud-Konto“: eigene OrcaSlicer-Profile automatisch übernehmen (App-ID eintragen, mit einem Code koppeln; der Server holt die Profile alle 6 Stunden). Braucht Server 0.42.0
+- Bitte testen: Centauri homen und um 10 mm verfahren (Kamera beobachten), danach erst Laden/Entladen; Orca-Kopplung mit einer echten App-ID
+
 ## 0.9.3
 
 Braucht Server 0.40.0 (mit älteren Servern läuft alles wie bisher).

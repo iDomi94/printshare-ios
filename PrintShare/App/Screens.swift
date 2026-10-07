@@ -47,6 +47,8 @@ enum Screen: Hashable {
     case manyfold
     /// AI failure detection with Obico's ML API (server 0.23.0, own servers only).
     case failureDetection
+    /// Own presets from an Orca Cloud account (server 0.42.0).
+    case orcaAccount
     /// printables.com in a web view with the user's own Printables login (test build).
     case printablesWeb
 }

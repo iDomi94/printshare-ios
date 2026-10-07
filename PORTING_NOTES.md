@@ -226,6 +226,25 @@ if it contradicts `printshare/api.py` the server wins; otherwise the simplest id
   printer as `ams_mapping`, the G-code is downloaded without lane rewriting (as in `printerAccess.ts`). Tested against a
   fake printer (plain MQTT + FTP on localhost); **TLS, session reuse and a real printer are untested.**
 
+## Server 0.42.0 - 0.44.0 (upstream 6d386c1)
+
+- **Moving by hand (0.43.0, load / unload 0.44.0)**: `Features/Control/MotionPanel.swift` inside the control page, driven
+  by `GET /api/printers/{id}/motion` (`Motion`, lenient; the sections hide on 404 / `supported: false`). Home buttons, a
+  jog pad (X/Y cross, Z column, step selector from `jog.steps`), extrude / retract (hint and "heat to 220 °C" below
+  170 °C, via the page's own heater change), load / unload with the material picker (`materials[].load_temp`) and a slot
+  picker for Bambu (`load_slots`, tool 254 = external spool), motors off and Klipper macros. Load, unload and macros ask
+  first and send `confirm: true`; nothing is repeated by the app; everything is locked while a print runs (status
+  `kind.isBusy`), like the server (409). Texts come from the regenerated `i18n.ts` (`motion*`, `home*`, `macro*`, ...).
+- **Orca Cloud account (0.42.0)**: `Features/Settings/OrcaAccountView.swift`, Settings -> Erweitert -> "Orca-Cloud-Konto"
+  (own servers and cloud). App ID (`client_id`) entry unless the server has one, pairing code with copy / open buttons
+  (only an https address is opened), polling every 3 s while the pairing waits, sync now, disconnect with the choice to
+  keep or remove the presets. `PUT` always writes `client_id` (null removes the entered ID).
+- **Not ported (kept for a later run):** the filament menu per AMS slot (0.37.0, `/filament`, set material / colour),
+  NFC chips / slot spools / NFC readers (0.38.0, needs the NFC capability like OpenPrintTag), the spool source choice
+  cloud / Spoolman and the import of Spoolman spools into cloud spools (0.39.0), the web page settings (0.41.0, PWA only).
+  Server-only: 0.43.1 (Orca Cloud `print` preset type), Bambu jog refusal until homed. The regenerated texts already contain
+  the strings of the unported screens.
+
 ## Verification
 
 - The session that wrote this code had **no macOS, no Xcode and no Swift toolchain** (download of a toolchain is
