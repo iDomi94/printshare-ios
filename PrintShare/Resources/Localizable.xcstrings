@@ -3153,6 +3153,86 @@
         }
       }
     },
+    "extrude": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Extrudieren"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Extrude"
+          }
+        }
+      }
+    },
+    "extrudeCold": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Die Düse hat {t} °C – zu kalt zum Extrudieren."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The nozzle is at {t} °C – too cold to extrude."
+          }
+        }
+      }
+    },
+    "extrudeHeat": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Düse auf 220 °C heizen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Heat the nozzle to 220 °C"
+          }
+        }
+      }
+    },
+    "extrudeHint": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Filament bewegt sich nur bei heißer Düse (ab {t} °C)."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Filament only moves with a hot nozzle (from {t} °C)."
+          }
+        }
+      }
+    },
+    "extruderTitle": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Extruder und Filament"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Extruder and filament"
+          }
+        }
+      }
+    },
     "failureAction": {
       "localizations": {
         "de": {
@@ -3457,6 +3537,342 @@
         }
       }
     },
+    "filamentBusy": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Es läuft ein Druck – Laden und Entladen gehen erst danach."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A print is running – loading and unloading work once it is over."
+          }
+        }
+      }
+    },
+    "filamentColor": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Farbe"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Colour"
+          }
+        }
+      }
+    },
+    "filamentEdit": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bearbeiten"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Edit"
+          }
+        }
+      }
+    },
+    "filamentEditTitle": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "{slot} einstellen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Set up {slot}"
+          }
+        }
+      }
+    },
+    "filamentEmpty": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "leer"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "empty"
+          }
+        }
+      }
+    },
+    "filamentExternal": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Externe Spule"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "External spool"
+          }
+        }
+      }
+    },
+    "filamentHint": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Laden und Entladen heizen die Düse auf und bewegen Filament – nur, wenn kein Druck läuft."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Loading and unloading heat the nozzle and move filament – only when no print is running."
+          }
+        }
+      }
+    },
+    "filamentInHead": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "im Kopf"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "in toolhead"
+          }
+        }
+      }
+    },
+    "filamentLoad": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Laden"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Load"
+          }
+        }
+      }
+    },
+    "filamentLoadQ": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "{slot} laden? Die Düse heizt auf {temp} °C, das Filament wird eingezogen."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Load {slot}? The nozzle heats to {temp} °C and the filament is pulled in."
+          }
+        }
+      }
+    },
+    "filamentLoading": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "{slot} wird geladen – das dauert etwa eine Minute."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Loading {slot} – this takes about a minute."
+          }
+        }
+      }
+    },
+    "filamentRowSub": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Laden, entladen, Fächer einstellen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Load, unload, set up the slots"
+          }
+        }
+      }
+    },
+    "filamentSaved": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "{slot} gespeichert."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "{slot} saved."
+          }
+        }
+      }
+    },
+    "filamentSlot": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fach"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Slot"
+          }
+        }
+      }
+    },
+    "filamentSlots": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fächer"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Slots"
+          }
+        }
+      }
+    },
+    "filamentTitle": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Filament"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Filament"
+          }
+        }
+      }
+    },
+    "filamentUnknown": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Material unbekannt"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "material unknown"
+          }
+        }
+      }
+    },
+    "filamentUnload": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Entladen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unload"
+          }
+        }
+      }
+    },
+    "filamentUnloadQ": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Filament entladen? Die Düse heizt auf {temp} °C, das Filament wird zurückgezogen."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unload the filament? The nozzle heats to {temp} °C and the filament is pulled back."
+          }
+        }
+      }
+    },
+    "filamentUnloading": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Filament wird entladen …"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unloading the filament …"
+          }
+        }
+      }
+    },
+    "filamentUnsupported": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dieser Drucker unterstützt das Filament-Menü (noch) nicht."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This printer doesn't support the filament menu (yet)."
+          }
+        }
+      }
+    },
     "file": {
       "localizations": {
         "de": {
@@ -3725,6 +4141,38 @@
           "stringUnit": {
             "state": "translated",
             "value": "No history yet – it fills up while this view is open."
+          }
+        }
+      }
+    },
+    "home": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Home"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Home"
+          }
+        }
+      }
+    },
+    "homeAll": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alle Achsen homen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Home all axes"
           }
         }
       }
@@ -5505,6 +5953,22 @@
         }
       }
     },
+    "linkChipTitle": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Neuer Chip in {slot} – welche Spule ist das?"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "New chip in {slot} – which spool is this?"
+          }
+        }
+      }
+    },
     "linkPlaceholder": {
       "localizations": {
         "de": {
@@ -5581,6 +6045,54 @@
           "stringUnit": {
             "state": "translated",
             "value": "Long-press a profile to delete it."
+          }
+        }
+      }
+    },
+    "macroQ": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Makro {m} jetzt ausführen?"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Run macro {m} now?"
+          }
+        }
+      }
+    },
+    "macrosHint": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Befehle, die auf deinem Drucker eingerichtet sind."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Commands set up on your printer."
+          }
+        }
+      }
+    },
+    "macrosTitle": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Makros"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Macros"
           }
         }
       }
@@ -5969,6 +6481,214 @@
         }
       }
     },
+    "motionAsJob": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Der Centauri führt Laden und Entladen als kurzen Auftrag aus – du siehst ihn auf seinem Bildschirm."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The Centauri runs loading and unloading as a short job – you see it on its screen."
+          }
+        }
+      }
+    },
+    "motionDone": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Erledigt."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Done."
+          }
+        }
+      }
+    },
+    "motionGo": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Starten"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Start"
+          }
+        }
+      }
+    },
+    "motionHint": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vor dem Bewegen einmal „Alle Achsen homen“. Achtung beim Absenken von Z: Die Düse kann das Druckbett berühren."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Home all axes once before moving. Careful when lowering Z: the nozzle can touch the bed."
+          }
+        }
+      }
+    },
+    "motionLoad": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Filament laden"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Load filament"
+          }
+        }
+      }
+    },
+    "motionLoadQ": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Filament laden ({m}, {t} °C)? Schieb das Filament bis zum Anschlag in den Extruder – sobald die Düse heiß ist, zieht er es ein."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Load filament ({m}, {t} °C)? Push the filament into the extruder until it stops – once the nozzle is hot it pulls it in."
+          }
+        }
+      }
+    },
+    "motionLoadSlot": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Welches Fach laden?"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Which slot to load?"
+          }
+        }
+      }
+    },
+    "motionMaterial": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Material (Temperatur)"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Material (temperature)"
+          }
+        }
+      }
+    },
+    "motionTitle": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bewegen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Move"
+          }
+        }
+      }
+    },
+    "motionUnload": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Filament entladen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unload filament"
+          }
+        }
+      }
+    },
+    "motionUnloadQ": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Filament entladen ({m}, {t} °C)? Die Düse heizt auf, dann zieht der Drucker das Filament heraus – danach von Hand ganz herausziehen."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unload filament ({m}, {t} °C)? The nozzle heats up, then the printer pulls the filament back – then pull it out by hand."
+          }
+        }
+      }
+    },
+    "motorsOff": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Motoren aus"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Motors off"
+          }
+        }
+      }
+    },
+    "motorsOffSub": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Danach lassen sich Kopf und Bett von Hand schieben – vor dem nächsten Bewegen neu homen."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Then the head and bed can be pushed by hand – home again before the next move."
+          }
+        }
+      }
+    },
     "needLanAddress": {
       "localizations": {
         "de": {
@@ -6097,6 +6817,22 @@
         }
       }
     },
+    "nfcChipLinked": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chip {uid} gehört jetzt zu dieser Spule."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chip {uid} now belongs to this spool."
+          }
+        }
+      }
+    },
     "nfcFilled": {
       "localizations": {
         "de": {
@@ -6125,6 +6861,70 @@
           "stringUnit": {
             "state": "translated",
             "value": "Hold the phone to the spool's NFC tag …"
+          }
+        }
+      }
+    },
+    "nfcLinkChip": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "NFC-Chip verknüpfen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Link an NFC chip"
+          }
+        }
+      }
+    },
+    "nfcLinkChipSub": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aufkleber, Bambu- oder OpenPrintTag-Chip an das Handy halten"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hold a sticker, Bambu or OpenPrintTag chip to the phone"
+          }
+        }
+      }
+    },
+    "nfcLinkedChip": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chip erkannt: {spool}"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chip recognised: {spool}"
+          }
+        }
+      }
+    },
+    "nfcLinkedNow": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chip mit {spool} verknüpft – ab jetzt wird die Spule daran erkannt."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chip linked to {spool} – from now on the spool is recognised by it."
           }
         }
       }
@@ -6269,6 +7069,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "No tag found – hold the phone still on the spool and try again."
+          }
+        }
+      }
+    },
+    "nfcWhichSpool": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unbekannter Chip – welche Spule ist das?"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unknown chip – which spool is this?"
           }
         }
       }
@@ -6609,6 +7425,54 @@
         }
       }
     },
+    "orcaAccountIntro": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deine eigenen Drucker-, Qualitäts- und Materialprofile aus OrcaSlicer kommen automatisch hierher: einmal koppeln, danach holt der Server sie alle 6 Stunden ab. Nur lesen – an deinen Profilen in Orca Cloud ändert sich nichts."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your own printer, quality and material presets from OrcaSlicer come here automatically: pair once, then the server fetches them every 6 hours. Read only – nothing changes in Orca Cloud."
+          }
+        }
+      }
+    },
+    "orcaAccountSub": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eigene OrcaSlicer-Profile automatisch übernehmen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Take over your own OrcaSlicer presets automatically"
+          }
+        }
+      }
+    },
+    "orcaAccountTitle": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Orca-Cloud-Konto"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Orca Cloud account"
+          }
+        }
+      }
+    },
     "orcaCloudChoose": {
       "localizations": {
         "de": {
@@ -6705,6 +7569,70 @@
         }
       }
     },
+    "orcaConnect": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mit Orca Cloud koppeln"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pair with Orca Cloud"
+          }
+        }
+      }
+    },
+    "orcaConnectAgain": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Neuen Code holen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Get a new code"
+          }
+        }
+      }
+    },
+    "orcaConnected": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gekoppelt"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Paired"
+          }
+        }
+      }
+    },
+    "orcaCopyCode": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Code kopieren"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copy code"
+          }
+        }
+      }
+    },
     "orcaCreate": {
       "localizations": {
         "de": {
@@ -6717,6 +7645,54 @@
           "stringUnit": {
             "state": "translated",
             "value": "Create access"
+          }
+        }
+      }
+    },
+    "orcaDisconnect": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kopplung trennen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unpair"
+          }
+        }
+      }
+    },
+    "orcaDisconnectQ": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Die Kopplung mit Orca Cloud trennen?"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unpair from Orca Cloud?"
+          }
+        }
+      }
+    },
+    "orcaDisconnected": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kopplung getrennt."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unpaired."
           }
         }
       }
@@ -6737,6 +7713,70 @@
         }
       }
     },
+    "orcaIdHint": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Orca Cloud verlangt für jede App eine eigene ID (client_id), die das Orca-Team vergibt. Trage hier die ID ein, die du bekommen hast."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Orca Cloud needs an ID (client_id) for every app, issued by the Orca team. Enter the ID you were given."
+          }
+        }
+      }
+    },
+    "orcaIdSaved": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "App-ID gespeichert."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "App ID saved."
+          }
+        }
+      }
+    },
+    "orcaIdServer": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Die App-ID ist auf dem Server eingestellt."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The app ID is set on the server."
+          }
+        }
+      }
+    },
+    "orcaIdTitle": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Orca-App-ID"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Orca app ID"
+          }
+        }
+      }
+    },
     "orcaIntro": {
       "localizations": {
         "de": {
@@ -6749,6 +7789,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Do you print from OrcaSlicer on your computer? Then OrcaSlicer sends the G-code for “{printer}” through PocketPrint3D: it shows up here as a job (preview, spools, print) and the spool is booked."
+          }
+        }
+      }
+    },
+    "orcaKeepPresets": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Behalten"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keep"
           }
         }
       }
@@ -6797,6 +7853,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "set up"
+          }
+        }
+      }
+    },
+    "orcaLastSync": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zuletzt {when} · {n} Profile"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Last {when} · {n} presets"
           }
         }
       }
@@ -6865,6 +7937,102 @@
         }
       }
     },
+    "orcaOpen": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Orca Cloud öffnen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open Orca Cloud"
+          }
+        }
+      }
+    },
+    "orcaPairDenied": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "In Orca Cloud abgelehnt."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Declined in Orca Cloud."
+          }
+        }
+      }
+    },
+    "orcaPairExpired": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Der Code ist abgelaufen – hol einen neuen."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The code has expired – get a new one."
+          }
+        }
+      }
+    },
+    "orcaPairHint": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Orca Cloud öffnet sich: dort anmelden und diesen Code bestätigen. Die App wartet hier."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Orca Cloud opens: log in there and confirm this code. The app waits here."
+          }
+        }
+      }
+    },
+    "orcaPairTitle": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kopplungscode"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pairing code"
+          }
+        }
+      }
+    },
+    "orcaPairWaiting": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Warte auf die Bestätigung …"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Waiting for the confirmation …"
+          }
+        }
+      }
+    },
     "orcaPrintNote": {
       "localizations": {
         "de": {
@@ -6877,6 +8045,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "“Upload and print” starts right away when the printer is reached through a bridge (the spool used last is booked). Otherwise the print waits and you start it in the app."
+          }
+        }
+      }
+    },
+    "orcaRemovePresetsQ": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Auch die übernommenen Profile löschen? Profile, die ein Drucker gerade nutzt, bleiben."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Also delete the presets taken over? Presets a printer uses stay."
           }
         }
       }
@@ -6929,6 +8113,22 @@
         }
       }
     },
+    "orcaSkipped": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "{n} Profile nicht nutzbar"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "{n} presets can't be used"
+          }
+        }
+      }
+    },
     "orcaSteps": {
       "localizations": {
         "de": {
@@ -6941,6 +8141,38 @@
           "stringUnit": {
             "state": "translated",
             "value": "How to set it up in OrcaSlicer"
+          }
+        }
+      }
+    },
+    "orcaSyncNow": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jetzt synchronisieren"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sync now"
+          }
+        }
+      }
+    },
+    "orcaSynced": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "{n} Profile übernommen."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "{n} presets taken over."
           }
         }
       }
@@ -8705,6 +9937,182 @@
         }
       }
     },
+    "readerHint": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ein NFC-Leser im Spulenhalter (ESP32 + PN5180) meldet, welche Spule in welchem Fach liegt – ohne Handy."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "An NFC reader in the spool holder (ESP32 + PN5180) reports which spool sits in which slot – no phone needed."
+          }
+        }
+      }
+    },
+    "readerKey": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Schlüssel"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Key"
+          }
+        }
+      }
+    },
+    "readerKeyCreate": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Schlüssel erzeugen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Create key"
+          }
+        }
+      }
+    },
+    "readerKeyHint": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Adresse und Schlüssel in den Leser eintragen. Der Schlüssel wird nur jetzt angezeigt."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enter the address and key in the reader. The key is shown only now."
+          }
+        }
+      }
+    },
+    "readerKeyNew": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Neuer Schlüssel"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "New key"
+          }
+        }
+      }
+    },
+    "readerKeyRenewQ": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Neuen Schlüssel erzeugen? Der bisherige Leser funktioniert dann erst mit dem neuen Schlüssel wieder."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Create a new key? The current reader works again only with the new key."
+          }
+        }
+      }
+    },
+    "readerOff": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nicht eingerichtet"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Not set up"
+          }
+        }
+      }
+    },
+    "readerOn": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eingerichtet"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Set up"
+          }
+        }
+      }
+    },
+    "readerTitle": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "NFC-Leser am Drucker"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "NFC reader at the printer"
+          }
+        }
+      }
+    },
+    "readerUnknownChip": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unbekannter Chip erkannt – Spule zuordnen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unknown chip seen – assign a spool"
+          }
+        }
+      }
+    },
+    "readerUrl": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Adresse"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Address"
+          }
+        }
+      }
+    },
     "recent": {
       "localizations": {
         "de": {
@@ -8845,6 +10253,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Resume"
+          }
+        }
+      }
+    },
+    "retract": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zurückziehen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Retract"
           }
         }
       }
@@ -9425,6 +10849,134 @@
         }
       }
     },
+    "slotSpool": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spule {spool}"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spool {spool}"
+          }
+        }
+      }
+    },
+    "slotSpoolBtn": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spule"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spool"
+          }
+        }
+      }
+    },
+    "slotSpoolCleared": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "{slot}: keine Spule mehr zugeordnet."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "{slot}: no spool assigned any more."
+          }
+        }
+      }
+    },
+    "slotSpoolNoMatch": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keine passende Spule ({material}) gefunden – lege sie unter Einstellungen → Spulen an."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No matching spool ({material}) found – add it under Settings → Spools."
+          }
+        }
+      }
+    },
+    "slotSpoolNone": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keine Spule zugeordnet"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No spool assigned"
+          }
+        }
+      }
+    },
+    "slotSpoolScan": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Per NFC scannen (Handy an die Spule halten)"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Scan by NFC (hold the phone to the spool)"
+          }
+        }
+      }
+    },
+    "slotSpoolSet": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "{slot}: {spool} zugeordnet – wird beim Drucken automatisch gewählt und gebucht."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "{slot}: {spool} assigned – chosen and booked automatically when printing."
+          }
+        }
+      }
+    },
+    "slotSpoolTitle": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spule in {slot}"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spool in {slot}"
+          }
+        }
+      }
+    },
     "slots": {
       "localizations": {
         "de": {
@@ -9809,6 +11361,134 @@
         }
       }
     },
+    "spoolImportBtn": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spulen in die Cloud kopieren"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copy the spools to the cloud"
+          }
+        }
+      }
+    },
+    "spoolImportDone": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "{n} Spulen kopiert, {skipped} waren schon da, {relinked} Verknüpfungen umgestellt."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "{n} spools copied, {skipped} were there already, {relinked} links moved."
+          }
+        }
+      }
+    },
+    "spoolImportHint": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kopiert alle Spulen deines Spoolman (Hersteller, Material, Farbe, Gewichte, Restmenge, Ort) in die Cloud-Spulen. Chip-Verknüpfungen und Fach-Zuordnungen werden mit umgestellt. Dein Spoolman bleibt unverändert."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copies all spools of your Spoolman (brand, material, colour, weights, remaining, location) into the cloud spools. Chip links and slot assignments are moved along. Your Spoolman stays as it is."
+          }
+        }
+      }
+    },
+    "spoolImportKeep": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spoolman behalten"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keep Spoolman"
+          }
+        }
+      }
+    },
+    "spoolImportQ": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alle Spulen aus deinem Spoolman in die Cloud kopieren? Schon kopierte Spulen werden übersprungen."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copy all spools from your Spoolman into the cloud? Spools copied before are skipped."
+          }
+        }
+      }
+    },
+    "spoolImportRunning": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kopiere {done} von {total} …"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copying {done} of {total} …"
+          }
+        }
+      }
+    },
+    "spoolImportSwitchQ": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jetzt auf die Cloud-Spulen umstellen? Danach wird nur noch in der Cloud gebucht."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Switch to the cloud spools now? From then on bookings go to the cloud only."
+          }
+        }
+      }
+    },
+    "spoolImportTitle": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "In die Cloud übernehmen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Move to the cloud"
+          }
+        }
+      }
+    },
     "spoolLeft": {
       "localizations": {
         "de": {
@@ -10125,6 +11805,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Choose spools, book the used filament (with Spoolman)"
+          }
+        }
+      }
+    },
+    "spoolmanToBridges": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spoolman-Adresse an {n} Brücke(n) weitergegeben."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spoolman address passed to {n} bridge(s)."
           }
         }
       }
