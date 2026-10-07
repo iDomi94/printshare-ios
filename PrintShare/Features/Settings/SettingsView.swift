@@ -14,7 +14,7 @@ struct SettingsView: View {
     @State private var confirmDeleteAgain = false
     @State private var accountError: String?
     @State private var spoolman: String?
-    /// "Always make a time-lapse" (server 0.39.0); `timelapseOld` = own server without the setting.
+    /// "Always make a time-lapse" (server 0.40.0); `timelapseOld` = own server without the setting.
     @State private var timelapseAlways = false
     @State private var timelapseOld = false
     @State private var timelapseError = ""

@@ -124,7 +124,7 @@ EXTRA = {
     "webBack": ("Zurück", "Back"),
     "webForward": ("Vorwärts", "Forward"),
     "webReload": ("Neu laden", "Reload"),
-    # prints started elsewhere (server 0.39.0) and "always make a time-lapse"
+    # prints started elsewhere (server 0.40.0) and "always make a time-lapse"
     "jobExternal": ("Direkt am Drucker gestartet", "Started on the printer"),
     "jobExternalSub": ("Dieser Druck kam nicht über PocketPrint3D, zum Beispiel direkt aus OrcaSlicer. Die App verfolgt ihn trotzdem bis zum Ende.",
                        "This print didn't come through PocketPrint3D, for example straight from OrcaSlicer. The app still follows it to the end."),
@@ -134,8 +134,8 @@ EXTRA = {
                            "For every print with a camera, also prints started on the printer itself (for example from OrcaSlicer). You can still switch it off for one print before printing."),
     "timelapseAlwaysSubCloud": ("Der Schalter „Zeitraffer aufnehmen“ ist vor jedem Druck schon an (Drucker hinter einer Brücke mit Kamera).",
                                 "The “Record a time-lapse” switch is already on before every print (printers behind a bridge with a camera)."),
-    "timelapseAlwaysOld": ("Dein Server ist älter als 0.39.0: Die Einstellung gilt nur für Drucke aus dieser App.",
-                           "Your server is older than 0.39.0: the setting only applies to prints from this app."),
+    "timelapseAlwaysOld": ("Dein Server ist älter als 0.40.0: Die Einstellung gilt nur für Drucke aus dieser App.",
+                           "Your server is older than 0.40.0: the setting only applies to prints from this app."),
 }
 # OrcaSlicer infill pattern names (sparse_infill_pattern) and a short note on what each is good for
 INFILL = {

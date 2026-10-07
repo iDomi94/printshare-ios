@@ -153,7 +153,7 @@ final class AppModel {
     }
 
     /// "Always make a time-lapse": the switch before printing starts on. On an own server the server keeps the setting
-    /// too, so it also records prints started on the printer itself (0.39.0); this copy is the phone's default.
+    /// too, so it also records prints started on the printer itself (0.40.0); this copy is the phone's default.
     var timelapseAlways: Bool {
         accountKey.map { keychain.get(StoreKey.timelapseAlways($0)) == "1" } ?? false
     }

@@ -1,9 +1,9 @@
 import XCTest
 @testable import PrintShare
 
-/// Server 0.39.0: prints started on the printer itself (OrcaSlicer straight to the printer …) as jobs of kind
+/// Server 0.40.0: prints started on the printer itself (OrcaSlicer straight to the printer …) as jobs of kind
 /// "external", and "always make a time-lapse". Shapes from the server's `docs/API.md` and `tests/test_jobtrack.py`.
-final class ServerThirtyNineTests: XCTestCase {
+final class ServerFortyTests: XCTestCase {
     private func client() -> APIClient {
         APIClient(server: Server(url: "http://home.test:8484", token: "tok"), l10n: L10n(lang: .en),
                   session: StubProtocol.session(), cache: RouteCache())
@@ -51,7 +51,7 @@ final class ServerThirtyNineTests: XCTestCase {
         XCTAssertEqual(list[0].progress, 60)
         XCTAssertEqual(Format.jobName(file: list[0].file, link: list[0].link), "orca_cube.gcode")
         XCTAssertFalse(list[1].isExternal)
-        XCTAssertNil(list[1].progress)                      // servers before 0.39.0 don't send it
+        XCTAssertNil(list[1].progress)                      // servers before 0.40.0 don't send it
     }
 
     func testTimelapseChoiceIsAlwaysExplicitAndTheSettingRequests() async throws {
