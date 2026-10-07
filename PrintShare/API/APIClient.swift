@@ -27,6 +27,15 @@ private struct Ack: Decodable, Sendable {
 
 private struct ControlBody: Encodable { var action: String; var confirm: Bool }
 private struct PowerBody: Encodable { var on: Bool }
+/// `null` removes the entered app ID, so the key is always written.
+private struct OrcaClientBody: Encodable {
+    var clientId: String?
+    func encode(to encoder: Encoder) throws {
+        var c = encoder.container(keyedBy: Key.self)
+        try c.encode(clientId, forKey: .clientId)
+    }
+    enum Key: String, CodingKey { case clientId = "client_id" }
+}
 private struct CreateJobBody: Encodable {
     var link: String
     var printer: String
@@ -341,6 +350,35 @@ actor APIClient {
 
     func temperatures(printer: String) async throws -> TempHistory {
         try await request("/api/printers/\(enc(printer))/temperatures", timeout: 20)
+    }
+
+    // MARK: moving by hand (server 0.43.0)
+
+    func motionInfo(printer: String) async throws -> Motion {
+        try await request("/api/printers/\(enc(printer))/motion", timeout: 25)
+    }
+
+    /// Homing, load and unload can take minutes (heating); never repeated automatically.
+    func motion(printer: String, _ action: MotionAction) async throws {
+        let _: Ack = try await request("/api/printers/\(enc(printer))/motion", method: "POST", body: action, timeout: 320)
+    }
+
+    // MARK: own presets from an Orca Cloud account (server 0.42.0)
+
+    func orcaAccount() async throws -> OrcaAccount { try await request("/api/orca-cloud", timeout: 20) }
+
+    func setOrcaClientId(_ id: String?) async throws -> OrcaAccount {
+        try await request("/api/orca-cloud", method: "PUT", body: OrcaClientBody(clientId: id), timeout: 20)
+    }
+
+    func connectOrca() async throws -> OrcaAccount {
+        try await request("/api/orca-cloud/connect", method: "POST", timeout: 30)
+    }
+
+    func syncOrca() async throws -> OrcaAccount { try await request("/api/orca-cloud/sync", method: "POST", timeout: 120) }
+
+    func disconnectOrca(removePresets: Bool) async throws -> OrcaAccount {
+        try await request("/api/orca-cloud?remove_presets=\(removePresets)", method: "DELETE", timeout: 30)
     }
 
     // MARK: camera (server 0.9.0) - the picture comes through the server, so it works away from home too
