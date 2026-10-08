@@ -13,6 +13,12 @@
         "en" : { "stringUnit" : { "state" : "translated", "value" : "PocketPrint3D uses the camera only to scan the pairing QR code of your server." } }
       }
     },
+    "NFCReaderUsageDescription" : {
+      "localizations" : {
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "PocketPrint3D liest den NFC-Chip einer Filamentspule, um zu erkennen, welche Spule es ist." } },
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "PocketPrint3D reads the NFC chip of a filament spool to know which spool it is." } }
+      }
+    },
     "NSLocalNetworkUsageDescription" : {
       "localizations" : {
         "de" : { "stringUnit" : { "state" : "translated", "value" : "PocketPrint3D verbindet sich mit deinem eigenen PocketPrint3D-Server im Heimnetz." } },

@@ -163,6 +163,16 @@ final class AppModel {
         keychain.set(StoreKey.timelapseAlways(accountKey), on ? "1" : nil)
     }
 
+    /// Spoolman spool id → cloud spool id of earlier imports.
+    func spoolImportMap() -> [String: Int] {
+        accountKey.flatMap { keychain.getJSON(StoreKey.spoolImport($0), as: [String: Int].self) } ?? [:]
+    }
+
+    func saveSpoolImportMap(_ map: [String: Int]) {
+        guard let accountKey else { return }
+        keychain.setJSON(StoreKey.spoolImport(accountKey), map)
+    }
+
     func openSpoolman(_ setting: String) -> Spoolman? {
         server.map { Spoolman.open(server: $0, setting: setting) }
     }

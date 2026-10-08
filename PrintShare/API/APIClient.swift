@@ -27,6 +27,20 @@ private struct Ack: Decodable, Sendable {
 
 private struct ControlBody: Encodable { var action: String; var confirm: Bool }
 private struct PowerBody: Encodable { var on: Bool }
+/// `null` takes the spool out of the slot, so the key is always written.
+private struct SpoolBody: Encodable {
+    var spool: Int?
+    func encode(to encoder: Encoder) throws {
+        var c = encoder.container(keyedBy: Key.self)
+        try c.encode(spool, forKey: .spool)
+    }
+    enum Key: String, CodingKey { case spool }
+}
+private struct SpoolSourceBody: Encodable {
+    var source: String
+    var spoolmanUrl: String?
+    enum CodingKeys: String, CodingKey { case source; case spoolmanUrl = "spoolman_url" }
+}
 /// `null` removes the entered app ID, so the key is always written.
 private struct OrcaClientBody: Encodable {
     var clientId: String?
@@ -361,6 +375,53 @@ actor APIClient {
     /// Homing, load and unload can take minutes (heating); never repeated automatically.
     func motion(printer: String, _ action: MotionAction) async throws {
         let _: Ack = try await request("/api/printers/\(enc(printer))/motion", method: "POST", body: action, timeout: 320)
+    }
+
+    // MARK: filament per slot (server 0.37.0)
+
+    func filamentInfo(printer: String) async throws -> FilamentInfo {
+        try await request("/api/printers/\(enc(printer))/filament", timeout: 25)
+    }
+
+    /// Loading and unloading heat the nozzle (confirmed by the user before); never repeated automatically.
+    func filament(printer: String, _ action: FilamentAction) async throws {
+        let _: Ack = try await request("/api/printers/\(enc(printer))/filament", method: "POST", body: action, timeout: 35)
+    }
+
+    // MARK: spools by NFC chip and per slot, NFC readers (server 0.38.0), spool source (0.39.0)
+
+    func spoolTags() async throws -> [SpoolTag] { try await request("/api/spool-tags") }
+
+    func spoolTag(uid: String) async throws -> SpoolTag { try await request("/api/spool-tags/\(enc(uid))") }
+
+    func linkSpoolTag(uid: String, spool: Int) async throws {
+        let _: Ack = try await request("/api/spool-tags/\(enc(uid))", method: "PUT", body: SpoolBody(spool: spool))
+    }
+
+    func slotSpools(printer: String) async throws -> SlotSpools {
+        try await request("/api/printers/\(enc(printer))/slot-spools")
+    }
+
+    /// `spool: nil` empties the slot. The server sets the printer's slot to the spool where it can (`printerSet`).
+    func setSlotSpool(printer: String, tool: Int, spool: Int?) async throws -> SlotSpoolResult {
+        try await request("/api/printers/\(enc(printer))/slot-spools/\(tool)", method: "PUT", body: SpoolBody(spool: spool),
+                          timeout: 30)
+    }
+
+    func readerKey(printer: String) async throws -> ReaderKey {
+        try await request("/api/printers/\(enc(printer))/reader-key")
+    }
+
+    /// A new key replaces the old one; it is shown only in this answer.
+    func createReaderKey(printer: String) async throws -> ReaderKey {
+        try await request("/api/printers/\(enc(printer))/reader-key", method: "POST")
+    }
+
+    func spoolSource() async throws -> SpoolSource { try await request("/api/spool-source") }
+
+    func setSpoolSource(_ source: String, spoolmanUrl: String? = nil) async throws -> SpoolSource {
+        try await request("/api/spool-source", method: "PUT", body: SpoolSourceBody(source: source, spoolmanUrl: spoolmanUrl),
+                          timeout: 30)
     }
 
     // MARK: own presets from an Orca Cloud account (server 0.42.0)

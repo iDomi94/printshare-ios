@@ -4,6 +4,17 @@ Jeder Abschnitt `## X.Y.Z` wird beim Tag `vX.Y.Z` automatisch als „Was testen�
 (`.github/workflows/testflight.yml`). Text auf Deutsch, höchstens 4000 Zeichen. Fehlt der Abschnitt, stehen dort
 die Commit-Titel seit dem letzten Tag.
 
+## 0.9.5
+
+Filament-Menü, Spulen per NFC und Spulen-Quelle wie in der Android-App (Server 0.37.0 bis 0.39.0). Mit älteren Servern fehlen die neuen Bereiche einfach.
+
+- Steuerung → „Filament“ (Bambu): pro AMS-Fach und externer Spule laden, entladen sowie Material und Farbe einstellen. Laden und Entladen fragen vorher und gehen nicht während eines Drucks
+- Spule pro Fach: im Filament-Menü eine Spule zuordnen (aus der Liste oder per NFC). Der Druckbildschirm wählt und bucht sie dann von selbst
+- NFC: jeder Chip (Aufkleber, Bambu-Chip, OpenPrintTag) lässt sich einmal mit einer Spule verknüpfen und wird danach erkannt. Spulenformular: „Von NFC-Tag lesen“ (OpenPrintTag) und „NFC-Chip verknüpfen“; Druckbildschirm: „Spule per NFC wählen“
+- NFC-Leser am Drucker: Schlüssel im Filament-Menü erzeugen
+- Einstellungen → Spoolman: die Wahl Cloud oder eigener Spoolman geht jetzt auch an den Server; Cloud-Konten können alle Spoolman-Spulen in die Cloud kopieren
+- Bitte testen: Fach am P1S auf ein anderes Material stellen; einen NFC-Aufkleber verknüpfen und danach im Filament-Menü scannen. Ein Bambu-Chip (MIFARE Classic) wird vom iPhone eventuell nicht erkannt
+
 ## 0.9.4
 
 Aufgeholt mit Server 0.44.0 (Bewegen, Laden/Entladen, Orca-Cloud-Konto). Mit älteren Servern fehlen die neuen Bereiche einfach.

@@ -45,6 +45,12 @@ struct JobView: View {
     @State private var spoolChoice: [Int: Int] = [:]
     @State private var lastSpools: [String: Int] = [:]
     @State private var spoolSheet: SpoolSheet?
+    /// Spools put into the printer's slots in the filament menu (tool → spool, server 0.38.0).
+    @State private var slotSpools: [Int: Int] = [:]
+    // a spool chosen by NFC chip (server 0.38.0) or OpenPrintTag
+    @State private var nfcBusy = false
+    @State private var nfcMsg: (ok: Bool, text: String)?
+    @State private var linkSheet: LinkSheet?
 
     /// `slots`: tool per model colour chosen on the prepare screen (the default until changed here).
     init(id: String, slots: [Int: Int] = [:]) {
@@ -62,6 +68,8 @@ struct JobView: View {
 
     private struct LaneSheet: Identifiable { var colour: Int; var id: Int { colour } }
     private struct SpoolSheet: Identifiable { var colour: Int; var id: Int { colour } }
+    /// A chip without a link: "which spool is this?" - linked once, known after.
+    private struct LinkSheet: Identifiable { var uid: String; var id: String { uid } }
 
     private var spoolColours: [SpoolPlan.Colour] { SpoolPlan.colours(job?.result) }
     private var tracker: SpoolmanLink? { printerKind == .offline ? nil : printerStatus?.spoolman }
@@ -71,7 +79,7 @@ struct JobView: View {
     private var afcSpools: Bool { printerBooks && !printerLanes.isEmpty }
     private var spoolFor: [Int: Int] {
         SpoolPlan.spools(colours: spoolColours, lanes: printerLanes, tools: laneTools, afc: afcSpools, choice: spoolChoice,
-                         tracker: tracker, last: lastSpools, known: spools)
+                         tracker: tracker, last: lastSpools, known: spools, slots: slotSpools)
     }
     /// Moonraker without AFC tracks one active spool: set it for a single-colour print.
     private var activeSpool: Int? {
@@ -105,6 +113,7 @@ struct JobView: View {
         .sheet(item: $gcodeShare) { ActivitySheet(items: [$0.url]).ignoresSafeArea() }
         .sheet(item: $laneSheet) { sheet in laneSheetView(t, sheet.colour) }
         .sheet(item: $spoolSheet) { sheet in spoolSheetView(t, sheet.colour) }
+        .sheet(item: $linkSheet) { sheet in linkSheetView(t, sheet.uid) }
         .task(id: reviewing) { await loadSpools() }
         .sheet(item: $camera) { CameraView(printer: $0.printer, title: $0.name) }
         .task(id: cameraKey) { await loadCamera() }
@@ -470,8 +479,15 @@ struct JobView: View {
                         if i > 0 { PSDivider() }
                         spoolRow(t, col)
                     }
+                    if !afcSpools && NFC.available && !(spools ?? []).isEmpty {
+                        PSDivider()
+                        PSRow(icon: "wave.3.right", label: t(.nfcPick), action: nfcBusy ? nil : { Task { await pickByNFC(t) } }) {
+                            if nfcBusy { ProgressView().padding(.leading, 8) }
+                        }
+                    }
                 }
             }
+            if let nfcMsg { PSBanner(kind: nfcMsg.ok ? .ok : .warn, text: nfcMsg.text) }
             ForEach(SpoolPlan.warnings(t, colours: spoolColours, spoolFor: spoolFor, known: spools ?? []), id: \.self) {
                 PSBanner(kind: .warn, text: $0)
             }
@@ -502,9 +518,62 @@ struct JobView: View {
         }
     }
 
+    /// Hold the phone to the spool: a linked chip or a matching OpenPrintTag chooses the spool for the colour whose
+    /// material fits it; an unknown chip is linked to a spool of the list right away.
+    private func pickByNFC(_ t: L10n) async {
+        nfcBusy = true
+        nfcMsg = nil
+        defer { nfcBusy = false }
+        do {
+            let chip = try await NFC.scanChip(t)
+            let list = spools ?? []
+            guard let sp = await NFC.identify(app.api, chip, list) else {
+                if let tag = chip.tag { nfcMsg = (false, t(.nfcNoMatch, ["tag": tag.label])) }
+                if app.api != nil && !list.isEmpty {
+                    try? await Task.sleep(for: .milliseconds(450))
+                    linkSheet = LinkSheet(uid: chip.uid)
+                }
+                return
+            }
+            chooseForNFC(sp, material: sp.material ?? chip.tag?.materialType)
+            nfcMsg = (true, chip.tag.map { t(.nfcMatched, ["spool": sp.label, "tag": $0.label]) } ?? t(.nfcLinkedChip, ["spool": sp.label]))
+        } catch let e as NFCError {
+            let text = e.text(t)
+            nfcMsg = text.isEmpty ? nil : (false, text)
+        } catch {
+            nfcMsg = (false, error.localizedDescription)
+        }
+    }
+
+    /// The colour whose material fits the spool, else the first one.
+    private func chooseForNFC(_ sp: Spool, material: String?) {
+        let fitting = spoolColours.filter { LanePlan.fits($0.preset, material: material) }
+        if let target = (fitting.isEmpty ? spoolColours : fitting).first { spoolChoice[target.index] = sp.id }
+    }
+
+    private func linkSheetView(_ t: L10n, _ uid: String) -> some View {
+        let choices = (spools ?? []).map { Choice(value: String($0.id), label: $0.label, group: $0.material, sub: SpoolsView.line(t, $0)) }
+        return PickerSheet(title: t(.nfcWhichSpool), choices: choices, selected: nil, searchLabel: t(.search), closeLabel: "OK") { v in
+            guard let sp = spools?.first(where: { String($0.id) == v }), let api = app.api else { return }
+            Task {
+                do {
+                    try await api.linkSpoolTag(uid: uid, spool: sp.id)
+                    chooseForNFC(sp, material: sp.material)
+                    nfcMsg = (true, t(.nfcLinkedNow, ["spool": sp.label]))
+                } catch {
+                    nfcMsg = (false, error.localizedDescription)
+                }
+            }
+        }
+    }
+
     private func loadSpools() async {
         smSetting = app.spoolmanSetting()
         if let p = printerId { lastSpools = app.lastSpools(p) }
+        if reviewing, smSetting != nil, let p = printerId, let api = app.api,
+           let s = try? await api.slotSpools(printer: p) {     // older servers: none
+            slotSpools = s.spools
+        }
         guard reviewing, let setting = smSetting, let sm = app.openSpoolman(setting) else { return }
         do {
             spools = try await sm.spools()

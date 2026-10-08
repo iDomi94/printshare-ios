@@ -35,6 +35,9 @@ struct SpoolFormView: View {
     @State private var brand: String?
     @State private var presets: [FilamentPreset]?
     @State private var dbError = ""
+    // NFC: fill in from an OpenPrintTag, link any chip to this spool (server 0.38.0)
+    @State private var nfcBusy = false
+    @State private var nfcInfo = ""
 
     private enum DBSheet: String, Identifiable { case brand, filament; var id: String { rawValue } }
 
@@ -98,11 +101,23 @@ struct SpoolFormView: View {
         return PSScreen {
             if !error.isEmpty { PSBanner(kind: .error, text: error) }
             if !dbError.isEmpty { PSBanner(kind: .warn, text: dbError) }
+            if !nfcInfo.isEmpty { PSBanner(kind: .ok, text: nfcInfo) }
 
             PSSection(footer: t(.spoolDbHint)) {
                 PSRow(icon: "books.vertical", label: t(.spoolFromDb), value: brand) {
                     dbError = ""
                     dbSheet = .brand
+                }
+                if NFC.available {
+                    PSDivider()
+                    PSRow(icon: "wave.3.right", label: t(.nfcRead), action: nfcBusy ? nil : { Task { await readTag(t) } })
+                    if !isNew {
+                        PSDivider()
+                        PSRow(icon: "link", label: t(.nfcLinkChip), sub: t(.nfcLinkChipSub),
+                              action: nfcBusy ? nil : { Task { await linkChip(t) } }) {
+                            if nfcBusy { ProgressView().padding(.leading, 8) }
+                        }
+                    }
                 }
             }
 
@@ -165,6 +180,54 @@ struct SpoolFormView: View {
             }
         } footer: {
             PSButton(title: t(.save), icon: "checkmark", loading: busy, disabled: !valid) { Task { await save() } }
+        }
+    }
+
+    /// Fills the form from an OpenPrintTag held to the phone.
+    private func readTag(_ t: L10n) async {
+        nfcBusy = true
+        dbError = ""
+        nfcInfo = ""
+        defer { nfcBusy = false }
+        do {
+            let chip = try await NFC.scanChip(t)
+            guard let tag = chip.tag else { dbError = t(.nfcNotOpt); return }
+            apply(tag)
+            nfcInfo = t(.nfcFilled, ["tag": tag.label])
+        } catch let e as NFCError {
+            dbError = e.text(t)
+        } catch {
+            dbError = error.localizedDescription
+        }
+    }
+
+    func apply(_ tag: OpenPrintTag) {
+        vendor = tag.brand ?? ""
+        name = tag.name ?? ""
+        material = tag.materialType ?? ""
+        if let c = tag.color { color = c }
+        if let w = tag.fullWeight, w > 0 { weight = Format.trimNumber(w) }
+        if let r = tag.remainingWeight { remaining = Format.trimNumber((r * 10).rounded() / 10) }
+        spoolWeight = tag.emptySpoolWeight
+        density = tag.density
+        if let l = tag.location { location = l }
+    }
+
+    /// Links a chip on this spool (sticker, Bambu tag, OpenPrintTag): from then on the app and readers know the spool.
+    private func linkChip(_ t: L10n) async {
+        guard let api = app.api, let n = Int(id) else { return }
+        nfcBusy = true
+        dbError = ""
+        nfcInfo = ""
+        defer { nfcBusy = false }
+        do {
+            let chip = try await NFC.scanChip(t)
+            try await api.linkSpoolTag(uid: chip.uid, spool: n)
+            nfcInfo = t(.nfcChipLinked, ["uid": chip.uid])
+        } catch let e as NFCError {
+            dbError = e.text(t)
+        } catch {
+            dbError = error.localizedDescription
         }
     }
 

@@ -97,11 +97,14 @@ struct SpoolInput: Encodable, Sendable, Equatable {
     var archived: Bool?
     /// Weight of the empty spool (SpoolmanDB, server 0.19.0); left out when unknown.
     var spoolWeight: Double?
+    /// Filament on the spool when it was new (import from Spoolman, server 0.39.0); left out when unknown.
+    var initialWeight: Double?
 
     enum CodingKeys: String, CodingKey {
         case filament, location, comment, archived
         case remainingWeight = "remaining_weight"
         case spoolWeight = "spool_weight"
+        case initialWeight = "initial_weight"
     }
 
     func encode(to encoder: Encoder) throws {
@@ -109,6 +112,7 @@ struct SpoolInput: Encodable, Sendable, Equatable {
         try c.encodeIfPresent(filament, forKey: .filament)
         try c.encodeIfPresent(remainingWeight, forKey: .remainingWeight)
         try c.encodeIfPresent(spoolWeight, forKey: .spoolWeight)
+        try c.encodeIfPresent(initialWeight, forKey: .initialWeight)
         if filament != nil {
             try c.encode(location, forKey: .location)
             try c.encode(comment, forKey: .comment)
@@ -210,6 +214,38 @@ actor Spoolman {
         guard (200..<300).contains(status) else { throw SpoolmanError("Spoolman answered HTTP \(status)") }
         let list = (json(data) as? [[String: Any]] ?? []).compactMap(Spool.init(json:)).filter { archived || !$0.archived }
         return list.filter { !$0.isEmpty } + list.filter(\.isEmpty)
+    }
+
+    /// All spools of an own Spoolman in the cloud's shape, for the import into the cloud spools (server 0.39.0).
+    func importInputs() async throws -> [(id: Int, input: SpoolInput)] {
+        let (data, status) = try await call("GET", "/spool?allow_archived=false", timeout: 20)
+        guard (200..<300).contains(status) else { throw SpoolmanError("Spoolman answered HTTP \(status)") }
+        return (json(data) as? [[String: Any]] ?? []).compactMap { s in
+            guard let id = SDCPPrinter.int(s["id"]), (s["archived"] as? Bool) != true else { return nil }
+            return (id, Self.cloudInput(s))
+        }
+    }
+
+    /// A Spoolman spool as a cloud spool: filament (name, vendor, material, colour, net weight, density), initial /
+    /// empty-spool / remaining weight, location, comment ("Spoolman #12" is added for reference).
+    static func cloudInput(_ s: [String: Any]) -> SpoolInput {
+        let f = s["filament"] as? [String: Any] ?? [:]
+        func num(_ v: Any?) -> Double? {
+            guard let n = v as? NSNumber, CFGetTypeID(n) != CFBooleanGetTypeID() else { return nil }
+            return n.doubleValue
+        }
+        let rawColor = (f["color_hex"] as? String) ?? (f["multi_color_hexes"] as? String) ?? ""
+        let hex = (rawColor.split(separator: ",").first.map(String.init) ?? "").replacingOccurrences(of: "#", with: "")
+        let id = SDCPPrinter.int(s["id"]).map { "Spoolman #\($0)" }
+        let comment = [s["comment"] as? String, id].compactMap { $0 }.filter { !$0.isEmpty }.joined(separator: " · ")
+        return SpoolInput(
+            filament: .init(name: f["name"] as? String, vendor: (f["vendor"] as? [String: Any])?["name"] as? String,
+                            material: f["material"] as? String,
+                            colorHex: hex.matches("^[0-9A-Fa-f]{6}") ? String(hex.prefix(6)).uppercased() : nil,
+                            weight: num(f["weight"]), density: num(f["density"])),
+            remainingWeight: num(s["remaining_weight"]), location: s["location"] as? String,
+            comment: String(comment.prefix(1024)), spoolWeight: num(s["spool_weight"]) ?? num(f["spool_weight"]),
+            initialWeight: num(s["initial_weight"]) ?? num(f["weight"]))
     }
 
     /// Book used filament (grams) on a spool.
