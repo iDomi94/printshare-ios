@@ -27,6 +27,8 @@ enum Screen: Hashable {
     case preview(String)
     /// Temperatures, fans, light, speed of one printer (issue #5).
     case control(id: String, name: String)
+    /// Filament per slot (server 0.37.0): load / unload, material + colour, spool per slot (0.38.0).
+    case filament(id: String, name: String)
     /// Own OrcaSlicer printer profile (issue #2).
     case printerProfile(id: String, name: String)
     /// Cloud: a printer of the account and its Wi-Fi address (`CloudPrinterView.new` adds one; `bridge` = add it

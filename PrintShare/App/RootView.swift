@@ -17,6 +17,7 @@ struct RootView: View {
                             case .model(let source, let id): ModelDetailView(source: source, id: id)
                             case .preview(let id): PreviewView(id: id)
                             case .control(let id, let name): ControlView(printer: id, name: name)
+                            case .filament(let id, let name): FilamentView(printer: id, name: name)
                             case .printerProfile(let id, let name): PrinterProfileView(printer: id, name: name)
                             case .cloudPrinter(let id, let bridge): CloudPrinterView(id: id, bridge: bridge)
                             case .bridges: BridgesView()

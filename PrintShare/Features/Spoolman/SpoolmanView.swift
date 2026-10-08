@@ -1,9 +1,12 @@
 import SwiftUI
 
 /// Spoolman (spec MA-07): where the spools are - the user's own Spoolman (address kept on this phone) or, for cloud
-/// accounts, the PocketPrint3D cloud (server 0.17.0) - and bookings waiting for a decision.
+/// accounts, the PocketPrint3D cloud (server 0.17.0) - and bookings waiting for a decision. The choice also goes to the
+/// server (0.39.0: NFC readers and slot assignments need to know which spool list counts; the Spoolman address goes to
+/// the account's bridges / the own server), and an own Spoolman can be copied into the cloud spools.
 struct SpoolmanView: View {
     private enum Mode: Hashable { case cloud, own }
+    private enum Ask: Identifiable { case importAll, switchToCloud; var id: Self { self } }
 
     @Environment(AppModel.self) private var app
     @State private var mode: Mode?
@@ -13,6 +16,9 @@ struct SpoolmanView: View {
     @State private var test: (ok: Bool, text: String)?
     @State private var testing = false
     @State private var bookings: [Booking] = []
+    @State private var importing: String?
+    @State private var importDone = ""
+    @State private var ask: Ask?
 
     private var cloudOn: Bool { saved == Spoolman.cloudSetting }
 
@@ -24,6 +30,20 @@ struct SpoolmanView: View {
         .navigationTitle(t(.spoolman))
         .navigationBarTitleDisplayMode(.inline)
         .onAppear { reload() }
+        .alert(ask == .switchToCloud ? t(.spoolImportSwitchQ) : t(.spoolImportQ),
+               isPresented: Binding(get: { ask != nil }, set: { if !$0 { ask = nil } }), presenting: ask) { a in
+            switch a {
+            case .importAll:
+                Button(t(.cancelBtn), role: .cancel) {}
+                Button(t(.spoolImportBtn)) { Task { await runImport(t) } }
+            case .switchToCloud:
+                Button(t(.spoolImportKeep), role: .cancel) {}
+                Button(t(.spoolsUseCloud)) {
+                    mode = .cloud
+                    Task { await save(Spoolman.cloudSetting) }
+                }
+            }
+        }
     }
 
     private func content(_ t: L10n, _ current: Mode) -> some View {
@@ -68,6 +88,16 @@ struct SpoolmanView: View {
                     }
                 }
             }
+
+            if app.isCloud, let saved, saved != Spoolman.cloudSetting {
+                PSSection(title: t(.spoolImportTitle), footer: t(.spoolImportHint)) {
+                    PSRow(icon: "icloud.and.arrow.up", label: t(.spoolImportBtn), sub: importing,
+                          action: importing == nil ? { ask = .importAll } : nil) {
+                        if importing != nil { ProgressView().padding(.leading, 8) }
+                    }
+                }
+            }
+            if !importDone.isEmpty { PSBanner(kind: .ok, text: importDone) }
 
             if !open.isEmpty || !waiting.isEmpty {
                 Text(t(.bookingsOpen)).textCase(.uppercase).font(.footnote).foregroundStyle(Theme.sub)
@@ -131,6 +161,57 @@ struct SpoolmanView: View {
         if value != Spoolman.cloudSetting, !(await check(value)) { return }
         app.saveSpoolmanSetting(value)
         reload()
+        // the server needs to know which list counts (NFC readers, slots); bridges / the own server get the address
+        let cloud = value == Spoolman.cloudSetting
+        if let api = app.api,
+           let r = try? await api.setSpoolSource(cloud ? "cloud" : "spoolman",
+                                                 spoolmanUrl: cloud ? nil : value.trimmingCharacters(in: .whitespacesAndNewlines)),
+           let n = r.bridgesSet, n > 0 {   // older servers: nothing to tell
+            test = (true, app.l10n(.spoolmanToBridges, ["n": String(n)]))
+        }
+    }
+
+    /// Copies the spools of the own Spoolman into the cloud account, then points chip links and slot assignments to the
+    /// new numbers. Spools copied before are skipped (remembered on this phone), so it can run again after a break.
+    private func runImport(_ t: L10n) async {
+        guard let api = app.api, let saved, saved != Spoolman.cloudSetting,
+              let source = app.openSpoolman(saved), let cloud = app.openSpoolman(Spoolman.cloudSetting) else { return }
+        importDone = ""
+        importing = t(.spoolImportRunning, ["done": "0", "total": "…"])
+        defer { importing = nil }
+        do {
+            let all = try await source.importInputs()
+            var map = app.spoolImportMap()
+            var imported = 0, skipped = 0
+            // only spools copied in this run are relinked: links of earlier runs already carry cloud numbers
+            var fresh: [Int: Int] = [:]
+            for (i, s) in all.enumerated() {
+                importing = t(.spoolImportRunning, ["done": String(i), "total": String(all.count)])
+                if map[String(s.id)] != nil { skipped += 1; continue }
+                guard let created = try await cloud.create(s.input) else { continue }
+                map[String(s.id)] = created.id
+                fresh[s.id] = created.id
+                imported += 1
+                app.saveSpoolImportMap(map)   // after every spool: a break doesn't copy twice
+            }
+            var relinked = 0
+            if !fresh.isEmpty {
+                for link in (try? await api.spoolTags()) ?? [] {
+                    if let from = link.spool, let to = fresh[from], to != from,
+                       (try? await api.linkSpoolTag(uid: link.uid, spool: to)) != nil { relinked += 1 }
+                }
+                for p in (try? await api.printers()) ?? [] {
+                    for (tool, spool) in (try? await api.slotSpools(printer: p.id))?.spools ?? [:] {
+                        if let to = fresh[spool], to != spool,
+                           (try? await api.setSlotSpool(printer: p.id, tool: tool, spool: to)) != nil { relinked += 1 }
+                    }
+                }
+            }
+            importDone = t(.spoolImportDone, ["n": String(imported), "skipped": String(skipped), "relinked": String(relinked)])
+            ask = .switchToCloud
+        } catch {
+            test = (false, error.localizedDescription)
+        }
     }
 
     private func remove() {

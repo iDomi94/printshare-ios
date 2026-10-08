@@ -1634,3 +1634,200 @@ struct OrcaAccount: Codable, Sendable, Equatable {
         pending = c.lenient(Pending.self, .pending)
     }
 }
+
+// MARK: filament per slot (server 0.37.0)
+
+/// What the filament menu can do for a printer (`GET /api/printers/{id}/filament`): its slots (Bambu: AMS trays, plus
+/// the external spool as tool 254) and the materials a slot can be set to.
+struct FilamentInfo: Codable, Sendable, Equatable {
+    struct Material: Codable, Sendable, Equatable, Identifiable {
+        var name: String
+        var type: String
+        var tempMin: Int
+        var tempMax: Int
+        var loadTemp: Int
+        var id: String { name }
+        enum CodingKeys: String, CodingKey {
+            case name, type
+            case tempMin = "temp_min", tempMax = "temp_max", loadTemp = "load_temp"
+        }
+        init(name: String, type: String, tempMin: Int = 190, tempMax: Int = 230, loadTemp: Int = 220) {
+            self.name = name; self.type = type; self.tempMin = tempMin; self.tempMax = tempMax; self.loadTemp = loadTemp
+        }
+        init(from decoder: Decoder) throws {
+            let c = try decoder.container(keyedBy: CodingKeys.self)
+            name = c.lenient(String.self, .name) ?? ""
+            type = c.lenient(String.self, .type) ?? ""
+            tempMin = c.lenient(Int.self, .tempMin) ?? 0
+            tempMax = c.lenient(Int.self, .tempMax) ?? 0
+            loadTemp = c.lenient(Int.self, .loadTemp) ?? 220
+        }
+    }
+
+    /// Bambu's external spool holder.
+    static let externalTool = 254
+
+    var supported: Bool
+    var load: Bool
+    var unload: Bool
+    var set: Bool
+    var external: Bool
+    var busy: Bool
+    var slots: [Lane]
+    var materials: [Material]
+
+    enum CodingKeys: String, CodingKey { case supported, load, unload, set, external, busy, slots, materials }
+
+    init(supported: Bool, load: Bool = false, unload: Bool = false, set: Bool = false, busy: Bool = false,
+         slots: [Lane] = [], materials: [Material] = []) {
+        self.supported = supported; self.load = load; self.unload = unload; self.set = set; external = false
+        self.busy = busy; self.slots = slots; self.materials = materials
+    }
+
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        supported = c.lenient(Bool.self, .supported) ?? false
+        load = c.lenient(Bool.self, .load) ?? false
+        unload = c.lenient(Bool.self, .unload) ?? false
+        set = c.lenient(Bool.self, .set) ?? false
+        external = c.lenient(Bool.self, .external) ?? false
+        busy = c.lenient(Bool.self, .busy) ?? false
+        slots = c.lenient([Lane].self, .slots) ?? []
+        materials = c.lenient([Material].self, .materials) ?? []
+    }
+
+    /// The material entry of a slot (by type "PLA" or name "PLA Basic").
+    func material(of lane: Lane?) -> Material? {
+        guard let m = lane?.material else { return nil }
+        return materials.first { $0.type == m || $0.name == m }
+    }
+
+    /// Nozzle temperature for loading / unloading a slot: its material's, else the first material's, else 220 °C.
+    func loadTemp(_ lane: Lane?) -> Int { material(of: lane)?.loadTemp ?? materials.first?.loadTemp ?? 220 }
+
+    /// The material a spool's material ("PLA", "petg", "PLA Basic") corresponds to.
+    func material(forSpool material: String?) -> Material? {
+        let m = (material ?? "").uppercased()
+        guard !m.isEmpty else { return nil }
+        return materials.first { $0.name.uppercased() == m || $0.type == m }
+    }
+}
+
+/// One `POST /api/printers/{id}/filament`: load (slot) / unload heat the nozzle and need `confirm`; set = material +
+/// `#RRGGBB` of a slot.
+struct FilamentAction: Encodable, Sendable, Equatable {
+    var action: String
+    var slot: Int?
+    var material: String?
+    var color: String?
+    var temp: Int?
+    var confirm = false
+
+    static func load(_ slot: Int?) -> FilamentAction { FilamentAction(action: "load", slot: slot, confirm: true) }
+    static let unload = FilamentAction(action: "unload", confirm: true)
+    static func set(_ slot: Int?, material: String, color: String) -> FilamentAction {
+        FilamentAction(action: "set", slot: slot, material: material, color: color)
+    }
+
+    enum CodingKeys: String, CodingKey { case action, slot, material, color, temp, confirm }
+
+    func encode(to encoder: Encoder) throws {
+        var c = encoder.container(keyedBy: CodingKeys.self)
+        try c.encode(action, forKey: .action)
+        try c.encodeIfPresent(slot, forKey: .slot)
+        try c.encodeIfPresent(material, forKey: .material)
+        try c.encodeIfPresent(color, forKey: .color)
+        try c.encodeIfPresent(temp, forKey: .temp)
+        if confirm { try c.encode(true, forKey: .confirm) }
+    }
+}
+
+// MARK: spools by NFC chip and per slot, NFC readers (server 0.38.0), spool source (0.39.0)
+
+/// Which spool sits in which slot of a printer (tool → spool) and what NFC readers at the printer saw last.
+struct SlotSpools: Codable, Sendable, Equatable {
+    struct Slot: Codable, Sendable, Equatable {
+        var spool: Int
+        /// "app" or "reader"
+        var source: String?
+        var updated: Double?
+    }
+    struct Scan: Codable, Sendable, Equatable {
+        var uid: String
+        /// nil: a chip nobody linked yet
+        var spool: Int?
+        var at: Double?
+        init(uid: String, spool: Int? = nil, at: Double? = nil) { self.uid = uid; self.spool = spool; self.at = at }
+        init(from decoder: Decoder) throws {
+            let c = try decoder.container(keyedBy: CodingKeys.self)
+            uid = c.lenient(String.self, .uid) ?? ""
+            spool = c.lenient(Int.self, .spool)
+            at = c.lenient(Double.self, .at)
+        }
+    }
+
+    var slots: [String: Slot]
+    var scans: [String: Scan]
+
+    init(slots: [String: Slot] = [:], scans: [String: Scan] = [:]) { self.slots = slots; self.scans = scans }
+
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        slots = c.lenient([String: Slot].self, .slots) ?? [:]
+        scans = c.lenient([String: Scan].self, .scans) ?? [:]
+    }
+
+    /// tool → spool id
+    var spools: [Int: Int] {
+        Dictionary(uniqueKeysWithValues: slots.compactMap { k, v in Int(k).map { ($0, v.spool) } })
+    }
+}
+
+/// Answer of `PUT /slot-spools/{tool}`: `printerSet` = the server (or the bridge) already told the printer the spool's
+/// material and colour.
+struct SlotSpoolResult: Codable, Sendable, Equatable {
+    var slots: [String: SlotSpools.Slot]
+    var printerSet: Bool
+    enum CodingKeys: String, CodingKey { case slots; case printerSet = "printer_set" }
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        slots = c.lenient([String: SlotSpools.Slot].self, .slots) ?? [:]
+        printerSet = c.lenient(Bool.self, .printerSet) ?? false
+    }
+}
+
+struct SpoolTag: Codable, Sendable, Equatable {
+    var uid: String
+    var spool: Int?
+}
+
+/// NFC reader at the printer: `key` only right after creating it.
+struct ReaderKey: Codable, Sendable, Equatable {
+    var enabled: Bool
+    var url: String
+    var key: String?
+    init(enabled: Bool, url: String, key: String? = nil) { self.enabled = enabled; self.url = url; self.key = key }
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        enabled = c.lenient(Bool.self, .enabled) ?? false
+        url = c.lenient(String.self, .url) ?? ""
+        key = c.lenient(String.self, .key)
+    }
+}
+
+/// Where the server takes spool numbers from (0.39.0): "cloud" or "spoolman".
+struct SpoolSource: Codable, Sendable, Equatable {
+    var source: String
+    var spoolmanUrl: String?
+    var bridgesSet: Int?
+    enum CodingKeys: String, CodingKey {
+        case source
+        case spoolmanUrl = "spoolman_url", bridgesSet = "bridges_set"
+    }
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        source = c.lenient(String.self, .source) ?? ""
+        spoolmanUrl = c.lenient(String.self, .spoolmanUrl)
+        bridgesSet = c.lenient(Int.self, .bridgesSet)
+    }
+}

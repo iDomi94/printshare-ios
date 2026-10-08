@@ -239,11 +239,36 @@ if it contradicts `printshare/api.py` the server wins; otherwise the simplest id
   (own servers and cloud). App ID (`client_id`) entry unless the server has one, pairing code with copy / open buttons
   (only an https address is opened), polling every 3 s while the pairing waits, sync now, disconnect with the choice to
   keep or remove the presets. `PUT` always writes `client_id` (null removes the entered ID).
-- **Not ported (kept for a later run):** the filament menu per AMS slot (0.37.0, `/filament`, set material / colour),
-  NFC chips / slot spools / NFC readers (0.38.0, needs the NFC capability like OpenPrintTag), the spool source choice
-  cloud / Spoolman and the import of Spoolman spools into cloud spools (0.39.0), the web page settings (0.41.0, PWA only).
-  Server-only: 0.43.1 (Orca Cloud `print` preset type), Bambu jog refusal until homed. The regenerated texts already contain
-  the strings of the unported screens.
+- **Not ported:** the web page settings (0.41.0, PWA only). Server-only: 0.43.1 (Orca Cloud `print` preset type), Bambu jog
+  refusal until homed. The filament menu, NFC chips and the spool source followed in 0.9.5 (next section).
+
+## Server 0.37.0 - 0.39.0 (upstream f57d9a6, c984581, dac1e5e) - app 0.9.5
+
+- **Filament menu** (0.37.0, `FilamentView`, row "Filament" on the control page when `GET /filament` says
+  `supported`): slots with colour dot, material, AMS name, "im Kopf" badge; Load (slot not in the toolhead, loaded) /
+  Unload (slot in the toolhead) each behind an alert with the material's `load_temp`, `confirm: true` only after that,
+  never repeated; Edit = material picker + 16 swatches + hex field → `set`. Polled every 4 s while visible.
+- **Spool per slot** (0.38.0): `GET/PUT /slot-spools`; the spool picker per slot offers "scan by NFC", "none" and the
+  list. When the server didn't set the printer's slot (`printer_set: false`) and the printer can `set`, the app sets the
+  slot to the spool's material / colour itself. The review screen uses the slot's spool as default after the lane's own
+  `spool_id` (`SpoolPlan.spools(slots:)`). Unlike the Android app there is **no phone-local fallback** for servers
+  before 0.38.0 (they simply have no slot spools). Reader scans of unknown chips show "Unbekannter Chip erkannt" →
+  link. Reader key: create / renew (alert), key shown once.
+- **NFC** (`Spoolman/NFC.swift`, CoreNFC `NFCTagReaderSession` with ISO 14443 + ISO 15693 polling): ISO 15693 → system
+  info, then block by block (`readSingleBlock`, high data rate) → `OpenPrintTag.parse` (port of `openprinttag.ts`: CC,
+  NDEF TLV, MIME record, own CBOR decoder incl. half floats and indefinite maps); MIFARE / NTAG → chip number only.
+  **Guess:** iOS reports an ISO 15693 UID most significant byte first (E0 …) while Android (whose order the server's
+  links and readers use) reports it as received over the air → `NFC.uid` reverses ISO 15693 UIDs starting with E0. Not
+  checked with a real tag. MIFARE Classic (Bambu spools) may not be detected at all by iOS. `matchSpool` / `identify`
+  as in `nfc.ts`. Needs the entitlement `com.apple.developer.nfc.readersession.formats = [TAG]` (project.yml) and
+  `NFCReaderUsageDescription`; automatic signing has to add "NFC Tag Reading" to the App ID (if the TestFlight run fails
+  on the profile, enable it once in the developer portal). OpenPrintTag (0.20) is in with it: spool form "Von NFC-Tag
+  lesen" fills the fields; "Als neue Spule anlegen" from the review screen is still not ported.
+- **Spool source** (0.39.0): saving in Settings → Spoolman also sends `PUT /api/spool-source` (older servers: ignored),
+  `bridges_set` shown. Cloud accounts with an own Spoolman get "Spulen in die Cloud kopieren" (`Spoolman.importInputs` →
+  `cloudInput` → `POST <cloud>/spoolman/api/v1/spool`, map Spoolman id → cloud id in the keychain per account so a second
+  run skips, then chip links and slot assignments of this run moved to the new numbers), then the question whether to
+  switch to the cloud spools.
 
 ## Verification
 

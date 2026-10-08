@@ -27,6 +27,8 @@ enum StoreKey {
         "ps_spools_\(account)_\(printer.replacingRegex("[^A-Za-z0-9_.-]", with: "_"))"
     }
     static func bookings(_ account: String) -> String { "ps_bookings_\(account)" }
+    /// Spoolman spool → cloud spool copied by the import (server 0.39.0), so a second run skips them.
+    static func spoolImport(_ account: String) -> String { "ps_spoolimport_\(account)" }
     /// "Always make a time-lapse" (server 0.40.0), per server / account.
     static func timelapseAlways(_ account: String) -> String { "ps_timelapse_always_\(account)" }
 }

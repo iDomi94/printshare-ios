@@ -10,7 +10,7 @@ settings:
   base:
     SWIFT_VERSION: "6.0"
     SWIFT_STRICT_CONCURRENCY: complete
-    MARKETING_VERSION: "0.9.4"          # = version in mobile/app.json of the Expo app
+    MARKETING_VERSION: "0.9.5"          # = version in mobile/app.json of the Expo app
     CURRENT_PROJECT_VERSION: "100"      # above the EAS build numbers
     DEVELOPMENT_TEAM: ${DEVELOPMENT_TEAM}
     CODE_SIGN_STYLE: Automatic
@@ -35,6 +35,9 @@ targets:
       properties:
         com.apple.security.application-groups:
           - group.com.dominiqueherbrigpersonalteam.printshare
+        # spools by NFC chip (server 0.38.0) and OpenPrintTag: "NFC Tag Reading" on the App ID
+        com.apple.developer.nfc.readersession.formats:
+          - TAG
     info:
       path: PrintShare/Info.plist
       properties:
@@ -60,6 +63,7 @@ targets:
           NSAllowsLocalNetworking: true
         NSLocalNetworkUsageDescription: PocketPrint3D connects to your own PocketPrint3D server and to your 3D printers in your home network.
         NSCameraUsageDescription: PocketPrint3D uses the camera only to scan the pairing QR code of your server.
+        NFCReaderUsageDescription: PocketPrint3D reads the NFC chip of a filament spool to know which spool it is.
         ITSAppUsesNonExemptEncryption: false
         CFBundleURLTypes:
           - CFBundleURLName: com.dominiqueherbrigpersonalteam.printshare

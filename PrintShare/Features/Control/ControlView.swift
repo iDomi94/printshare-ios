@@ -55,6 +55,8 @@ struct ControlView: View {
     @State private var power: PowerInfo?
     /// Moving by hand (server 0.43.0), nil on older servers or printers without it.
     @State private var motion: Motion?
+    /// The filament menu (server 0.37.0); hidden for printers / servers without it.
+    @State private var filament = false
 
     private var printing: Bool { status?.kind.isBusy ?? false }
 
@@ -72,6 +74,7 @@ struct ControlView: View {
         .task { await loadControls() }
         .task { await loadPower() }
         .task { await loadMotion() }
+        .task { await loadFilament() }
         .task(id: scenePhase == .active) { await pollStatus() }
         .task(id: scenePhase == .active) { await pollHistory() }
         .sheet(item: $picker) { heaterSheet(t, $0.id) }
@@ -87,6 +90,14 @@ struct ControlView: View {
         return PSScreen {
             if !error.isEmpty { PSBanner(kind: .error, text: error) }
             if printing { PSBanner(kind: .warn, text: t(.printRunningHint)) }
+
+            if filament {
+                PSSection {
+                    PSRow(icon: "circle.hexagongrid", label: t(.filamentTitle), sub: t(.filamentRowSub)) {
+                        app.push(.filament(id: printer, name: name))
+                    }
+                }
+            }
 
             if !heaters.isEmpty {
                 PSSection(title: t(.temperatures)) {
@@ -339,6 +350,12 @@ struct ControlView: View {
     private func loadMotion() async {
         guard let api = app.api else { return }
         if let m = try? await api.motionInfo(printer: printer), m.supported, !m.isEmpty { motion = m }
+    }
+
+    /// Older servers / bridges (before 0.37.0) don't know the filament menu: then the row stays hidden.
+    private func loadFilament() async {
+        guard let api = app.api else { return }
+        filament = (try? await api.filamentInfo(printer: printer))?.supported ?? false
     }
 
     private func loadStatus() async {
