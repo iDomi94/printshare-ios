@@ -254,8 +254,8 @@ if it contradicts `printshare/api.py` the server wins; otherwise the simplest id
   `spool_id` (`SpoolPlan.spools(slots:)`). Unlike the Android app there is **no phone-local fallback** for servers
   before 0.38.0 (they simply have no slot spools). Reader scans of unknown chips show "Unbekannter Chip erkannt" →
   link. Reader key: create / renew (alert), key shown once.
-- **NFC** (`Spoolman/NFC.swift`, CoreNFC `NFCTagReaderSession` with ISO 14443 + ISO 15693 polling): ISO 15693 → system
-  info, then block by block (`readSingleBlock`, high data rate) → `OpenPrintTag.parse` (port of `openprinttag.ts`: CC,
+- **NFC** (`Spoolman/NFC.swift`, CoreNFC `NFCTagReaderSession` with ISO 14443 + ISO 15693 polling): ISO 15693 → block by
+  block (`readSingleBlock`, high data rate) until the tag answers with an error or 256 blocks → `OpenPrintTag.parse` (port of `openprinttag.ts`: CC,
   NDEF TLV, MIME record, own CBOR decoder incl. half floats and indefinite maps); MIFARE / NTAG → chip number only.
   **Guess:** iOS reports an ISO 15693 UID most significant byte first (E0 …) while Android (whose order the server's
   links and readers use) reports it as received over the air → `NFC.uid` reverses ISO 15693 UIDs starting with E0. Not

@@ -146,10 +146,12 @@ private final class NFCScanner: NSObject, NFCTagReaderSessionDelegate, @unchecke
         guard let first = tags.first else { return }
         switch first {
         case .iso15693(let tag):
+            // CoreNFC calls back on `queue` only: the session and the tag never really cross threads
+            let ref = Unchecked((session: session, tag: tag))
             session.connect(to: first) { error in
-                if error != nil { return self.fail(session) }
-                self.readMemory(tag) { memory in
-                    self.done(session, Raw(uid: NFC.uid(tag.identifier, iso15693: true), memory: memory))
+                if error != nil { return self.fail(ref.value.session) }
+                self.readMemory(ref.value.tag) { memory in
+                    self.done(ref.value.session, Raw(uid: NFC.uid(ref.value.tag.identifier, iso15693: true), memory: memory))
                 }
             }
         case .miFare(let tag):
@@ -172,25 +174,26 @@ private final class NFCScanner: NSObject, NFCTagReaderSessionDelegate, @unchecke
 
     // ISO 15693 memory read so far (only touched on `queue`, where CoreNFC calls back)
     private var memory: [UInt8] = []
-    private var blockCount = 0
 
-    /// All blocks of an ISO 15693 tag (ICODE SLIX2: 80 × 4 bytes). Without system info: block by block until the tag
-    /// answers with an error. A read error after some blocks keeps what was read (the NDEF data comes first).
+    /// All blocks of an ISO 15693 tag (ICODE SLIX2: 80 × 4 bytes), block by block until the tag answers with an error
+    /// (past its end) or 256 blocks. A read error after some blocks keeps what was read (the NDEF data comes first).
     private func readMemory(_ tag: NFCISO15693Tag, _ then: @escaping @Sendable ([UInt8]) -> Void) {
-        tag.getSystemInfoAndUID(requestFlags: [.highDataRate]) { info, error in
-            let total = info?.totalBlocks ?? 0
-            self.blockCount = error == nil && total > 0 ? min(total, 256) : 256
-            self.memory = []
-            self.readBlock(tag, 0, then)
-        }
+        memory = []
+        readBlock(Unchecked(tag), 0, then)
     }
 
-    private func readBlock(_ tag: NFCISO15693Tag, _ i: Int, _ then: @escaping @Sendable ([UInt8]) -> Void) {
-        guard i < blockCount else { return then(memory) }
-        tag.readSingleBlock(requestFlags: [.highDataRate], blockNumber: UInt8(i)) { data, error in
+    private func readBlock(_ tag: Unchecked<NFCISO15693Tag>, _ i: Int, _ then: @escaping @Sendable ([UInt8]) -> Void) {
+        guard i < 256 else { return then(memory) }
+        tag.value.readSingleBlock(requestFlags: [.highDataRate], blockNumber: UInt8(i)) { data, error in
             if error != nil { return then(self.memory) }
             self.memory += data
             self.readBlock(tag, i + 1, then)
         }
     }
+}
+
+/// A CoreNFC object handed between CoreNFC's own callbacks, which all run on the scanner's queue.
+private struct Unchecked<T>: @unchecked Sendable {
+    let value: T
+    init(_ value: T) { self.value = value }
 }
