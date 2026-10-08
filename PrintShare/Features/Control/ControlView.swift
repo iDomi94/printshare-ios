@@ -53,6 +53,8 @@ struct ControlView: View {
     @State private var question: Question?
     /// Home Assistant plug of the printer (issue #9), nil when the server has none.
     @State private var power: PowerInfo?
+    /// Moving by hand (server 0.43.0), nil on older servers or printers without it.
+    @State private var motion: Motion?
 
     private var printing: Bool { status?.kind.isBusy ?? false }
 
@@ -69,6 +71,7 @@ struct ControlView: View {
         .navigationBarTitleDisplayMode(.inline)
         .task { await loadControls() }
         .task { await loadPower() }
+        .task { await loadMotion() }
         .task(id: scenePhase == .active) { await pollStatus() }
         .task(id: scenePhase == .active) { await pollHistory() }
         .sheet(item: $picker) { heaterSheet(t, $0.id) }
@@ -98,6 +101,13 @@ struct ControlView: View {
                 }
                 PSCard(padding: 12) { TempChart(series: history?.series ?? [:]) }
                     .padding(.bottom, 22)
+            }
+
+            if let motion {
+                MotionPanel(printer: printer, caps: motion, printing: printing,
+                            nozzle: status?.heaters["nozzle"]?.actual) {
+                    request("heatForExtrude", [Change(kind: .heater, id: "nozzle", value: .number(220))])
+                }
             }
 
             if let fans = caps?.fans, !fans.isEmpty {
@@ -323,6 +333,12 @@ struct ControlView: View {
     private func loadPower() async {
         guard let api = app.api else { return }
         power = try? await api.power(printer: printer)
+    }
+
+    /// Older servers / bridges (before 0.43.0) answer 404: no motion sections then.
+    private func loadMotion() async {
+        guard let api = app.api else { return }
+        if let m = try? await api.motionInfo(printer: printer), m.supported, !m.isEmpty { motion = m }
     }
 
     private func loadStatus() async {

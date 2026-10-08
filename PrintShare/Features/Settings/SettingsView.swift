@@ -220,6 +220,8 @@ struct SettingsView: View {
                   sub: spoolman == Spoolman.cloudSetting ? t(.spoolsCloudOn) : spoolman ?? t(.spoolmanSub)) {
                 app.push(.spoolman)
             }
+            PSDivider()
+            PSRow(icon: "cloud", label: t(.orcaAccountTitle), sub: t(.orcaAccountSub)) { app.push(.orcaAccount) }
             if !cloud {
                 PSDivider()
                 PSRow(icon: "books.vertical", label: t(.manyfoldTitle), sub: t(.manyfoldSub)) { app.push(.manyfold) }

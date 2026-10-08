@@ -1480,3 +1480,157 @@ struct Preview: Codable, Sendable, Equatable {
     /// Paths carry the filament (tool) as second entry.
     var hasTools: Bool { version >= 2 }
 }
+
+// MARK: moving by hand (server 0.43.0 / 0.44.0)
+
+/// What a printer can do by hand (`GET /api/printers/{id}/motion`): home, jog, extrude, load / unload, motors off, macros.
+struct Motion: Codable, Sendable, Equatable {
+    struct Jog: Codable, Sendable, Equatable {
+        var axes: [String]
+        var steps: [Double]
+    }
+    struct Material: Codable, Sendable, Equatable, Identifiable {
+        var name: String
+        var loadTemp: Int
+        var id: String { name }
+        enum CodingKeys: String, CodingKey { case name; case loadTemp = "load_temp" }
+    }
+    /// Bambu: a slot to load into (AMS tray; tool 254 = the external spool).
+    struct Slot: Codable, Sendable, Equatable, Identifiable {
+        var tool: Int
+        var slotId: String?
+        var name: String?
+        var material: String?
+        var id: Int { tool }
+        enum CodingKeys: String, CodingKey { case tool, name, material; case slotId = "id" }
+    }
+
+    var supported: Bool
+    var home: [String]
+    var jog: Jog?
+    var extrude: Bool
+    var load: Bool
+    var unload: Bool
+    var motorsOff: Bool
+    var macros: [String]
+    /// 0.44.0: load / unload heat to the chosen material's temperature first.
+    var filamentTemp: Bool
+    var materials: [Material]
+    var loadSlots: [Slot]?
+    /// Centauri: load / unload run as a short job on the printer.
+    var filamentAsJob: Bool
+
+    enum CodingKeys: String, CodingKey {
+        case supported, home, jog, extrude, load, unload, macros, materials
+        case motorsOff = "motors_off"
+        case filamentTemp = "filament_temp"
+        case loadSlots = "load_slots"
+        case filamentAsJob = "filament_as_job"
+    }
+
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        supported = c.lenient(Bool.self, .supported) ?? false
+        home = c.lenient([String].self, .home) ?? []
+        jog = c.lenient(Jog.self, .jog)
+        extrude = c.lenient(Bool.self, .extrude) ?? false
+        load = c.lenient(Bool.self, .load) ?? false
+        unload = c.lenient(Bool.self, .unload) ?? false
+        motorsOff = c.lenient(Bool.self, .motorsOff) ?? false
+        macros = c.lenient([String].self, .macros) ?? []
+        filamentTemp = c.lenient(Bool.self, .filamentTemp) ?? false
+        materials = c.lenient([Material].self, .materials) ?? []
+        loadSlots = c.lenient([Slot].self, .loadSlots)
+        filamentAsJob = c.lenient(Bool.self, .filamentAsJob) ?? false
+    }
+
+    var isEmpty: Bool { home.isEmpty && jog == nil && !extrude && !load && !unload && !motorsOff && macros.isEmpty }
+}
+
+/// One `POST /api/printers/{id}/motion`.
+struct MotionAction: Encodable, Sendable, Equatable {
+    var action: String
+    var axis: String?
+    var distance: Double?
+    var macro: String?
+    var material: String?
+    var slot: Int?
+    /// The server wants it for load / unload / macros (409 otherwise).
+    var confirm = false
+
+    static func home(_ axis: String) -> MotionAction { MotionAction(action: "home", axis: axis) }
+    static func jog(_ axis: String, _ distance: Double) -> MotionAction {
+        MotionAction(action: "jog", axis: axis, distance: distance)
+    }
+    static func extrude(_ mm: Double) -> MotionAction { MotionAction(action: "extrude", distance: mm) }
+    static let motorsOff = MotionAction(action: "motors_off")
+
+    enum CodingKeys: String, CodingKey { case action, axis, distance, macro, material, slot, confirm }
+
+    func encode(to encoder: Encoder) throws {
+        var c = encoder.container(keyedBy: CodingKeys.self)
+        try c.encode(action, forKey: .action)
+        try c.encodeIfPresent(axis, forKey: .axis)
+        try c.encodeIfPresent(distance, forKey: .distance)
+        try c.encodeIfPresent(macro, forKey: .macro)
+        try c.encodeIfPresent(material, forKey: .material)
+        try c.encodeIfPresent(slot, forKey: .slot)
+        if confirm { try c.encode(true, forKey: .confirm) }
+    }
+}
+
+// MARK: own presets from an Orca Cloud account (server 0.42.0)
+
+struct OrcaAccount: Codable, Sendable, Equatable {
+    struct Pending: Codable, Sendable, Equatable {
+        var userCode: String
+        var verificationUri: String?
+        var verificationUriComplete: String?
+        var expiresIn: Double?
+        /// nil while waiting, else "denied", "expired" or a text.
+        var error: String?
+        enum CodingKeys: String, CodingKey {
+            case userCode = "user_code", verificationUri = "verification_uri"
+            case verificationUriComplete = "verification_uri_complete", expiresIn = "expires_in", error
+        }
+        init(from decoder: Decoder) throws {
+            let c = try decoder.container(keyedBy: CodingKeys.self)
+            userCode = c.lenient(String.self, .userCode) ?? ""
+            verificationUri = c.lenient(String.self, .verificationUri)
+            verificationUriComplete = c.lenient(String.self, .verificationUriComplete)
+            expiresIn = c.lenient(Double.self, .expiresIn)
+            error = c.lenient(String.self, .error)
+        }
+    }
+    struct Skipped: Codable, Sendable, Equatable {
+        var name: String
+        var error: String
+    }
+
+    var clientId: String?
+    /// "server" (ORCA_CLOUD_CLIENT_ID, masked) or "user".
+    var clientIdFrom: String?
+    var connected: Bool
+    var lastSync: Double?
+    var count: Int
+    var skipped: [Skipped]
+    var lastError: String?
+    var pending: Pending?
+
+    enum CodingKeys: String, CodingKey {
+        case connected, count, skipped, pending
+        case clientId = "client_id", clientIdFrom = "client_id_from", lastSync = "last_sync", lastError = "last_error"
+    }
+
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        clientId = c.lenient(String.self, .clientId)
+        clientIdFrom = c.lenient(String.self, .clientIdFrom)
+        connected = c.lenient(Bool.self, .connected) ?? false
+        lastSync = c.lenient(Double.self, .lastSync)
+        count = c.lenient(Int.self, .count) ?? 0
+        skipped = c.lenient([Skipped].self, .skipped) ?? []
+        lastError = c.lenient(String.self, .lastError)
+        pending = c.lenient(Pending.self, .pending)
+    }
+}
