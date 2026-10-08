@@ -67,7 +67,7 @@ final class ServerThirtyNineTests: XCTestCase {
         try await api.filament(printer: "p1s", .unload)
         try await api.filament(printer: "p1s", .set(254, material: "PETG", color: "#00FF00"))
 
-        lock.lock(); let r = seen; lock.unlock()
+        let r = lock.withLock { seen }
         XCTAssertEqual(r[0].httpMethod, "POST")
         XCTAssertEqual(r[0].url?.path, "/api/printers/p1s/filament")
         XCTAssertEqual(body(r[0])?["action"] as? String, "load")
@@ -119,7 +119,7 @@ final class ServerThirtyNineTests: XCTestCase {
         XCTAssertEqual(src.bridgesSet, 2)
         _ = try await api.setSpoolSource("cloud")
 
-        lock.lock(); let r = seen; lock.unlock()
+        let r = lock.withLock { seen }
         XCTAssertEqual(r[0].httpMethod, "PUT")
         XCTAssertEqual(r[0].url?.path, "/api/printers/p1s/slot-spools/2")
         XCTAssertEqual(body(r[0])?["spool"] as? Int, 7)

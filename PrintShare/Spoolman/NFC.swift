@@ -1,4 +1,4 @@
-import CoreNFC
+@preconcurrency import CoreNFC
 import Foundation
 
 /// A chip held to the phone (server 0.38.0): its number (hex, upper case, in the byte order Android reports = as
@@ -170,21 +170,27 @@ private final class NFCScanner: NSObject, NFCTagReaderSessionDelegate, @unchecke
         session.invalidate()
     }
 
+    // ISO 15693 memory read so far (only touched on `queue`, where CoreNFC calls back)
+    private var memory: [UInt8] = []
+    private var blockCount = 0
+
     /// All blocks of an ISO 15693 tag (ICODE SLIX2: 80 × 4 bytes). Without system info: block by block until the tag
     /// answers with an error. A read error after some blocks keeps what was read (the NDEF data comes first).
-    private func readMemory(_ tag: NFCISO15693Tag, _ then: @escaping ([UInt8]) -> Void) {
-        tag.getSystemInfo(requestFlags: [.highDataRate]) { _, _, _, blockCount, _, error in
-            let count = error == nil && blockCount > 0 ? min(blockCount, 256) : 256
-            var memory: [UInt8] = []
-            func next(_ i: Int) {
-                guard i < count else { return then(memory) }
-                tag.readSingleBlock(requestFlags: [.highDataRate], blockNumber: UInt8(i)) { data, error in
-                    if error != nil { return then(memory) }
-                    memory += data
-                    next(i + 1)
-                }
-            }
-            next(0)
+    private func readMemory(_ tag: NFCISO15693Tag, _ then: @escaping @Sendable ([UInt8]) -> Void) {
+        tag.getSystemInfoAndUID(requestFlags: [.highDataRate]) { info, error in
+            let total = info?.totalBlocks ?? 0
+            self.blockCount = error == nil && total > 0 ? min(total, 256) : 256
+            self.memory = []
+            self.readBlock(tag, 0, then)
+        }
+    }
+
+    private func readBlock(_ tag: NFCISO15693Tag, _ i: Int, _ then: @escaping @Sendable ([UInt8]) -> Void) {
+        guard i < blockCount else { return then(memory) }
+        tag.readSingleBlock(requestFlags: [.highDataRate], blockNumber: UInt8(i)) { data, error in
+            if error != nil { return then(self.memory) }
+            self.memory += data
+            self.readBlock(tag, i + 1, then)
         }
     }
 }
