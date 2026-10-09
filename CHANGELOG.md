@@ -4,6 +4,11 @@ Jeder Abschnitt `## X.Y.Z` wird beim Tag `vX.Y.Z` automatisch als „Was testen�
 (`.github/workflows/testflight.yml`). Text auf Deutsch, höchstens 4000 Zeichen. Fehlt der Abschnitt, stehen dort
 die Commit-Titel seit dem letzten Tag.
 
+## 0.9.6
+
+- Einstellungen → Drucker → Profile: Löschen jetzt wie in iOS üblich durch Wischen nach links (statt langem Drücken). Oben „Bearbeiten“ wählt mehrere Profile aus und löscht sie zusammen; Profile, die noch benutzt werden, bleiben mit einem Hinweis stehen
+- Bitte testen: ein Profil wegwischen; mit „Bearbeiten“ zwei Profile auswählen und löschen
+
 ## 0.9.5
 
 Filament-Menü, Spulen per NFC und Spulen-Quelle wie in der Android-App (Server 0.37.0 bis 0.39.0). Mit älteren Servern fehlen die neuen Bereiche einfach.

@@ -2129,6 +2129,38 @@
         }
       }
     },
+    "deleteProfilesQ": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "{n} Profile löschen?"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Delete {n} presets?"
+          }
+        }
+      }
+    },
+    "deleteSelected": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Löschen ({n})"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Delete ({n})"
+          }
+        }
+      }
+    },
     "description": {
       "localizations": {
         "de": {
@@ -2321,6 +2353,22 @@
         }
       }
     },
+    "doneBtn": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fertig"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Done"
+          }
+        }
+      }
+    },
     "downloads": {
       "localizations": {
         "de": {
@@ -2365,6 +2413,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "This file can't be printed – STL, 3MF, OBJ and STEP work."
+          }
+        }
+      }
+    },
+    "editBtn": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bearbeiten"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Edit"
           }
         }
       }
@@ -12301,6 +12365,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Supports"
+          }
+        }
+      }
+    },
+    "swipeDelete": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zum Löschen nach links wischen oder oben auf „Bearbeiten“ tippen."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Swipe left to delete, or tap “Edit” at the top."
           }
         }
       }
