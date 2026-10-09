@@ -4,10 +4,20 @@ Jeder Abschnitt `## X.Y.Z` wird beim Tag `vX.Y.Z` automatisch als „Was testen�
 (`.github/workflows/testflight.yml`). Text auf Deutsch, höchstens 4000 Zeichen. Fehlt der Abschnitt, stehen dort
 die Commit-Titel seit dem letzten Tag.
 
-## 0.9.6
+## 0.9.8
 
 - Drucker-Tab: die Drucker erscheinen sofort, auch wenn einer ausgeschaltet ist. Bisher blieb die Seite leer, bis der ausgeschaltete Drucker nicht mehr antwortete; jetzt steht dort solange „Status wird abgefragt …“ und danach „Einschalten“. Mehrere Drucker werden gleichzeitig abgefragt
 - Bitte testen: Drucker ausschalten, App neu öffnen und den Drucker-Tab aufrufen
+
+## 0.9.7
+
+- Drucker per Home Assistant ausschalten: Power-Symbol oben rechts auf der Druckerkarte im Drucker-Tab und oben rechts in der Steuerung. Es erscheint nur, wenn für den Drucker eine Home-Assistant-Steckdose eingerichtet ist und gerade kein Druck läuft, und fragt vor dem Ausschalten nach. Der bisherige Eintrag „Ausschalten“ unten in der Steuerung ist dafür weggefallen
+- Bitte testen: Drucker im Leerlauf über das Power-Symbol ausschalten; während eines Drucks darf das Symbol nicht zu sehen sein
+
+## 0.9.6
+
+- Einstellungen → Drucker → Profile: Löschen jetzt wie in iOS üblich durch Wischen nach links (statt langem Drücken). Oben „Bearbeiten“ wählt mehrere Profile aus und löscht sie zusammen; Profile, die noch benutzt werden, bleiben mit einem Hinweis stehen
+- Bitte testen: ein Profil wegwischen; mit „Bearbeiten“ zwei Profile auswählen und löschen
 
 ## 0.9.5
 
