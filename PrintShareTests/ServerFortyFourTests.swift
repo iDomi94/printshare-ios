@@ -128,4 +128,34 @@ final class ServerFortyFourTests: XCTestCase {
         XCTAssertEqual(r[4].httpMethod, "DELETE")
         XCTAssertEqual(r[4].url?.query, "remove_presets=true")
     }
+
+    /// Server 0.45.0: schedule fields in the status (older servers: nil) and the PUT body with only the sent fields.
+    func testOrcaScheduleDecodesAndRequests() async throws {
+        let st = try JSONDecoder().decode(OrcaAccount.self, from: Data(#"""
+        {"client_id": null, "connected": true, "count": 3, "skipped": [], "pending": null,
+         "interval_h": 24, "on_prepare": false, "intervals": [0, 1, 6, 24]}
+        """#.utf8))
+        XCTAssertEqual(st.intervalH, 24)
+        XCTAssertEqual(st.onPrepare, false)
+        XCTAssertEqual(st.intervals, [0, 1, 6, 24])
+        let old = try JSONDecoder().decode(OrcaAccount.self, from: Data(#"{"connected": true, "count": 0, "skipped": []}"#.utf8))
+        XCTAssertNil(old.intervalH)
+
+        let lock = NSLock()
+        var seen: [URLRequest] = []
+        StubProtocol.install { req in
+            lock.lock(); seen.append(req); lock.unlock()
+            return StubResponse(body: Data(#"{"connected": true, "count": 0, "skipped": []}"#.utf8))
+        }
+        let api = client()
+        _ = try await api.setOrcaSchedule(intervalH: 0)
+        _ = try await api.setOrcaSchedule(onPrepare: false)
+        lock.lock(); let r = seen; lock.unlock()
+        XCTAssertEqual(r[0].httpMethod, "PUT")
+        XCTAssertEqual(r[0].url?.path, "/api/orca-cloud/schedule")
+        XCTAssertEqual(body(r[0])?["interval_h"] as? Int, 0)
+        XCTAssertNil(body(r[0])?["on_prepare"])
+        XCTAssertEqual(body(r[1])?["on_prepare"] as? Bool, false)
+        XCTAssertNil(body(r[1])?["interval_h"])
+    }
 }

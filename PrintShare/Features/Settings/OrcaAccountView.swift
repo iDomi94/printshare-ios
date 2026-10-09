@@ -3,7 +3,8 @@ import SwiftUI
 /// Own OrcaSlicer presets from an Orca Cloud account (server 0.42.0, issue #7). Orca Cloud lets apps read a user's synced
 /// presets after a pairing (code confirmed on the Orca Cloud page); each app needs an app ID (`client_id`) from the Orca
 /// Cloud team. PocketPrint3D has none yet, so the user enters one unless the server sets it. The server keeps the tokens
-/// and pulls the presets now and every 6 hours; they then show up like uploaded presets.
+/// and pulls the presets now and then on the chosen schedule (server 0.45.0: every 1 / 6 / 24 h or only by hand, and before
+/// a print is prepared); they then show up like uploaded presets.
 struct OrcaAccountView: View {
     @Environment(AppModel.self) private var app
     @Environment(\.openURL) private var openURL
@@ -92,6 +93,27 @@ struct OrcaAccountView: View {
                         confirmDisconnect = true
                     }
                 }
+                if let current = s.intervalH {      // older servers have no schedule
+                    PSSection(title: t(.orcaScheduleTitle), footer: t(.orcaOnPrepareHint)) {
+                        ForEach(Array((s.intervals ?? [0, 1, 6, 24]).enumerated()), id: \.element) { i, h in
+                            if i > 0 { PSDivider() }
+                            PSRow(icon: "clock", label: intervalLabel(t, h), chevron: false,
+                                  action: busy.isEmpty && h != current ? { Task { await setInterval(h) } } : nil) {
+                                if h == current { Image(systemName: "checkmark").foregroundStyle(Theme.accent) }
+                            }
+                        }
+                        PSDivider()
+                        Toggle(isOn: Binding(get: { s.onPrepare ?? true }, set: { on in Task { await setOnPrepare(on) } })) {
+                            Label {
+                                Text(t(.orcaOnPrepare)).font(.body).foregroundStyle(Theme.text)
+                            } icon: {
+                                Image(systemName: "wrench.and.screwdriver").foregroundStyle(Theme.accent)
+                            }
+                        }
+                        .tint(Theme.accent).disabled(!busy.isEmpty)
+                        .padding(.horizontal, 14).padding(.vertical, 10)
+                    }
+                }
             } else {
                 PSButton(title: t(s.pending != nil ? .orcaConnectAgain : .orcaConnect), icon: "link",
                          loading: busy == "connect", disabled: (s.clientId ?? "").isEmpty) { Task { await connect() } }
@@ -174,6 +196,24 @@ struct OrcaAccountView: View {
     private func sync() async {
         await act("sync") { try await $0.syncOrca() }
         if error.isEmpty, let n = state?.count { done = app.l10n(.orcaSynced, ["n": String(n)]) }
+    }
+
+    private func intervalLabel(_ t: L10n, _ hours: Int) -> String {
+        switch hours {
+        case 0: t(.orcaEvery0)
+        case 1: t(.orcaEvery1)
+        case 6: t(.orcaEvery6)
+        case 24: t(.orcaEvery24)
+        default: "\(hours) h"
+        }
+    }
+
+    private func setInterval(_ hours: Int) async {
+        await act("schedule") { try await $0.setOrcaSchedule(intervalH: hours) }
+    }
+
+    private func setOnPrepare(_ on: Bool) async {
+        await act("schedule") { try await $0.setOrcaSchedule(onPrepare: on) }
     }
 
     private func disconnect(removePresets: Bool) async {
