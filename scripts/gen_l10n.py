@@ -136,6 +136,13 @@ EXTRA = {
                                 "The “Record a time-lapse” switch is already on before every print (printers behind a bridge with a camera)."),
     "timelapseAlwaysOld": ("Dein Server ist älter als 0.40.0: Die Einstellung gilt nur für Drucke aus dieser App.",
                            "Your server is older than 0.40.0: the setting only applies to prints from this app."),
+    # native list editing (swipe to delete, edit mode with multi-select) instead of the Expo app's long press
+    "editBtn": ("Bearbeiten", "Edit"),
+    "doneBtn": ("Fertig", "Done"),
+    "deleteSelected": ("Löschen ({n})", "Delete ({n})"),
+    "deleteProfilesQ": ("{n} Profile löschen?", "Delete {n} presets?"),
+    "swipeDelete": ("Zum Löschen nach links wischen oder oben auf „Bearbeiten“ tippen.",
+                    "Swipe left to delete, or tap “Edit” at the top."),
 }
 # OrcaSlicer infill pattern names (sparse_infill_pattern) and a short note on what each is good for
 INFILL = {

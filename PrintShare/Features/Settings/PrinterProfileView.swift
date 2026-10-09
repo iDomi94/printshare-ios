@@ -18,71 +18,115 @@ struct PrinterProfileView: View {
     @State private var deleteTarget: UserProfile?
     @State private var orcaLink = ""
     @State private var orcaBusy = false
+    @State private var editMode: EditMode = .inactive
+    @State private var selection = Set<String>()
+    @State private var askDeleteSelected = false
 
     private var profiles: [UserProfile] { allProfiles.filter { $0.kind == "machine" } }
     private var ownPresets: [UserProfile] { allProfiles.filter { $0.kind == "process" || $0.kind == "filament" } }
 
     var body: some View {
         let t = app.l10n
-        PSScreen {
-            if !error.isEmpty { PSBanner(kind: .error, text: error) }
-            if !done.isEmpty { PSBanner(kind: .ok, text: done) }
+        List(selection: editing ? $selection : nil) {
+            if !error.isEmpty || !done.isEmpty {
+                Section {
+                    if !error.isEmpty { PSBanner(kind: .error, text: error) }
+                    if !done.isEmpty { PSBanner(kind: .ok, text: done) }
+                }
+                .listRowBackground(Color.clear)
+                .listRowInsets(EdgeInsets())
+                .listRowSeparator(.hidden)
+            }
 
-            PSSection(title: t(.printerProfile), footer: t(.profileHelp)) {
+            Section {
                 if let current {
                     PSRow(icon: "cube", label: t(.useStandardProfile), sub: standardSub(t, current), chevron: false,
                           action: choose(nil, enabled: current.machineFile != nil),
                           right: { if current.machineFile == nil { check } })
+                        .selectionDisabled()
+                        .deleteDisabled(true)
+                        .opacity(editing ? 0.5 : 1)
+                        .rowStyle()
                     ForEach(profiles) { p in
-                        PSDivider()
                         PSRow(icon: "doc.text", label: p.name ?? p.file, sub: describe(t, p), chevron: false,
                               action: choose(p.file, enabled: current.machineFile != p.file),
                               right: { if current.machineFile == p.file { check } })
-                            .contextMenu {
-                                Button(t(.del), systemImage: "trash", role: .destructive) { deleteTarget = p }
-                            }
+                            .tag(p.file)
+                            .swipeActions(edge: .trailing) { swipeDelete(t, p) }
+                            .rowStyle()
                     }
                 } else {
-                    ProgressView().frame(maxWidth: .infinity).padding(16)
+                    ProgressView().frame(maxWidth: .infinity).padding(16).rowStyle()
                 }
-            }
+            } header: { header(t(.printerProfile)) } footer: { footer(t(.profileHelp)) }
 
             if !ownPresets.isEmpty {
-                PSSection(title: t(.ownPresetsTitle), footer: t(.ownPresetsHelp)) {
-                    ForEach(Array(ownPresets.enumerated()), id: \.element.id) { i, p in
-                        if i > 0 { PSDivider() }
+                Section {
+                    ForEach(ownPresets) { p in
                         PSRow(icon: p.kind == "filament" ? "drop" : "gauge.with.dots.needle.33percent",
                               label: p.name ?? p.file, sub: describeOwn(t, p), chevron: false)
-                            .contextMenu {
-                                Button(t(.del), systemImage: "trash", role: .destructive) { deleteTarget = p }
-                            }
+                            .tag(p.file)
+                            .swipeActions(edge: .trailing) { swipeDelete(t, p) }
+                            .rowStyle()
+                    }
+                } header: { header(t(.ownPresetsTitle)) } footer: { footer(t(.ownPresetsHelp)) }
+            }
+
+            if !editing {
+                Section {
+                    TextField("https://cloud.orcaslicer.com/b/…", text: $orcaLink)
+                        .textInputAutocapitalization(.never).autocorrectionDisabled().keyboardType(.URL)
+                        .padding(.horizontal, Theme.space).padding(.vertical, 14)
+                        .accessibilityLabel(t(.orcaCloudTitle))
+                        .rowStyle()
+                    PSButton(title: t(.orcaCloudImport), kind: .secondary, icon: "icloud.and.arrow.down", loading: orcaBusy,
+                             disabled: current == nil || !Self.isOrcaLink(orcaLink)) {
+                        Task { await importOrca() }
+                    }
+                    .padding(Theme.space)
+                    .rowStyle()
+                } header: { header(t(.orcaCloudTitle)) } footer: { footer(t(.orcaCloudHint)) }
+
+                Section {
+                    PSButton(title: t(.uploadProfile), icon: "icloud.and.arrow.up", loading: busy, disabled: current == nil) {
+                        importing = true
+                    }
+                    if !allProfiles.isEmpty {
+                        Text(t(.swipeDelete)).font(.caption).foregroundStyle(Theme.sub)
+                            .multilineTextAlignment(.center).frame(maxWidth: .infinity).padding(.top, 10)
                     }
                 }
-            }
-
-            PSSection(title: t(.orcaCloudTitle), footer: t(.orcaCloudHint)) {
-                TextField("https://cloud.orcaslicer.com/b/…", text: $orcaLink)
-                    .textInputAutocapitalization(.never).autocorrectionDisabled().keyboardType(.URL)
-                    .padding(.horizontal, Theme.space).padding(.vertical, 14)
-                    .accessibilityLabel(t(.orcaCloudTitle))
-                PSDivider()
-                PSButton(title: t(.orcaCloudImport), kind: .secondary, icon: "icloud.and.arrow.down", loading: orcaBusy,
-                         disabled: current == nil || !Self.isOrcaLink(orcaLink)) {
-                    Task { await importOrca() }
-                }
-                .padding(Theme.space)
-            }
-
-            PSButton(title: t(.uploadProfile), icon: "icloud.and.arrow.up", loading: busy, disabled: current == nil) {
-                importing = true
-            }
-            if !allProfiles.isEmpty {
-                Text(t(.longPressDelete)).font(.caption).foregroundStyle(Theme.sub)
-                    .frame(maxWidth: .infinity).padding(.top, 10)
+                .listRowBackground(Color.clear)
+                .listRowInsets(EdgeInsets())
+                .listRowSeparator(.hidden)
             }
         }
+        .listStyle(.insetGrouped)
+        .scrollContentBackground(.hidden)
+        .scrollDismissesKeyboard(.interactively)
+        .background(Theme.bg)
+        .environment(\.editMode, $editMode)
         .navigationTitle(name)
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            if !allProfiles.isEmpty || editing {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button(editing ? t(.doneBtn) : t(.editBtn)) { setEditing(!editing) }
+                        .fontWeight(editing ? .semibold : .regular)
+                        .disabled(busy)
+                }
+            }
+            if editing {
+                ToolbarItem(placement: .bottomBar) {
+                    Button(t(.deleteSelected, ["n": String(selection.count)]), role: .destructive) {
+                        askDeleteSelected = true
+                    }
+                    .tint(Theme.danger)
+                    .disabled(selection.isEmpty || busy)
+                }
+            }
+        }
+        .toolbar(editing ? .hidden : .automatic, for: .tabBar)
         .task { await load() }
         .fileImporter(isPresented: $importing, allowedContentTypes: [.json, .zip, .data]) { result in
             if case .success(let url) = result { Task { await upload(url) } }
@@ -93,11 +137,38 @@ struct PrinterProfileView: View {
             Button(t(.cancelBtn), role: .cancel) {}
             Button(t(.del), role: .destructive) { Task { await remove(p) } }
         }
+        .alert(t(.deleteProfilesQ, ["n": String(selection.count)]), isPresented: $askDeleteSelected) {
+            Button(t(.cancelBtn), role: .cancel) {}
+            Button(t(.del), role: .destructive) { Task { await removeSelected() } }
+        }
+    }
+
+    private var editing: Bool { editMode.isEditing }
+
+    private func setEditing(_ on: Bool) {
+        withAnimation {
+            editMode = on ? .active : .inactive
+            selection = []
+        }
+    }
+
+    /// Native swipe action of a profile row; the alert still asks before anything is deleted.
+    private func swipeDelete(_ t: L10n, _ p: UserProfile) -> some View {
+        Button { deleteTarget = p } label: { Label(t(.del), systemImage: "trash") }
+            .tint(Theme.danger)
+    }
+
+    private func header(_ s: String) -> some View {
+        Text(s).textCase(.uppercase).font(.footnote).foregroundStyle(Theme.sub)
+    }
+
+    private func footer(_ s: String) -> some View {
+        Text(s).font(.footnote).foregroundStyle(Theme.sub)
     }
 
     /// Tap action of a profile row: nil for the profile in use (and while something is running).
     private func choose(_ file: String?, enabled: Bool) -> (() -> Void)? {
-        guard enabled && !busy else { return nil }
+        guard enabled && !busy && !editing else { return nil }
         return { Task { await use(file) } }
     }
 
@@ -203,11 +274,46 @@ struct PrinterProfileView: View {
 
     private func remove(_ p: UserProfile) async {
         guard let api = app.api else { return }
+        error = ""
         do {
             try await api.deleteProfile(file: p.file)
             allProfiles.removeAll { $0.file == p.file }
+            selection.remove(p.file)
         } catch {
             self.error = error.localizedDescription
         }
+    }
+
+    /// Deletes the rows chosen in edit mode one after the other; the server refuses presets still in use, those stay
+    /// selected and their errors are listed.
+    private func removeSelected() async {
+        guard let api = app.api else { return }
+        busy = true
+        error = ""
+        done = ""
+        defer { busy = false }
+        var failed: [String] = []
+        for p in allProfiles where selection.contains(p.file) {
+            do {
+                try await api.deleteProfile(file: p.file)
+                allProfiles.removeAll { $0.file == p.file }
+                selection.remove(p.file)
+            } catch {
+                failed.append("\(p.name ?? p.file): \(error.localizedDescription)")
+            }
+        }
+        if failed.isEmpty {
+            Haptics.success()
+            setEditing(false)
+        } else {
+            error = failed.joined(separator: "\n")
+        }
+    }
+}
+
+private extension View {
+    /// Card look of the other screens inside the list: own padding in the row, card background.
+    func rowStyle() -> some View {
+        listRowInsets(EdgeInsets()).listRowBackground(Theme.card)
     }
 }
