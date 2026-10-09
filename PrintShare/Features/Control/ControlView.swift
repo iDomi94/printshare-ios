@@ -71,6 +71,19 @@ struct ControlView: View {
         }
         .navigationTitle(name)
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            // Home Assistant plug (issue #9): top right, only while nothing prints
+            ToolbarItem(placement: .topBarTrailing) {
+                if busy == "power" {
+                    ProgressView()
+                } else if let power, power.available, !printing, power.state != "off" {
+                    Button { askPowerOff(t) } label: { Image(systemName: "power") }
+                        .tint(Theme.danger)
+                        .disabled(!busy.isEmpty)
+                        .accessibilityLabel(t(.powerOff))
+                }
+            }
+        }
         .task { await loadControls() }
         .task { await loadPower() }
         .task { await loadMotion() }
@@ -153,17 +166,6 @@ struct ControlView: View {
                         request("speed", [Change(kind: .speed, id: "speed", value: .number(Double(values[i])))])
                     }
                     .padding(12)
-                }
-            }
-
-            if let power, power.available {
-                PSSection(title: t(.powerTitle), footer: printing ? t(.powerOffBusy) : nil) {
-                    PSRow(icon: "power", label: t(.powerOff), value: power.state.map { t.powerState($0) },
-                          danger: !printing, chevron: false,
-                          action: printing || busy == "power" ? nil : { askPowerOff(t) }) {
-                        if busy == "power" { ProgressView().padding(.leading, 8) }
-                    }
-                    .opacity(printing ? 0.5 : 1)
                 }
             }
         }
