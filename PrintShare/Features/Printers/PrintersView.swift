@@ -18,6 +18,8 @@ struct PrintersView: View {
     @State private var error = ""
     @State private var acting = ""
     @State private var cancelTarget: Printer?
+    /// Printer whose Home Assistant plug should be switched off (asked first).
+    @State private var powerOffTarget: Printer?
     @State private var camera: CameraTarget?
     @State private var cams: [String: Bool] = [:]
     /// When the app switched a printer's plug on (issue #9): it needs 30-60 s before it answers.
@@ -68,6 +70,12 @@ struct PrintersView: View {
         } message: { p in
             Text(t(.cancelPrintQ, ["printer": p.name]))
         }
+        .alert(powerOffTarget.map { t(.powerOffQ, ["printer": $0.name]) } ?? "",
+               isPresented: Binding(get: { powerOffTarget != nil }, set: { if !$0 { powerOffTarget = nil } }),
+               presenting: powerOffTarget) { p in
+            Button(t(.cancelBtn), role: .cancel) {}
+            Button(t(.powerOff), role: .destructive) { Task { await powerOff(p) } }
+        }
     }
 
     private func card(_ t: L10n, _ e: Entry) -> some View {
@@ -94,6 +102,11 @@ struct PrintersView: View {
                         if p.bridge != nil { Text(t(.viaBridge)).font(.footnote).foregroundStyle(Theme.sub) }
                     }
                     Spacer(minLength: 8)
+                    // Home Assistant plug: switching off only while the printer answers and prints nothing
+                    // (the server refuses it during a print as well, 409)
+                    if p.power, s != nil, !busy, kind != .offline {
+                        powerOffButton(t, p)
+                    }
                     PSBadge(text: label, kind: badge)
                 }
                 .padding(.bottom, 12)
@@ -170,6 +183,20 @@ struct PrintersView: View {
             }
         }
         .padding(.bottom, 16)
+    }
+
+    private func powerOffButton(_ t: L10n, _ p: Printer) -> some View {
+        Button { Haptics.tap(); powerOffTarget = p } label: {
+            Group {
+                if acting == "\(p.id):powerOff" { ProgressView() }
+                else { Image(systemName: "power").font(.body.weight(.semibold)).foregroundStyle(Theme.danger) }
+            }
+            .frame(width: 36, height: 36)
+            .background(Theme.input).clipShape(Circle())
+        }
+        .buttonStyle(.plain)
+        .disabled(!acting.isEmpty)
+        .accessibilityLabel(t(.powerOff))
     }
 
     /// Filament lanes of an AFC unit (CANVAS on COSMOS), spec MA-02.
@@ -307,6 +334,18 @@ struct PrintersView: View {
             poweredAt[p.id] = Date()
         } catch { self.error = error.localizedDescription }
         acting = ""
+    }
+
+    private func powerOff(_ p: Printer) async {
+        guard let api = app.api else { return }
+        acting = "\(p.id):powerOff"
+        do {
+            try await api.setPower(printer: p.id, on: false)
+            poweredAt[p.id] = nil
+        } catch { self.error = error.localizedDescription }
+        acting = ""
+        try? await Task.sleep(for: .seconds(2))
+        await load()
     }
 
     private func run(_ p: Printer, _ action: String) async {
