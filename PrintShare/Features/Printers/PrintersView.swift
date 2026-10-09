@@ -2,9 +2,11 @@ import SwiftUI
 
 /// Live status and control of every printer (DR-04, DR-05, DR-06); details in ControlView (issue #5).
 struct PrintersView: View {
-    private struct Entry: Identifiable {
+    private struct Entry: Identifiable, Sendable {
         var printer: Printer
         var status: PrinterStatus?
+        /// The first status of this visit is still on its way (an unreachable printer can take a while to time out).
+        var checking = false
         /// Cloud: the app has no Wi-Fi address for this printer yet.
         var noAddress = false
         /// Why there is no status (bridge printers: the server's reason, e.g. "bridge offline").
@@ -113,6 +115,11 @@ struct PrintersView: View {
                         temperature(t(.bed), Format.temp(s.bed, s.bedTarget))
                     }
                     .padding(.top, busy ? 14 : 0)
+                } else if e.checking {
+                    HStack(spacing: 10) {
+                        ProgressView()
+                        Text(t(.printerChecking)).font(.subheadline).foregroundStyle(Theme.sub)
+                    }
                 } else if e.noAddress {
                     VStack(alignment: .leading, spacing: 12) {
                         Text(t(.needLanAddress)).font(.subheadline).foregroundStyle(Theme.sub)
@@ -248,16 +255,32 @@ struct PrintersView: View {
         guard let api = app.api else { return }
         do {
             let list = try await api.printers()
+            // Show the printers at once and fill in each status as it arrives: a switched-off printer only answers
+            // after its timeout, and until then the screen used to stay empty.
+            let known = Dictionary((entries ?? []).map { ($0.id, $0) }, uniquingKeysWith: { a, _ in a })
+            entries = list.map { p in
+                if var e = known[p.id] { e.printer = p; return e }
+                return Entry(printer: p, checking: true)
+            }
+            let app = app
             var out: [Entry] = []
-            for p in list {
-                do {
-                    out.append(Entry(printer: p, status: try await app.printerStatus(p)))
-                } catch {
-                    out.append(Entry(printer: p, status: nil, noAddress: error is NoLanAddress,
-                                     error: p.bridge != nil ? error.localizedDescription : nil))
+            await withTaskGroup(of: Entry.self) { group in
+                for p in list {
+                    group.addTask {
+                        do {
+                            return Entry(printer: p, status: try await app.printerStatus(p))
+                        } catch {
+                            return Entry(printer: p, status: nil, noAddress: error is NoLanAddress,
+                                         error: p.bridge != nil ? error.localizedDescription : nil)
+                        }
+                    }
+                }
+                for await e in group {
+                    out.append(e)
+                    if let i = entries?.firstIndex(where: { $0.id == e.id }) { entries?[i] = e }
                 }
             }
-            entries = out
+            out = list.compactMap { p in out.first { $0.id == p.id } }
             for e in out where e.status != nil { poweredAt[e.id] = nil }
             error = ""
             await observe(api, out)

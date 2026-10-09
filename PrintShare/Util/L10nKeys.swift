@@ -579,6 +579,7 @@ enum L10nKey: String, CaseIterable, Sendable {
     case printablesWebOpenSub = "printablesWebOpenSub"
     case printer = "printer"
     case printerBusy = "printerBusy"
+    case printerChecking = "printerChecking"
     case printerKind_active = "printerKind.active"
     case printerKind_done = "printerKind.done"
     case printerKind_error = "printerKind.error"

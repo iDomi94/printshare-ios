@@ -9249,6 +9249,22 @@
         }
       }
     },
+    "printerChecking": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Status wird abgefragt …"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Checking the status …"
+          }
+        }
+      }
+    },
     "printerKind.active": {
       "localizations": {
         "de": {

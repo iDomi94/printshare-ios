@@ -4,6 +4,11 @@ Jeder Abschnitt `## X.Y.Z` wird beim Tag `vX.Y.Z` automatisch als „Was testen�
 (`.github/workflows/testflight.yml`). Text auf Deutsch, höchstens 4000 Zeichen. Fehlt der Abschnitt, stehen dort
 die Commit-Titel seit dem letzten Tag.
 
+## 0.9.6
+
+- Drucker-Tab: die Drucker erscheinen sofort, auch wenn einer ausgeschaltet ist. Bisher blieb die Seite leer, bis der ausgeschaltete Drucker nicht mehr antwortete; jetzt steht dort solange „Status wird abgefragt …“ und danach „Einschalten“. Mehrere Drucker werden gleichzeitig abgefragt
+- Bitte testen: Drucker ausschalten, App neu öffnen und den Drucker-Tab aufrufen
+
 ## 0.9.5
 
 Filament-Menü, Spulen per NFC und Spulen-Quelle wie in der Android-App (Server 0.37.0 bis 0.39.0). Mit älteren Servern fehlen die neuen Bereiche einfach.
