@@ -1616,10 +1616,15 @@ struct OrcaAccount: Codable, Sendable, Equatable {
     var skipped: [Skipped]
     var lastError: String?
     var pending: Pending?
+    /// Server 0.45.0: automatic sync every N hours (0 = only by hand) and before a print is prepared. nil = older server.
+    var intervalH: Int?
+    var onPrepare: Bool?
+    var intervals: [Int]?
 
     enum CodingKeys: String, CodingKey {
-        case connected, count, skipped, pending
+        case connected, count, skipped, pending, intervals
         case clientId = "client_id", clientIdFrom = "client_id_from", lastSync = "last_sync", lastError = "last_error"
+        case intervalH = "interval_h", onPrepare = "on_prepare"
     }
 
     init(from decoder: Decoder) throws {
@@ -1632,6 +1637,9 @@ struct OrcaAccount: Codable, Sendable, Equatable {
         skipped = c.lenient([Skipped].self, .skipped) ?? []
         lastError = c.lenient(String.self, .lastError)
         pending = c.lenient(Pending.self, .pending)
+        intervalH = c.lenient(Int.self, .intervalH)
+        onPrepare = c.lenient(Bool.self, .onPrepare)
+        intervals = c.lenient([Int].self, .intervals)
     }
 }
 

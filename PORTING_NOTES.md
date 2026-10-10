@@ -332,3 +332,14 @@ if it contradicts `printshare/api.py` the server wins; otherwise the simplest id
 
 - None that needed a note. `POST /api/jobs` receives no `file` key when it is `nil` (the Expo app sent `null`); the
   server model treats both the same.
+
+## Server 0.44.1 - 0.45.0 (upstream 9c86449) - upstream sync 2026-10-09
+- **Orca Cloud schedule (0.45.0)**: `OrcaAccount` got `interval_h`, `on_prepare`, `intervals` (nil on older servers = the
+  section stays hidden); `APIClient.setOrcaSchedule(intervalH:onPrepare:)` = `PUT /api/orca-cloud/schedule` with only the
+  sent fields; `OrcaAccountView` shows "Automatisch synchronisieren" (only by hand / hourly / 6 h / daily, checkmark on the
+  current one) and the switch "Beim Vorbereiten eines Drucks" once paired. The server syncs before `/options` itself, so the
+  app sends nothing extra. Texts regenerated from upstream `i18n.ts`. Not run on a device.
+- **Server-only, nothing to port:** 0.44.1 (Centauri moves in 25 mm steps), 0.44.2 (Centauri load / unload removed: the
+  server now reports `load` / `unload` false and no `filament_as_job` for the stock firmware, so `MotionPanel` hides the
+  buttons by itself), 0.44.4 (Orca Cloud `compatible_printers` as text), 0.43.2 / 0.44.3 (web page Orca Cloud card), docs.
+

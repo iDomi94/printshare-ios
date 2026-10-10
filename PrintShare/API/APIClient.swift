@@ -50,6 +50,17 @@ private struct OrcaClientBody: Encodable {
     }
     enum Key: String, CodingKey { case clientId = "client_id" }
 }
+/// Only the sent fields change (server 0.45.0): left out = keep.
+private struct OrcaScheduleBody: Encodable {
+    var intervalH: Int?
+    var onPrepare: Bool?
+    func encode(to encoder: Encoder) throws {
+        var c = encoder.container(keyedBy: Key.self)
+        try c.encodeIfPresent(intervalH, forKey: .intervalH)
+        try c.encodeIfPresent(onPrepare, forKey: .onPrepare)
+    }
+    enum Key: String, CodingKey { case intervalH = "interval_h", onPrepare = "on_prepare" }
+}
 private struct CreateJobBody: Encodable {
     var link: String
     var printer: String
@@ -430,6 +441,12 @@ actor APIClient {
 
     func setOrcaClientId(_ id: String?) async throws -> OrcaAccount {
         try await request("/api/orca-cloud", method: "PUT", body: OrcaClientBody(clientId: id), timeout: 20)
+    }
+
+    /// Server 0.45.0: how often the server syncs (0 = only by hand) and whether it does before a print is prepared.
+    func setOrcaSchedule(intervalH: Int? = nil, onPrepare: Bool? = nil) async throws -> OrcaAccount {
+        try await request("/api/orca-cloud/schedule", method: "PUT",
+                          body: OrcaScheduleBody(intervalH: intervalH, onPrepare: onPrepare), timeout: 20)
     }
 
     func connectOrca() async throws -> OrcaAccount {
