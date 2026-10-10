@@ -7494,13 +7494,13 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Deine eigenen Drucker-, Qualitäts- und Materialprofile aus OrcaSlicer kommen automatisch hierher: einmal koppeln, danach holt der Server sie alle 6 Stunden ab. Nur lesen – an deinen Profilen in Orca Cloud ändert sich nichts."
+            "value": "Deine eigenen Drucker-, Qualitäts- und Materialprofile aus OrcaSlicer kommen automatisch hierher: einmal koppeln, danach holt der Server sie selbst ab. Nur lesen – an deinen Profilen in Orca Cloud ändert sich nichts."
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Your own printer, quality and material presets from OrcaSlicer come here automatically: pair once, then the server fetches them every 6 hours. Read only – nothing changes in Orca Cloud."
+            "value": "Your own printer, quality and material presets from OrcaSlicer come here automatically: pair once, then the server fetches them on its own. Read only – nothing changes in Orca Cloud."
           }
         }
       }
@@ -7761,6 +7761,70 @@
         }
       }
     },
+    "orcaEvery0": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nur von Hand"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Only by hand"
+          }
+        }
+      }
+    },
+    "orcaEvery1": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stündlich"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Every hour"
+          }
+        }
+      }
+    },
+    "orcaEvery24": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Täglich"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Daily"
+          }
+        }
+      }
+    },
+    "orcaEvery6": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alle 6 Stunden"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Every 6 hours"
+          }
+        }
+      }
+    },
     "orcaHowTo": {
       "localizations": {
         "de": {
@@ -8001,6 +8065,38 @@
         }
       }
     },
+    "orcaOnPrepare": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Beim Vorbereiten eines Drucks"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "When preparing a print"
+          }
+        }
+      }
+    },
+    "orcaOnPrepareHint": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Beim Vorbereiten eines Drucks holt der Server zuerst neue Profile, wenn der letzte Abgleich über 10 Minuten her ist."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "When you prepare a print, the server fetches new presets first if the last sync is older than 10 minutes."
+          }
+        }
+      }
+    },
     "orcaOpen": {
       "localizations": {
         "de": {
@@ -8173,6 +8269,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Send from OrcaSlicer on your computer"
+          }
+        }
+      }
+    },
+    "orcaScheduleTitle": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Automatisch synchronisieren"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sync automatically"
           }
         }
       }
