@@ -4,6 +4,11 @@ Jeder Abschnitt `## X.Y.Z` wird beim Tag `vX.Y.Z` automatisch als „Was testen�
 (`.github/workflows/testflight.yml`). Text auf Deutsch, höchstens 4000 Zeichen. Fehlt der Abschnitt, stehen dort
 die Commit-Titel seit dem letzten Tag.
 
+## 0.9.9
+
+- Einstellungen → Erweitert → Orca-Cloud-Konto (Server ab 0.45.0): Du wählst, wie oft der Server deine OrcaSlicer-Profile abholt (nur von Hand, stündlich, alle 6 Stunden oder täglich). Zusätzlich holt er beim Vorbereiten eines Drucks zuerst neue Profile, wenn der letzte Abgleich über 10 Minuten her ist (abschaltbar). Bei älteren Servern erscheint der Abschnitt nicht
+- Bitte testen: mit gekoppeltem Orca-Cloud-Konto den Abgleich auf „Täglich“ und wieder zurück stellen, den Schalter „Beim Vorbereiten eines Drucks“ aus- und einschalten; die Auswahl muss nach dem erneuten Öffnen der Seite erhalten bleiben
+
 ## 0.9.7
 
 - Drucker per Home Assistant ausschalten: Power-Symbol oben rechts auf der Druckerkarte im Drucker-Tab und oben rechts in der Steuerung. Es erscheint nur, wenn für den Drucker eine Home-Assistant-Steckdose eingerichtet ist und gerade kein Druck läuft, und fragt vor dem Ausschalten nach. Der bisherige Eintrag „Ausschalten“ unten in der Steuerung ist dafür weggefallen
