@@ -270,7 +270,8 @@ private func listen(_ queue: DispatchQueue, _ handler: @escaping @Sendable (NWCo
 }
 
 private func waitForPort(_ l: NWListener) async throws -> UInt16 {
-    for _ in 0 ..< 100 {
+    // up to 10 s: on a busy CI runner the listener sometimes needed more than 2 s to get its port
+    for _ in 0 ..< 500 {
         if let p = l.port?.rawValue, p != 0 { return p }
         try await Task.sleep(for: .milliseconds(20))
     }

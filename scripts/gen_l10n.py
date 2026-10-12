@@ -75,6 +75,7 @@ EXTRA = {
     "prevLayer": ("Vorherige Schicht", "Previous layer"),
     "nextLayer": ("Nächste Schicht", "Next layer"),
     "close": ("Schließen", "Close"),
+    "printerChecking": ("Status wird abgefragt …", "Checking the status …"),
     "openSettings": ("Einstellungen öffnen", "Open settings"),
     "cameraDenied": ("Der Kamerazugriff ist ausgeschaltet. Du kannst ihn in den Einstellungen erlauben.",
                      "Camera access is turned off. You can allow it in Settings."),
