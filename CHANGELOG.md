@@ -4,6 +4,11 @@ Jeder Abschnitt `## X.Y.Z` wird beim Tag `vX.Y.Z` automatisch als „Was testen�
 (`.github/workflows/testflight.yml`). Text auf Deutsch, höchstens 4000 Zeichen. Fehlt der Abschnitt, stehen dort
 die Commit-Titel seit dem letzten Tag.
 
+## 0.9.11
+
+- Steuerung → „Spule und NFC-Leser“ für Drucker mit nur einem Fach (z. B. Centauri Carbon ohne CANVAS, Prusa; sie haben kein Filament-Menü): Hier steht, welche Spule im Drucker ist (antippen zum Ändern), ein vom NFC-Leser gesehener unbekannter Chip lässt sich einer Spule zuordnen, und der Schlüssel für den NFC-Leser (ESP32 + PN5180, Server ab 0.38.0) wird erzeugt. Der Druck-Bildschirm schlägt diese Spule bei einfarbigen Drucken vor und bucht sie
+- Bitte testen: bei einem Drucker ohne Filament-Menü Steuerung öffnen, Spule wählen, dann einen Druck vorbereiten – die Spule muss im Abschnitt „Spulen“ vorgewählt sein
+
 ## 0.9.10
 
 - Drucker-Tab: die Drucker erscheinen sofort, auch wenn einer ausgeschaltet ist. Bisher blieb die Seite leer, bis der ausgeschaltete Drucker nicht mehr antwortete; jetzt steht dort solange „Status wird abgefragt …“ und danach „Einschalten“. Mehrere Drucker werden gleichzeitig abgefragt
