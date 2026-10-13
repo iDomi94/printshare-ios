@@ -19,7 +19,8 @@ enum SpoolPlan {
 
     /// Spool per colour index (absent = none). With AFC and Moonraker's Spoolman link the spools belong to the slots;
     /// otherwise the user's choice, else the lane's spool, else the spool put into the chosen slot in the filament menu
-    /// (`slots`: tool → spool, server 0.38.0), else Moonraker's active spool, else the last one used.
+    /// (`slots`: tool → spool, server 0.38.0; a printer that reports no slots has one, tool 0, which the NFC reader / the
+    /// control page fill, upstream 04a9e4d), else Moonraker's active spool, else the last one used.
     /// Spools that no longer exist are dropped.
     static func spools(colours: [Colour], lanes: [Lane], tools: [Int: Int], afc: Bool, choice: [Int: Int],
                        tracker: SpoolmanLink?, last: [String: Int], known: [Spool]?, slots: [Int: Int] = [:]) -> [Int: Int] {
@@ -33,8 +34,9 @@ enum SpoolPlan {
             } else if let chosen = choice[col.index] {
                 id = chosen == none ? nil : chosen
             } else {
-                id = lane?.spoolId ?? lane?.tool.flatMap { slots[$0] } ?? (printerBooks ? tracker?.spoolId : nil)
-                    ?? last[String(col.index)]
+                var slot: Int?
+                if let tool = lane?.tool { slot = slots[tool] } else if lanes.isEmpty && colours.count == 1 { slot = slots[0] }
+                id = lane?.spoolId ?? slot ?? (printerBooks ? tracker?.spoolId : nil) ?? last[String(col.index)]
             }
             if let id, known == nil || known!.contains(where: { $0.id == id }) { out[col.index] = id }
         }
