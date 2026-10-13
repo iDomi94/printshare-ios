@@ -343,3 +343,13 @@ if it contradicts `printshare/api.py` the server wins; otherwise the simplest id
   server now reports `load` / `unload` false and no `filament_as_job` for the stock firmware, so `MotionPanel` hides the
   buttons by itself), 0.44.4 (Orca Cloud `compatible_printers` as text), 0.43.2 / 0.44.3 (web page Orca Cloud card), docs.
 
+
+## Upstream 04a9e4d (NFC reader firmware + one-slot setup) - upstream sync 2026-10-13
+- **Ported:** `SpoolReaderSection.swift` (= `SpoolReader.tsx`) on the control page when the printer has no filament menu:
+  spool in slot 0 (`PUT /slot-spools/0`), unknown chip seen by the reader -> `linkSpoolTag` (the server puts the spool in the
+  slot), reader key (`/reader-key`), polling `slot-spools` every 5 s. Hidden on older servers (both endpoints fail).
+  `SpoolPlan.spools`: a printer reporting no lanes with a single-colour job proposes the spool of slot 0 (after the lane's
+  own spool, before Moonraker's active spool and the last one used). Texts regenerated from upstream `i18n.ts` (5 new keys).
+  Not ported on purpose: the spool picker here has no "scan NFC" entry (the Expo component has none either).
+  Like upstream, the section appears briefly on printers with a filament menu until `filamentInfo` answered. Not run on a device.
+- **Nothing to port:** `firmware/nfc-reader/` (ESP32 firmware), `docs/NFC-READER.md`, API.md wording.

@@ -104,6 +104,9 @@ struct ControlView: View {
             if !error.isEmpty { PSBanner(kind: .error, text: error) }
             if printing { PSBanner(kind: .warn, text: t(.printRunningHint)) }
 
+            // printers with one slot (no filament menu): spool in the printer and NFC reader (upstream 04a9e4d)
+            if !filament { SpoolReaderSection(printer: printer) }
+
             if filament {
                 PSSection {
                     PSRow(icon: "circle.hexagongrid", label: t(.filamentTitle), sub: t(.filamentRowSub)) {

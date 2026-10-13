@@ -227,6 +227,13 @@ final class SpoolmanTests: XCTestCase {
                                         tracker: tracker, last: [:], known: known), [1: 3])
         XCTAssertEqual(SpoolPlan.spools(colours: cols, lanes: withSpool, tools: [1: 0], afc: false,
                                         choice: [1: SpoolPlan.none], tracker: tracker, last: [:], known: known), [:])
+        // a printer without slots (Centauri without CANVAS, Prusa): the spool in its one slot (tool 0), single colour only
+        XCTAssertEqual(SpoolPlan.spools(colours: cols, lanes: [], tools: [:], afc: false, choice: [:], tracker: tracker,
+                                        last: ["1": 3], known: known, slots: [0: 4]), [1: 4])
+        XCTAssertEqual(SpoolPlan.spools(colours: cols + cols, lanes: [], tools: [:], afc: false, choice: [:], tracker: nil,
+                                        last: [:], known: known, slots: [0: 4]), [:])
+        XCTAssertEqual(SpoolPlan.spools(colours: cols, lanes: [], tools: [:], afc: false, choice: [1: 3], tracker: nil,
+                                        last: [:], known: known, slots: [0: 4]), [1: 3])
         // AFC: only the slot's spool
         XCTAssertEqual(SpoolPlan.spools(colours: cols, lanes: lanes, tools: [1: 0], afc: true, choice: [1: 3],
                                         tracker: tracker, last: [:], known: known), [:])
