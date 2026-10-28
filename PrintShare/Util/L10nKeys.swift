@@ -806,6 +806,7 @@ enum L10nKey: String, CaseIterable, Sendable {
     case timelapseAlwaysSub = "timelapseAlwaysSub"
     case timelapseAlwaysSubCloud = "timelapseAlwaysSubCloud"
     case timelapseFailed = "timelapseFailed"
+    case timelapsePlayFailed = "timelapsePlayFailed"
     case timelapseRecording = "timelapseRecording"
     case timelapseRendering = "timelapseRendering"
     case timelapseSave = "timelapseSave"

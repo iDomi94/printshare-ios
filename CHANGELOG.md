@@ -4,6 +4,11 @@ Jeder Abschnitt `## X.Y.Z` wird beim Tag `vX.Y.Z` automatisch als „Was testen�
 (`.github/workflows/testflight.yml`). Text auf Deutsch, höchstens 4000 Zeichen. Fehlt der Abschnitt, stehen dort
 die Commit-Titel seit dem letzten Tag.
 
+## 0.9.11
+
+- Zeitraffer: Drucke, die direkt am Drucker gestartet wurden (Einstellung „Zeitraffer immer erstellen“), zeigten beim Ansehen nur ein durchgestrichenes Play-Symbol. Ursache war der Server, behoben in Server 0.45.1. Kann ein Video nicht geladen werden, sagt die App das jetzt in Worten
+- Bitte testen: nach dem Server-Update einen solchen Zeitraffer öffnen; er muss abspielen und sich speichern lassen
+
 ## 0.9.10
 
 - Drucker-Tab: die Drucker erscheinen sofort, auch wenn einer ausgeschaltet ist. Bisher blieb die Seite leer, bis der ausgeschaltete Drucker nicht mehr antwortete; jetzt steht dort solange „Status wird abgefragt …“ und danach „Einschalten“. Mehrere Drucker werden gleichzeitig abgefragt
