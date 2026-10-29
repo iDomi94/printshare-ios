@@ -10257,6 +10257,22 @@
         }
       }
     },
+    "readerSlot": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fach: {slot}"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Slot: {slot}"
+          }
+        }
+      }
+    },
     "readerTitle": {
       "localizations": {
         "de": {
@@ -11681,6 +11697,22 @@
         }
       }
     },
+    "spoolInPrinter": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spule im Drucker"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spool in the printer"
+          }
+        }
+      }
+    },
     "spoolLeft": {
       "localizations": {
         "de": {
@@ -11777,6 +11809,22 @@
         }
       }
     },
+    "spoolNone": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keine"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "None"
+          }
+        }
+      }
+    },
     "spoolOther": {
       "localizations": {
         "de": {
@@ -11789,6 +11837,38 @@
           "stringUnit": {
             "state": "translated",
             "value": "Other"
+          }
+        }
+      }
+    },
+    "spoolReaderHint": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Die Spule im Drucker schlägt der Druck-Bildschirm vor und bucht sie. Ein NFC-Leser im Spulenhalter (ESP32 + PN5180) trägt sie selbst ein, sobald du eine Spule einlegst."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The print screen proposes and books the spool in the printer. An NFC reader in the spool holder (ESP32 + PN5180) fills it in by itself when you put a spool in."
+          }
+        }
+      }
+    },
+    "spoolReaderTitle": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spule und NFC-Leser"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spool and NFC reader"
           }
         }
       }
