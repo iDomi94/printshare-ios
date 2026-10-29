@@ -137,6 +137,8 @@ EXTRA = {
                                 "The “Record a time-lapse” switch is already on before every print (printers behind a bridge with a camera)."),
     "timelapseAlwaysOld": ("Dein Server ist älter als 0.40.0: Die Einstellung gilt nur für Drucke aus dieser App.",
                            "Your server is older than 0.40.0: the setting only applies to prints from this app."),
+    "timelapsePlayFailed": ("Das Video lässt sich nicht abspielen. Drucke, die direkt am Drucker gestartet wurden, brauchen dafür Server 0.45.1 oder neuer.",
+                            "The video can't be played. Prints started on the printer itself need server 0.45.1 or newer for this."),
     # native list editing (swipe to delete, edit mode with multi-select) instead of the Expo app's long press
     "editBtn": ("Bearbeiten", "Edit"),
     "doneBtn": ("Fertig", "Done"),
