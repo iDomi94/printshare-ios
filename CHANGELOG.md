@@ -4,6 +4,12 @@ Jeder Abschnitt `## X.Y.Z` wird beim Tag `vX.Y.Z` automatisch als „Was testen�
 (`.github/workflows/testflight.yml`). Text auf Deutsch, höchstens 4000 Zeichen. Fehlt der Abschnitt, stehen dort
 die Commit-Titel seit dem letzten Tag.
 
+## 0.9.13
+
+- Einstellungen → Erweitert → „Aus einem CAD-Programm öffnen“ (Server ab 0.48.0): zeigt Adresse und Schlüssel, mit denen ein CAD-Programm wie SolidCraft ein Teil direkt an PocketPrint3D schickt (eigener Server: Zugangs-Token, Cloud: eigener Schlüssel, nur einmal sichtbar)
+- Startseite: auf eigenen Servern (ab 0.49.0) erscheint „Neu im Eingangsordner“ mit Dateien, die ein CAD-Programm dort abgelegt hat; antippen öffnet die Druckvorbereitung, das Kreuz entfernt den Eintrag
+- Bitte testen: mit einem Server ab 0.49.0 und eingehängtem Eingangsordner eine STL dort ablegen – nach wenigen Sekunden muss die Karte erscheinen und die Druckvorbereitung den Dateinamen zeigen
+
 ## 0.9.12
 
 - Steuerung → „Spule und NFC-Leser“ für Drucker mit nur einem Fach (z. B. Centauri Carbon ohne CANVAS, Prusa; sie haben kein Filament-Menü): Hier steht, welche Spule im Drucker ist (antippen zum Ändern), ein vom NFC-Leser gesehener unbekannter Chip lässt sich einer Spule zuordnen, und der Schlüssel für den NFC-Leser (ESP32 + PN5180, Server ab 0.38.0) wird erzeugt. Der Druck-Bildschirm schlägt diese Spule bei einfarbigen Drucken vor und bucht sie
