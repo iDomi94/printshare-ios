@@ -29,6 +29,7 @@ struct RootView: View {
                             case .manyfold: ManyfoldView()
                             case .failureDetection: FailureDetectionView()
                             case .orcaAccount: OrcaAccountView()
+                            case .importKey: ImportKeyView()
                             case .printablesWeb: PrintablesWebView()
                             }
                         }
