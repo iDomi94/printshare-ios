@@ -1457,6 +1457,38 @@
         }
       }
     },
+    "classicWeb": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Klassische Webseite"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Classic web page"
+          }
+        }
+      }
+    },
+    "classicWebSub": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Weitere Einstellungen: Steckdose, Kopplungs-Code für die App, Druckerprofile"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "More settings: smart plug, pairing code for the app, printer profiles"
+          }
+        }
+      }
+    },
     "clipboardEmpty": {
       "localizations": {
         "de": {
@@ -4269,6 +4301,230 @@
           "stringUnit": {
             "state": "translated",
             "value": "What do you want to print?"
+          }
+        }
+      }
+    },
+    "importAccess": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zugang für das CAD-Programm"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Access for the CAD program"
+          }
+        }
+      }
+    },
+    "importHowTo": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1. Im CAD-Programm die Einstellung für PocketPrint3D öffnen.\n2. Server-Adresse: die Adresse von oben.\n3. Schlüssel: der Key von oben.\n4. Teil auswählen und „In PocketPrint3D öffnen“ – die Druckvorbereitung öffnet sich im Browser (dort bei PocketPrint3D angemeldet sein)."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1. Open the PocketPrint3D setting in the CAD program.\n2. Server address: the address above.\n3. Key: the key above.\n4. Select the part and choose “Open in PocketPrint3D” – the print preparation opens in the browser (be logged in to PocketPrint3D there)."
+          }
+        }
+      }
+    },
+    "importIntro": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ein CAD-Programm wie SolidCraft kann dein Teil mit „In PocketPrint3D öffnen“ direkt hierher schicken: der Browser öffnet die Druckvorbereitung, du wählst Drucker, Material und Qualität und bestätigst den Druck. Kein Speichern und Hochladen von Hand mehr."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A CAD program like SolidCraft can send your part here with “Open in PocketPrint3D”: the browser opens the print preparation, you choose printer, material and quality and confirm the print. No more saving and uploading by hand."
+          }
+        }
+      }
+    },
+    "importNoKey": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "(keiner nötig – dieser Server hat keinen Zugangs-Token)"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "(none needed – this server has no access token)"
+          }
+        }
+      }
+    },
+    "importOffQ": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Öffnen aus CAD-Programmen ausschalten? Der Key funktioniert dann nicht mehr."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Switch off opening from CAD programs? The key stops working."
+          }
+        }
+      }
+    },
+    "importShowToken": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zugangs-Token anzeigen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show access token"
+          }
+        }
+      }
+    },
+    "importSteps": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "So geht's im CAD-Programm"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "How to set it up in the CAD program"
+          }
+        }
+      }
+    },
+    "importSub": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Teile direkt aus SolidCraft & Co. drucken"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Print parts straight from SolidCraft and others"
+          }
+        }
+      }
+    },
+    "importTitle": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aus einem CAD-Programm öffnen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open from a CAD program"
+          }
+        }
+      }
+    },
+    "importUrl": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Server-Adresse (antippen zum Kopieren)"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Server address (tap to copy)"
+          }
+        }
+      }
+    },
+    "inboxClear": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alle entfernen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remove all"
+          }
+        }
+      }
+    },
+    "inboxDismiss": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aus der Liste entfernen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remove from the list"
+          }
+        }
+      }
+    },
+    "inboxSub": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aus deinem CAD-Programm – tippen zum Vorbereiten."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "From your CAD program – tap to prepare."
+          }
+        }
+      }
+    },
+    "inboxTitle": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Neu im Eingangsordner"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "New in the inbox folder"
           }
         }
       }
@@ -7325,6 +7581,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Find models, prepare them in your browser and print them on your 3D printer – free, just with your e-mail. The same account as in the app."
+          }
+        }
+      }
+    },
+    "notConnectedSubWebHome": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Melde dich einmal mit dem Zugangs-Token deines Servers an – der Browser bleibt dann angemeldet."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Log in once with your server's access token – the browser then stays logged in."
           }
         }
       }
@@ -13757,6 +14029,38 @@
           "stringUnit": {
             "state": "translated",
             "value": "Reload"
+          }
+        }
+      }
+    },
+    "webTokenIntro": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dieser PocketPrint3D-Server läuft bei dir zu Hause. Gib einmal sein Zugangs-Token ein – der Browser bleibt dann angemeldet."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This PocketPrint3D server runs at your home. Enter its access token once – the browser then stays logged in."
+          }
+        }
+      }
+    },
+    "webTokenWhere": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Das Token steht im Protokoll des Servers beim Start (Unraid: Docker → PrintShare → Logs) und in config.yaml als api_token."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The token is in the server's log at start (Unraid: Docker → PrintShare → Logs) and in config.yaml as api_token."
           }
         }
       }
