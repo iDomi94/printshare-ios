@@ -8,6 +8,8 @@ struct HomeView: View {
     @State private var error = ""
     @State private var recent: [JobSummary] = []
     @State private var pickingFile = false
+    /// Inbox folder of an own server (0.49.0): model files a CAD program exported there.
+    @State private var inbox: [InboxItem] = []
     /// Cloud account without printers: the card that leads to adding the first one (server 0.26).
     @State private var noPrinter = false
 
@@ -74,6 +76,7 @@ struct HomeView: View {
                 }
                 .padding(.top, 16)
 
+                if !inbox.isEmpty { inboxSection(t) }
                 if !recent.isEmpty { recentSection(t) }
             }
             .padding(Theme.space).padding(.bottom, 24)
@@ -85,6 +88,8 @@ struct HomeView: View {
             if case .success(let url) = result { pick(url) }
         }
         .onAppear { Task { await loadRecent() } }
+        // checked every 5 s while the screen is open (cancelled when it goes away or the server changes)
+        .task(id: app.server) { await pollInbox() }
     }
 
     private func firstPrinter(_ t: L10n) -> some View {
@@ -102,6 +107,72 @@ struct HomeView: View {
         .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
         .overlay(RoundedRectangle(cornerRadius: 14, style: .continuous).stroke(Theme.accent, lineWidth: 2))
         .padding(.bottom, 16)
+    }
+
+    private func inboxSection(_ t: L10n) -> some View {
+        VStack(alignment: .leading, spacing: 0) {
+            HStack {
+                Text(t(.inboxTitle)).textCase(.uppercase).font(.footnote).foregroundStyle(Theme.sub)
+                Spacer()
+                if inbox.count > 1 {
+                    Button(t(.inboxClear)) {
+                        inbox = []
+                        Task { try? await app.api?.clearInbox() }
+                    }
+                    .font(.footnote).foregroundStyle(Theme.accent)
+                }
+            }
+            .padding(.horizontal, Theme.space).padding(.top, 26).padding(.bottom, 6)
+            PSCard {
+                VStack(spacing: 0) {
+                    ForEach(Array(inbox.enumerated()), id: \.element.id) { i, item in
+                        if i > 0 { PSDivider() }
+                        HStack(spacing: 0) {
+                            Button {
+                                Haptics.tap()
+                                app.push(.prepare(PrepareArgs(link: item.link, fileName: item.name)))
+                            } label: { inboxRow(t, item) }
+                            .buttonStyle(RowPressStyle())
+                            Button { dismiss(item) } label: {
+                                Image(systemName: "xmark").font(.body).foregroundStyle(Theme.sub).padding(14)
+                            }
+                            .accessibilityLabel(t(.inboxDismiss))
+                        }
+                    }
+                }
+            }
+            Text(t(.inboxSub)).font(.footnote).foregroundStyle(Theme.sub).padding(.horizontal, Theme.space).padding(.top, 6)
+        }
+    }
+
+    private func inboxRow(_ t: L10n, _ item: InboxItem) -> some View {
+        HStack(spacing: 12) {
+            Image(systemName: "tray.full").font(.title3).frame(width: 26).foregroundStyle(Theme.accent).accessibilityHidden(true)
+            VStack(alignment: .leading, spacing: 2) {
+                Text(item.name).font(.body).foregroundStyle(Theme.text).lineLimit(1)
+                Text([item.path != item.name ? item.path : nil, Format.ago(t, item.modified)].compactMap { $0 }.joined(separator: " · "))
+                    .font(.footnote).foregroundStyle(Theme.sub).lineLimit(1)
+            }
+            Spacer(minLength: 8)
+            Image(systemName: "chevron.right").font(.footnote.weight(.semibold)).foregroundStyle(Theme.sub).accessibilityHidden(true)
+        }
+        .padding(.leading, Theme.space).padding(.vertical, 13)
+        .frame(maxWidth: .infinity, minHeight: 50, alignment: .leading)
+        .contentShape(Rectangle())
+    }
+
+    private func dismiss(_ item: InboxItem) {
+        inbox.removeAll { $0.id == item.id }
+        Task { try? await app.api?.dismissInbox(id: item.id) }
+    }
+
+    /// Own servers only; an older server (404) or a failed request just leaves the list as it is / empty.
+    private func pollInbox() async {
+        guard !app.isCloud, app.server != nil else { inbox = []; return }
+        while !Task.isCancelled {
+            if let api = app.api, let box = try? await api.inbox() { inbox = box.enabled ? Array(box.items.prefix(5)) : [] }
+            try? await Task.sleep(for: .seconds(5))
+        }
     }
 
     private func recentSection(_ t: L10n) -> some View {
