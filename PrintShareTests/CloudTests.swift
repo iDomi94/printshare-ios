@@ -229,6 +229,25 @@ final class CloudTests: XCTestCase {
         XCTAssertEqual(lanes[2].color, "#FF0000")
     }
 
+    /// COSMOS 26.10.0 ships an AFC whose lanes report `map` as a list (and `current_map`) - the slots had vanished.
+    func testAfcToolFromMapList() {
+        XCTAssertEqual(MoonrakerPrinter.afcTool(["map": "T3"]), 3)
+        XCTAssertEqual(MoonrakerPrinter.afcTool(["map": ["T3"], "current_map": "T3"]), 3)
+        XCTAssertEqual(MoonrakerPrinter.afcTool(["map": ["T3"], "current_map": ""]), 3)
+        XCTAssertEqual(MoonrakerPrinter.afcTool(["map": ["T5", "T1"], "current_map": "T5"]), 5)
+        XCTAssertEqual(MoonrakerPrinter.afcTool(["map": ["T5", "T1"], "current_map": ""]), 1)
+        XCTAssertEqual(MoonrakerPrinter.afcTool(["map": [String](), "current_map": "T2"]), 2)
+        XCTAssertNil(MoonrakerPrinter.afcTool(["map": ["NONE"], "current_map": ""]))
+        XCTAssertNil(MoonrakerPrinter.afcTool(["map": NSNull()]))
+        XCTAssertNil(MoonrakerPrinter.afcTool([:]))
+        let lanes = MoonrakerPrinter.lanes(objects: ["AFC_lane CANVAS_1", "AFC_lane CANVAS_2"], status: [
+            "AFC_lane CANVAS_1": ["map": ["T3"], "current_map": "T3", "material": "PLA", "prep": true],
+            "AFC_lane CANVAS_2": ["map": ["T1"], "current_map": "T1", "material": "PETG", "prep": true],
+        ], currentLoad: nil)
+        XCTAssertEqual(lanes.map(\.id), ["CANVAS_2", "CANVAS_1"])
+        XCTAssertEqual(lanes.map(\.tool), [1, 3])
+    }
+
     func testMoonrakerTriesPort7125AndReportsNoStart() async throws {
         StubProtocol.install { req in
             switch (req.url?.port, req.url?.path) {

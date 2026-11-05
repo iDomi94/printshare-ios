@@ -131,12 +131,25 @@ actor MoonrakerPrinter: LanPrinter {
         return Self.lanes(objects: objs, status: st, currentLoad: afc["current_load"] as? String)
     }
 
+    /// Tool number of an AFC lane. AFC up to 1.2 reports `map` as one string ("T3"); since AFC's multi-mapping (in
+    /// COSMOS 26.10.0) `map` is a list (["T3"], "NONE" = no tool) and `current_map` the tool in use. Several tools on
+    /// one lane: `current_map` if it is one of them, else the lowest. Same rule as the server's `moonraker.afc_tool`.
+    static func afcTool(_ lane: [String: Any]) -> Int? {
+        func num(_ v: Any?) -> Int? {
+            guard let s = (v as? String)?.trimmingCharacters(in: .whitespaces), s.matches("^T\\d+$") else { return nil }
+            return Int(s.dropFirst())
+        }
+        let raw = lane["map"]
+        let tools = ((raw as? [Any]) ?? [raw as Any]).compactMap { num($0) }
+        if let current = num(lane["current_map"]), tools.isEmpty || tools.contains(current) { return current }
+        return tools.min()
+    }
+
     static func lanes(objects: [String], status st: [String: Any], currentLoad: String?) -> [Lane] {
         let out: [Lane] = objects.map { obj in
             let ln = st[obj] as? [String: Any] ?? [:]
             let name = obj.split(separator: " ").dropFirst().joined(separator: " ")
-            let map = "\(ln["map"] ?? "")"
-            let tool = map.matches("^T\\d+$") ? Int(map.dropFirst()) : nil
+            let tool = afcTool(ln)
             let color = ln["color"] as? String ?? ""
             let hex = color.matches("^#?[0-9A-Fa-f]{6,8}$")
                 ? "#" + String(color.replacingOccurrences(of: "#", with: "").prefix(6)).uppercased() : nil
