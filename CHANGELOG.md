@@ -4,7 +4,7 @@ Jeder Abschnitt `## X.Y.Z` wird beim Tag `vX.Y.Z` automatisch als „Was testen�
 (`.github/workflows/testflight.yml`). Text auf Deutsch, höchstens 4000 Zeichen. Fehlt der Abschnitt, stehen dort
 die Commit-Titel seit dem letzten Tag.
 
-## 0.9.14
+## 0.9.15
 
 - Slots wieder da mit COSMOS 26.10.0: dessen neueres AFC meldet das Werkzeug einer Spur als Liste (`map: ["T3"]`) statt als `"T3"`. Dadurch hatte keine Spur mehr ein Werkzeug, beim Vorbereiten fehlten die Slots und der Druck ließ sich nicht starten. Beide Formen werden jetzt gelesen (direkte WLAN-Verbindung in der Cloud; mit eigenem Server braucht es Server 0.49.1)
 - Bitte testen: COSMOS mit CANVAS, Druck vorbereiten – die Slots 1–4 müssen mit Material und Farbe erscheinen, der Druck muss sich starten lassen
