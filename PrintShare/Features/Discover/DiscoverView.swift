@@ -30,6 +30,12 @@ struct DiscoverView: View {
             }
         }
         .toolbar(.hidden, for: .navigationBar)
+        // text typed into the home screen's link field that is no link
+        .onChange(of: app.pendingSearch, initial: true) { _, q in
+            guard let q else { return }
+            app.pendingSearch = nil
+            submit(q)
+        }
     }
 
     private func content(_ t: L10n) -> some View {

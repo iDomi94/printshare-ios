@@ -50,7 +50,7 @@ struct HomeView: View {
                             Image(systemName: "link").foregroundStyle(Theme.sub).accessibilityHidden(true)
                             TextField(t(.linkPlaceholder), text: $link)
                                 .textInputAutocapitalization(.never).autocorrectionDisabled()
-                                .keyboardType(.URL).submitLabel(.go)
+                                .keyboardType(.webSearch).submitLabel(.go)
                                 .onSubmit { go(link) }
                                 .onChange(of: link) { _, _ in error = "" }
                                 .accessibilityLabel(t(.linkPlaceholder))
@@ -216,10 +216,12 @@ struct HomeView: View {
 
     private func go(_ text: String) {
         let found = Format.extractLink(text)
-        if found.isEmpty { error = app.l10n(.needLink); return }
+        let words = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        if found.isEmpty, words.isEmpty { error = app.l10n(.needLink); return }
         error = ""
         link = ""
-        app.openLink(found)
+        // no link in the text: treat it as a search term
+        if found.isEmpty { app.search(words) } else { app.openLink(found) }
     }
 
     private func paste() {

@@ -8,7 +8,8 @@ die Commit-Titel seit dem letzten Tag.
 
 - Einstellungen → Erweitert → „Aus einem CAD-Programm öffnen“ (Server ab 0.48.0): zeigt Adresse und Schlüssel, mit denen ein CAD-Programm wie SolidCraft ein Teil direkt an PocketPrint3D schickt (eigener Server: Zugangs-Token, Cloud: eigener Schlüssel, nur einmal sichtbar)
 - Startseite: auf eigenen Servern (ab 0.49.0) erscheint „Neu im Eingangsordner“ mit Dateien, die ein CAD-Programm dort abgelegt hat; antippen öffnet die Druckvorbereitung, das Kreuz entfernt den Eintrag
-- Bitte testen: mit einem Server ab 0.49.0 und eingehängtem Eingangsordner eine STL dort ablegen – nach wenigen Sekunden muss die Karte erscheinen und die Druckvorbereitung den Dateinamen zeigen
+- Startseite: Steht im Link-Feld kein Link, sondern ein Suchbegriff (z. B. „Benchy“), führen Enter oder „Weiter“ jetzt direkt zur Modellsuche mit diesem Begriff, statt die Meldung „Bitte einen Link einfügen“ zu zeigen. Links verhalten sich wie bisher. Die Tastatur des Feldes hat dafür jetzt eine Leertaste
+- Bitte testen: mit einem Server ab 0.49.0 und eingehängtem Eingangsordner eine STL dort ablegen – nach wenigen Sekunden muss die Karte erscheinen und die Druckvorbereitung den Dateinamen zeigen; außerdem auf der Startseite „Benchy“ eintippen und Enter drücken (Suche-Tab mit Ergebnissen), dann einen Printables-Link einfügen und „Weiter“ (Vorbereiten wie bisher)
 
 ## 0.9.15
 

@@ -14,6 +14,8 @@ final class AppModel {
     var path: [Screen] = []
     var tab: AppTab = .print
     var connectRequest: ConnectRequest?
+    /// Search text handed from the home screen's link field to the Discover tab, which takes it once.
+    var pendingSearch: String?
     /// Printer slot (tool) per model colour chosen on the prepare screen, per job id: the job screen's default.
     /// Kept in memory only; after a restart the job screen picks the default slots again.
     @ObservationIgnored var plannedSlots: [String: [Int: Int]] = [:]
@@ -340,6 +342,12 @@ final class AppModel {
         var link = Format.extractLink(item.url)
         if link.isEmpty { link = Format.extractLink(item.text) }
         if !link.isEmpty { openLink(link) }
+    }
+
+    /// Text without a link typed into the home screen's link field: search for it on the Discover tab.
+    func search(_ query: String) {
+        navigate(to: .discover)
+        pendingSearch = query
     }
 
     /// A model link from the user: MakerWorld only allows downloads with the user's own account (server 0.17.1), so
