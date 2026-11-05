@@ -353,3 +353,18 @@ if it contradicts `printshare/api.py` the server wins; otherwise the simplest id
   Not ported on purpose: the spool picker here has no "scan NFC" entry (the Expo component has none either).
   Like upstream, the section appears briefly on printers with a filament menu until `filamentInfo` answered. Not run on a device.
 - **Nothing to port:** `firmware/nfc-reader/` (ESP32 firmware), `docs/NFC-READER.md`, API.md wording.
+
+
+## Server 0.45.1 - 0.49.0 (upstream 5be6c82) - upstream sync 2026-11-02
+- **Open from a CAD program (0.48.0):** `ImportKey` + `APIClient.importKey/createImportKey/deleteImportKey`, `ImportKeyView`
+  (Settings > Erweitert, own servers and cloud; own server shows its access token, cloud a `pp3dk_` key shown once).
+  Upstream's `/api/import` itself is called by the CAD program, not by the app.
+- **Inbox folder (0.49.0):** `Inbox`/`InboxItem`, `APIClient.inbox/dismissInbox/clearInbox`; Home card "Neu im Eingangsordner"
+  (own servers only, polled every 5 s through `.task`, older servers answer 404 -> list stays empty). A tap opens Prepare with
+  `PrepareArgs(link: "upload:<id>", fileName:)`, so the model row shows the file name (upstream's prepare.tsx change).
+- **Nothing to port:** 0.45.1 (time-lapse video of external prints: server fix, the message is in 0.9.11), 0.46.0 (OrcaSlicer
+  straight to the server, `wake` on `/send`, `auto_on` of the power config: used by OrcaSlicer / the web page; the app never
+  sends `wake`), 0.47.0 (web app on home servers: `webStart`, token login, `/classic` are browser-only), `/api/server`,
+  `/api/auth/token`. Texts `classicWeb*`, `webToken*`, `notConnectedSubWebHome` are generated but unused here.
+- Not run on a device; no Xcode build was possible in the sync environment (Linux).
+

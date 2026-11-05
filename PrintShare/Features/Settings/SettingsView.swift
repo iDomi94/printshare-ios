@@ -222,6 +222,8 @@ struct SettingsView: View {
             }
             PSDivider()
             PSRow(icon: "cloud", label: t(.orcaAccountTitle), sub: t(.orcaAccountSub)) { app.push(.orcaAccount) }
+            PSDivider()
+            PSRow(icon: "cube", label: t(.importTitle), sub: t(.importSub)) { app.push(.importKey) }
             if !cloud {
                 PSDivider()
                 PSRow(icon: "books.vertical", label: t(.manyfoldTitle), sub: t(.manyfoldSub)) { app.push(.manyfold) }
