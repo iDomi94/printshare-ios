@@ -703,6 +703,28 @@ actor APIClient {
         let _: Ack = try await request("/api/printers/\(enc(printer))/orca-upload", method: "DELETE")
     }
 
+    // MARK: open from a CAD program (server 0.48.0) and the inbox folder (server 0.49.0)
+
+    func importKey() async throws -> ImportKey { try await request("/api/import-key") }
+
+    /// A new key (shown once); an older one stops working. On an own server the answer is its access token.
+    func createImportKey() async throws -> ImportKey { try await request("/api/import-key", method: "POST") }
+
+    func deleteImportKey() async throws {
+        let _: Ack = try await request("/api/import-key", method: "DELETE")
+    }
+
+    /// Own servers only; older servers answer 404 (the caller treats that as "off").
+    func inbox() async throws -> Inbox { try await request("/api/inbox") }
+
+    func dismissInbox(id: String) async throws {
+        let _: Ack = try await request("/api/inbox/\(enc(id))", method: "DELETE")
+    }
+
+    func clearInbox() async throws {
+        let _: Ack = try await request("/api/inbox", method: "DELETE")
+    }
+
     // MARK: spool bookings in the account (cloud spools, server 0.29.0)
 
     func bookings() async throws -> ServerBookings { try await request("/api/bookings") }

@@ -238,6 +238,79 @@ struct FoundPrinter: Codable, Sendable, Equatable, Hashable {
     }
 }
 
+/// `/api/import-key` (server 0.48.0): key for "Open in PocketPrint3D" from a CAD program (SolidCraft). Own server: its access
+/// token (`serverToken`), cloud: a `pp3dk_` key per account, shown once in the answer to POST.
+struct ImportKey: Codable, Sendable, Equatable {
+    var enabled: Bool
+    var url: String
+    var serverToken: Bool
+    var tokenRequired: Bool?
+    var created: Double?
+    var lastUsed: Double?
+    /// only in the answer to POST: shown once (own server: its token, "" when the server has none)
+    var key: String?
+
+    enum CodingKeys: String, CodingKey {
+        case enabled, url, created, key
+        case serverToken = "server_token"
+        case tokenRequired = "token_required"
+        case lastUsed = "last_used"
+    }
+
+    init(enabled: Bool, url: String, serverToken: Bool = false, tokenRequired: Bool? = nil, created: Double? = nil,
+         lastUsed: Double? = nil, key: String? = nil) {
+        self.enabled = enabled
+        self.url = url
+        self.serverToken = serverToken
+        self.tokenRequired = tokenRequired
+        self.created = created
+        self.lastUsed = lastUsed
+        self.key = key
+    }
+
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        enabled = c.lenient(Bool.self, .enabled) ?? false
+        url = c.lenient(String.self, .url) ?? ""
+        serverToken = c.lenient(Bool.self, .serverToken) ?? false
+        tokenRequired = c.lenient(Bool.self, .tokenRequired)
+        created = c.lenient(Double.self, .created)
+        lastUsed = c.lenient(Double.self, .lastUsed)
+        key = c.lenient(String.self, .key)
+    }
+}
+
+/// `GET /api/inbox` (server 0.49.0, own servers): model files a CAD program exported into the server's inbox folder.
+struct Inbox: Decodable, Sendable, Equatable {
+    var enabled: Bool
+    var items: [InboxItem]
+
+    enum CodingKeys: String, CodingKey { case enabled, items }
+
+    init(enabled: Bool, items: [InboxItem]) {
+        self.enabled = enabled
+        self.items = items
+    }
+
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        enabled = c.lenient(Bool.self, .enabled) ?? false
+        items = (try? c.decode([InboxItem].self, forKey: .items)) ?? []
+    }
+}
+
+struct InboxItem: Decodable, Sendable, Equatable, Identifiable {
+    var id: String
+    var name: String
+    /// relative to the inbox folder
+    var path: String
+    var size: Double
+    var modified: Double
+    var found: Double
+    /// `upload:<id>`, works like any upload link (prepare, `/api/files`, `/api/jobs`)
+    var link: String
+}
+
 /// `/api/printers/<id>/orca-upload` (server 0.31.0): send from OrcaSlicer with an OctoPrint-compatible key per printer.
 struct OrcaUpload: Codable, Sendable, Equatable {
     var enabled: Bool

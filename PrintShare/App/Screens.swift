@@ -51,6 +51,8 @@ enum Screen: Hashable {
     case failureDetection
     /// Own presets from an Orca Cloud account (server 0.42.0).
     case orcaAccount
+    /// "Open in PocketPrint3D" from a CAD program: key / access for SolidCraft & co. (server 0.48.0).
+    case importKey
     /// printables.com in a web view with the user's own Printables login (test build).
     case printablesWeb
 }
