@@ -344,14 +344,14 @@ final class AppModel {
         if !link.isEmpty { openLink(link) }
     }
 
-    /// A model link from the user: MakerWorld only allows downloads with the user's own account (server 0.17.1), so
-    /// its model page opens with a button to MakerWorld; everything else goes to the prepare screen.
     /// Text without a link typed into the home screen's link field: search for it on the Discover tab.
     func search(_ query: String) {
         navigate(to: .discover)
         pendingSearch = query
     }
 
+    /// A model link from the user: MakerWorld only allows downloads with the user's own account (server 0.17.1), so
+    /// its model page opens with a button to MakerWorld; everything else goes to the prepare screen.
     func openLink(_ link: String) {
         if let mw = Format.makerWorldId(link) {
             push(.model(source: "makerworld", id: mw))
