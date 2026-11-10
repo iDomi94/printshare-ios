@@ -747,11 +747,11 @@ struct JobView: View {
         let levelValue: Bool? = printerInfo?.leveling != nil ? level : nil
         let lanes = printerLanes.isEmpty ? nil : laneTools
         let powerOn = start && wakeNeeded
-        // the slots as shown: the server stops the start if one is empty now or holds something else (0.50.0)
+        // the slots as shown: the server stops the start if one is empty now or holds another material (0.50.0)
         var expect: [Int: SlotExpect] = [:]
         for tool in Set((lanes ?? [:]).values) {
             if let l = printerLanes.first(where: { $0.tool == tool }) {
-                expect[tool] = SlotExpect(material: l.loaded ? l.material : nil, color: l.loaded ? l.color : nil)
+                expect[tool] = SlotExpect(material: l.loaded ? l.material : nil)
             }
         }
         waking = powerOn
@@ -809,8 +809,7 @@ struct JobView: View {
         switch p.problem {
         case "missing": return t(.slotProblemMissing, ["slot": slot])
         case "empty": return t(.slotProblemEmpty, ["slot": slot])
-        case "material": return t(.slotProblemMaterial, ["slot": slot, "found": p.found ?? "–", "expected": p.expected ?? "–"])
-        default: return t(.slotProblemColor, ["slot": slot])
+        default: return t(.slotProblemMaterial, ["slot": slot, "found": p.found ?? "–", "expected": p.expected ?? "–"])
         }
     }
 

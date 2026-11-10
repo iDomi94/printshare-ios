@@ -53,7 +53,7 @@ final class ServerFiftyTests: XCTestCase {
         }
         let api = client()
         try await api.send(job: "j1", start: true, lanes: [1: 3], wake: true,
-                           expect: [3: SlotExpect(material: "PLA", color: "#FFFFFF")])
+                           expect: [3: SlotExpect(material: "PLA")])
         try await api.send(job: "j1", start: false, lanes: [1: 3], wake: true, expect: [3: SlotExpect(material: "PLA")])
         let older = try await api.knownLanes(printer: "cos")
         XCTAssertNil(older, "older servers: no remembered slots, no error")
@@ -63,7 +63,6 @@ final class ServerFiftyTests: XCTestCase {
         XCTAssertEqual(start["wake"] as? Bool, true)
         let expect = try XCTUnwrap(start["expect"] as? [String: [String: Any]])
         XCTAssertEqual(expect["3"]?["material"] as? String, "PLA")
-        XCTAssertEqual(expect["3"]?["color"] as? String, "#FFFFFF")
         // an upload never switches on and checks nothing
         let upload = try XCTUnwrap(body(r[1]))
         XCTAssertNil(upload["wake"])

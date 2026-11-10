@@ -80,7 +80,7 @@ private struct SendBody: Encodable {
     var timelapse: Bool?
     /// Server 0.46.0/0.50.0: switch a switched-off printer on first (only with the plug's auto_on).
     var wake: Bool?
-    /// Server 0.50.0: the chosen slots as shown, {"<tool>": {material, color}} - checked right before the start.
+    /// Server 0.50.0: the chosen slots as shown, {"<tool>": {material}} - checked right before the start.
     var expect: [String: SlotExpect]?
 
     enum CodingKeys: String, CodingKey {
@@ -89,9 +89,9 @@ private struct SendBody: Encodable {
     }
 }
 
+/// Only the material is checked (the colour may differ).
 struct SlotExpect: Encodable, Sendable, Equatable {
     var material: String?
-    var color: String?
 }
 private struct RelayedBody: Encodable { var start: Bool; var file: String }
 private struct ObserveBody: Encodable { var statuses: [String: PrinterStatus?] }

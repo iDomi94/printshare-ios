@@ -80,7 +80,6 @@ EXTRA = {
     "slotProblemEmpty": ("{slot} ist jetzt leer", "{slot} is empty now"),
     "slotProblemMissing": ("{slot} gibt es am Drucker nicht mehr", "{slot} no longer exists on the printer"),
     "slotProblemMaterial": ("in {slot} ist jetzt {found} statt {expected}", "{slot} now holds {found} instead of {expected}"),
-    "slotProblemColor": ("in {slot} ist jetzt eine andere Farbe", "{slot} now holds another colour"),
     "previewEmpty": ("Keine Vorschau verfügbar.", "No preview available."),
     "viewModel": ("Modell", "Model"),
     "viewBed": ("Platte", "Bed"),

@@ -711,7 +711,6 @@ enum L10nKey: String, CaseIterable, Sendable {
     case slotMaterialWarn = "slotMaterialWarn"
     case slotN = "slotN"
     case slotNotStarted = "slotNotStarted"
-    case slotProblemColor = "slotProblemColor"
     case slotProblemEmpty = "slotProblemEmpty"
     case slotProblemMaterial = "slotProblemMaterial"
     case slotProblemMissing = "slotProblemMissing"

@@ -8,7 +8,7 @@ die Commit-Titel seit dem letzten Tag.
 
 - Drucken, wenn der Drucker aus ist (Server ab 0.50.0, Home-Assistant-Steckdose mit „bei Bedarf einschalten“ auf der Webseite): auf dem Prüf-Bildschirm heißt der Knopf dann „Einschalten und drucken“. Nach der gewohnten Bestätigung schaltet der Server die Steckdose ein, wartet, bis der Drucker und sein Filamentsystem bereit sind, und startet erst dann (wie bei OrcaSlicer); der Bildschirm zeigt, was gerade passiert
 - Slots wählen, auch wenn der Drucker aus ist: Vorbereiten und Prüf-Bildschirm zeigen die zuletzt gesehenen Slots (mit Hinweis, wann sie zuletzt gesehen wurden)
-- Vor dem Start prüft der Server die gewählten Slots noch einmal: Ist ein Slot jetzt leer oder liegt dort ein anderes Material oder eine andere Farbe als bei der Auswahl, wird nicht gedruckt und die App sagt, welcher Slot nicht passt
+- Vor dem Start prüft der Server die gewählten Slots noch einmal: Ist ein Slot jetzt leer oder liegt dort ein anderes Material als bei der Auswahl, wird nicht gedruckt und die App sagt, welcher Slot nicht passt. Eine andere Farbe vom gleichen Material ist in Ordnung
 - Bitte testen: Drucker (COSMOS + CANVAS) über die Steckdose ausschalten, ein Modell vorbereiten (Slots müssen erscheinen), „Einschalten und drucken“ – der Drucker muss angehen und nach 1–3 Minuten drucken. Danach einmal eine Spule tauschen (anderes Material), Drucker aus, gleiche Auswahl: der Druck darf nicht starten und die Meldung muss den Slot nennen
 
 ## 0.9.16

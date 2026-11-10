@@ -11361,22 +11361,6 @@
         }
       }
     },
-    "slotProblemColor": {
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "in {slot} ist jetzt eine andere Farbe"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "{slot} now holds another colour"
-          }
-        }
-      }
-    },
     "slotProblemEmpty": {
       "localizations": {
         "de": {
