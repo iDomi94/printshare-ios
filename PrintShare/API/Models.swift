@@ -135,8 +135,13 @@ struct Printer: Codable, Sendable, Identifiable, Hashable {
     /// Cloud (server 0.26.0): reached through this bridge at home - the server forwards status, control and send;
     /// nil = reached by the phone on the Wi-Fi.
     var bridge: String?
+    /// Server 0.50.0: the plug may switch the printer on for a print ("switch on when needed" on the web page).
+    var autoOn: Bool = false
 
-    enum CodingKeys: String, CodingKey { case id, name, type, machine, leveling, power, cosmos, bridge }
+    enum CodingKeys: String, CodingKey {
+        case id, name, type, machine, leveling, power, cosmos, bridge
+        case autoOn = "auto_on"
+    }
 
     init(id: String, name: String, type: String = "", machine: String = "", leveling: Bool? = nil, power: Bool = false,
          cosmos: Bool = false, bridge: String? = nil) {
@@ -158,6 +163,7 @@ struct Printer: Codable, Sendable, Identifiable, Hashable {
         power = c.lenient(Bool.self, .power) ?? false
         cosmos = c.lenient(Bool.self, .cosmos) ?? false
         bridge = c.lenient(String.self, .bridge).flatMap { $0.isEmpty ? nil : $0 }
+        autoOn = c.lenient(Bool.self, .autoOn) ?? false
     }
 }
 

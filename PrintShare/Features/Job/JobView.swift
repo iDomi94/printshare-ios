@@ -98,9 +98,10 @@ struct JobView: View {
         return (known?.lanes ?? []).filter { $0.tool != nil }
     }
     private var usingKnownLanes: Bool { printerKind == .offline && !printerLanes.isEmpty }
-    /// The server reaches this printer (own server or bridge) and can switch it on through its smart plug.
+    /// The server reaches this printer (own server or bridge) and may switch it on through its smart plug
+    /// ("switch on when needed" on the web page, server 0.50.0).
     private var canWake: Bool {
-        printerInfo?.power == true && (!app.isCloud || printerInfo?.bridge != nil)
+        printerInfo?.power == true && printerInfo?.autoOn == true && (!app.isCloud || printerInfo?.bridge != nil)
     }
     private var wakeNeeded: Bool { printerKind == .offline && canWake }
     private var colours: [LanePlan.Colour] { LanePlan.colours(job?.result) }
@@ -762,7 +763,7 @@ struct JobView: View {
         }
         do {
             try await api.send(job: job.id, start: start, leveling: levelValue, lanes: lanes, spoolId: start ? activeSpool : nil,
-                               timelapse: hasCamera && timelapse, powerOn: powerOn, expect: expect)
+                               timelapse: hasCamera && timelapse, wake: powerOn, expect: expect)
             var latest: Job?
             // switching on: up to 10 min boot + filament system (server's wake timeout)
             for _ in 0..<(powerOn ? 900 : 600) {

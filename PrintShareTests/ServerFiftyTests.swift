@@ -1,12 +1,20 @@
 import XCTest
 @testable import PrintShare
 
-/// Server 0.50.0: print on a switched-off printer (`/send` `power_on`), slots last seen (`/lanes`), slot check before
+/// Server 0.50.0: print on a switched-off printer (`/send` `wake` with auto_on), slots last seen (`/lanes`), slot check before
 /// the start (`expect`, `slot_problems`). Shapes from the server's `docs/API.md`.
 final class ServerFiftyTests: XCTestCase {
     private func client() -> APIClient {
         APIClient(server: Server(url: "http://home.test:8484", token: "tok"), l10n: L10n(lang: .en),
                   session: StubProtocol.session(), cache: RouteCache())
+    }
+
+    func testPrinterDecodesAutoOn() throws {
+        let p = try JSONDecoder().decode([Printer].self, from: Data(#"""
+        [{"id": "cos", "name": "COSMOS", "type": "moonraker", "power": true, "auto_on": true},
+         {"id": "cc", "name": "CC", "type": "elegoo_sdcp", "power": true}]
+        """#.utf8))
+        XCTAssertEqual(p.map(\.autoOn), [true, false])
     }
 
     func testKnownLanesDecode() throws {
@@ -44,21 +52,21 @@ final class ServerFiftyTests: XCTestCase {
             return StubResponse(body: Data(#"{"job": "j1"}"#.utf8))
         }
         let api = client()
-        try await api.send(job: "j1", start: true, lanes: [1: 3], powerOn: true,
+        try await api.send(job: "j1", start: true, lanes: [1: 3], wake: true,
                            expect: [3: SlotExpect(material: "PLA", color: "#FFFFFF")])
-        try await api.send(job: "j1", start: false, lanes: [1: 3], powerOn: true, expect: [3: SlotExpect(material: "PLA")])
+        try await api.send(job: "j1", start: false, lanes: [1: 3], wake: true, expect: [3: SlotExpect(material: "PLA")])
         let older = try await api.knownLanes(printer: "cos")
         XCTAssertNil(older, "older servers: no remembered slots, no error")
 
         let r = lock.withLock { seen }
         let start = try XCTUnwrap(body(r[0]))
-        XCTAssertEqual(start["power_on"] as? Bool, true)
+        XCTAssertEqual(start["wake"] as? Bool, true)
         let expect = try XCTUnwrap(start["expect"] as? [String: [String: Any]])
         XCTAssertEqual(expect["3"]?["material"] as? String, "PLA")
         XCTAssertEqual(expect["3"]?["color"] as? String, "#FFFFFF")
         // an upload never switches on and checks nothing
         let upload = try XCTUnwrap(body(r[1]))
-        XCTAssertNil(upload["power_on"])
+        XCTAssertNil(upload["wake"])
         XCTAssertNil(upload["expect"])
         XCTAssertEqual(r[2].url?.path, "/api/printers/cos/lanes")
     }
