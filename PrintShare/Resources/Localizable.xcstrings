@@ -5553,6 +5553,22 @@
         }
       }
     },
+    "knownSlotsHint": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Drucker ist aus: zuletzt gesehene Slots ({ago}). Vor dem Start wird geprüft, ob sie noch passen."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Printer is off: slots as last seen ({ago}). Before the start they are checked again."
+          }
+        }
+      }
+    },
     "lanAddress": {
       "localizations": {
         "de": {
@@ -11329,6 +11345,86 @@
         }
       }
     },
+    "slotNotStarted": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nicht gestartet: {reason}"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Not started: {reason}"
+          }
+        }
+      }
+    },
+    "slotProblemColor": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "in {slot} ist jetzt eine andere Farbe"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "{slot} now holds another colour"
+          }
+        }
+      }
+    },
+    "slotProblemEmpty": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "{slot} ist jetzt leer"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "{slot} is empty now"
+          }
+        }
+      }
+    },
+    "slotProblemMaterial": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "in {slot} ist jetzt {found} statt {expected}"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "{slot} now holds {found} instead of {expected}"
+          }
+        }
+      }
+    },
+    "slotProblemMissing": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "{slot} gibt es am Drucker nicht mehr"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "{slot} no longer exists on the printer"
+          }
+        }
+      }
+    },
     "slotSpool": {
       "localizations": {
         "de": {
@@ -13709,6 +13805,102 @@
           "stringUnit": {
             "state": "translated",
             "value": "Model"
+          }
+        }
+      }
+    },
+    "wakeConfirmMsg": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Der Drucker wird über die Steckdose eingeschaltet. Gedruckt wird, sobald er bereit ist und die gewählten Slots noch passen (dauert meist 1–3 Minuten)."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The printer is switched on through its smart plug. The print starts once it is ready and the chosen slots still fit (usually 1–3 minutes)."
+          }
+        }
+      }
+    },
+    "wakeOfflineHint": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "{printer} ist aus. Mit „Einschalten und drucken“ schaltet PocketPrint3D ihn ein und startet, sobald er bereit ist."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "{printer} is off. With \"Switch on and print\" PocketPrint3D switches it on and starts once it is ready."
+          }
+        }
+      }
+    },
+    "wakePrint": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Einschalten und drucken"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Switch on and print"
+          }
+        }
+      }
+    },
+    "wakeSettling": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Drucker ist an – warte kurz auf das Filamentsystem …"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The printer is on – waiting a moment for its filament system …"
+          }
+        }
+      }
+    },
+    "wakeSwitchingOn": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Drucker wird eingeschaltet …"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Switching the printer on …"
+          }
+        }
+      }
+    },
+    "wakeWaiting": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Warte, bis der Drucker bereit ist …"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Waiting for the printer to be ready …"
           }
         }
       }
