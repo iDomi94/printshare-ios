@@ -78,11 +78,20 @@ private struct SendBody: Encodable {
     var spoolId: Int?
     /// Server 0.32.0: record a time-lapse. Left out = the server's "always" setting (0.40.0).
     var timelapse: Bool?
+    /// Server 0.46.0/0.50.0: switch a switched-off printer on first (only with the plug's auto_on).
+    var wake: Bool?
+    /// Server 0.50.0: the chosen slots as shown, {"<tool>": {material}} - checked right before the start.
+    var expect: [String: SlotExpect]?
 
     enum CodingKeys: String, CodingKey {
-        case start, confirm, leveling, lanes, timelapse
+        case start, confirm, leveling, lanes, timelapse, expect, wake
         case spoolId = "spool_id"
     }
+}
+
+/// Only the material is checked (the colour may differ).
+struct SlotExpect: Encodable, Sendable, Equatable {
+    var material: String?
 }
 private struct RelayedBody: Encodable { var start: Bool; var file: String }
 private struct ObserveBody: Encodable { var statuses: [String: PrinterStatus?] }
@@ -589,16 +598,31 @@ actor APIClient {
     func job(id: String) async throws -> Job { try await request("/api/jobs/\(enc(id))") }
 
     /// `lanes` only when the printer reports lanes; sent with uploads too, so the file on the printer matches.
+    /// `wake` / `expect` (server 0.50.0): switch the printer on first (auto_on); the slots as the user chose them (by tool).
     func send(job id: String, start: Bool, leveling: Bool? = nil, lanes: [Int: Int]? = nil, spoolId: Int? = nil,
-              timelapse: Bool? = nil) async throws {
+              timelapse: Bool? = nil, wake: Bool = false, expect: [Int: SlotExpect]? = nil) async throws {
         var mapping: [String: Int]?
         if let lanes, !lanes.isEmpty {
             mapping = Dictionary(uniqueKeysWithValues: lanes.map { (String($0.key), $0.value) })
         }
+        var expected: [String: SlotExpect]?
+        if start, let expect, !expect.isEmpty {
+            expected = Dictionary(uniqueKeysWithValues: expect.map { (String($0.key), $0.value) })
+        }
         let _: Ack = try await request("/api/jobs/\(enc(id))/send", method: "POST",
                                        body: SendBody(start: start, confirm: start, leveling: start ? leveling : nil,
                                                       lanes: mapping, spoolId: start ? spoolId : nil,
-                                                      timelapse: start ? timelapse : nil))
+                                                      timelapse: start ? timelapse : nil,
+                                                      wake: start && wake ? true : nil, expect: expected))
+    }
+
+    /// Server 0.50.0: slots live, or the last ones seen while the printer is off. Older servers: 404 → nil.
+    func knownLanes(printer: String) async throws -> KnownLanes? {
+        do {
+            return try await request("/api/printers/\(enc(printer))/lanes", timeout: 15)
+        } catch let e as APIError where e.status == 404 {
+            return nil
+        }
     }
 
     /// Own server (0.40.0): record every print with a camera, also prints started on the printer itself.

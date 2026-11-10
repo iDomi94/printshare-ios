@@ -34,6 +34,8 @@ struct PrepareView: View {
     @State private var printersLoaded = false
     @State private var kinds: [String: PrinterKind] = [:]
     @State private var statuses: [String: PrinterStatus] = [:]
+    /// Server 0.50.0: slots the server saw last, for printers that are off now (own server / bridge).
+    @State private var knownLanes: [String: [Lane]] = [:]
     /// Printer slot (tool number) per model colour, chosen by the user; others follow `LanePlan.tools`.
     @State private var slotChoice: [Int: Int] = [:]
     @State private var printer = ""
@@ -97,7 +99,12 @@ struct PrepareView: View {
 
     // Printer slots (AFC lanes, issue #6): with a multi-slot printer the user picks the slot per colour; its
     // material and colour come from the printer and the slicing material follows the slot.
-    private var lanes: [Lane] { LanePlan.usable(statuses[printer]) }
+    // Printer off (server 0.50.0): the slots it had last time, so the slot can be chosen anyway.
+    private var lanes: [Lane] {
+        let live = LanePlan.usable(statuses[printer])
+        guard live.isEmpty, kinds[printer] == .offline else { return live }
+        return (knownLanes[printer] ?? []).filter { $0.tool != nil }
+    }
     private var slotMode: Bool { !lanes.isEmpty }
 
     private var modelColours: [LanePlan.Colour] {
@@ -497,6 +504,7 @@ struct PrepareView: View {
                     let st = try? await app.printerStatus(p)  // cloud: the app asks the printer on the Wi-Fi
                     kinds[p.id] = st?.kind ?? .offline
                     if let st { statuses[p.id] = st }
+                    if st == nil || st?.kind == .offline { await loadKnownLanes(p) }
                 }
             }
         } catch {
@@ -509,9 +517,20 @@ struct PrepareView: View {
         slotChoice = [:]
         guard !printer.isEmpty, let p = printers.first(where: { $0.id == printer }) else { return }
         let chosen = printer
-        guard let st = try? await app.printerStatus(p) else { return }
+        guard let st = try? await app.printerStatus(p) else {
+            kinds[chosen] = .offline
+            await loadKnownLanes(p)
+            return
+        }
         statuses[chosen] = st
         kinds[chosen] = st.kind
+    }
+
+    /// Server 0.50.0: the slots of a switched-off printer as last seen (own server, or a printer behind a bridge).
+    private func loadKnownLanes(_ p: Printer) async {
+        guard knownLanes[p.id] == nil, !app.isCloud || p.bridge != nil, let api = app.api,
+              let k = try? await api.knownLanes(printer: p.id), !k.lanes.isEmpty else { return }
+        knownLanes[p.id] = k.lanes
     }
 
     /// 4. presets for the chosen printer, preselected with the last choices (spec 4)

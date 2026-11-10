@@ -65,6 +65,21 @@ assert set(de) == set(en), (set(de) ^ set(en))
 # Texts only the native app has (share sheet, camera permission …). Keys that i18n.ts has by now are taken from there.
 EXTRA = {
     "preview": ("Vorschau", "Preview"),
+    # server 0.50.0: print on a switched-off printer, last known slots, slot check before the start
+    "wakePrint": ("Einschalten und drucken", "Switch on and print"),
+    "wakeConfirmMsg": ("Der Drucker wird über die Steckdose eingeschaltet. Gedruckt wird, sobald er bereit ist und die gewählten Slots noch passen (dauert meist 1–3 Minuten).",
+                       "The printer is switched on through its smart plug. The print starts once it is ready and the chosen slots still fit (usually 1–3 minutes)."),
+    "wakeOfflineHint": ("{printer} ist aus. Mit „Einschalten und drucken“ schaltet PocketPrint3D ihn ein und startet, sobald er bereit ist.",
+                        "{printer} is off. With \"Switch on and print\" PocketPrint3D switches it on and starts once it is ready."),
+    "wakeSwitchingOn": ("Drucker wird eingeschaltet …", "Switching the printer on …"),
+    "wakeWaiting": ("Warte, bis der Drucker bereit ist …", "Waiting for the printer to be ready …"),
+    "wakeSettling": ("Drucker ist an – warte kurz auf das Filamentsystem …", "The printer is on – waiting a moment for its filament system …"),
+    "knownSlotsHint": ("Drucker ist aus: zuletzt gesehene Slots ({ago}). Vor dem Start wird geprüft, ob sie noch passen.",
+                       "Printer is off: slots as last seen ({ago}). Before the start they are checked again."),
+    "slotNotStarted": ("Nicht gestartet: {reason}", "Not started: {reason}"),
+    "slotProblemEmpty": ("{slot} ist jetzt leer", "{slot} is empty now"),
+    "slotProblemMissing": ("{slot} gibt es am Drucker nicht mehr", "{slot} no longer exists on the printer"),
+    "slotProblemMaterial": ("in {slot} ist jetzt {found} statt {expected}", "{slot} now holds {found} instead of {expected}"),
     "previewEmpty": ("Keine Vorschau verfügbar.", "No preview available."),
     "viewModel": ("Modell", "Model"),
     "viewBed": ("Platte", "Bed"),

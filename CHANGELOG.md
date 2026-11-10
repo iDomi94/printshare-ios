@@ -4,6 +4,13 @@ Jeder Abschnitt `## X.Y.Z` wird beim Tag `vX.Y.Z` automatisch als „Was testen�
 (`.github/workflows/testflight.yml`). Text auf Deutsch, höchstens 4000 Zeichen. Fehlt der Abschnitt, stehen dort
 die Commit-Titel seit dem letzten Tag.
 
+## 0.9.17
+
+- Drucken, wenn der Drucker aus ist (Server ab 0.50.0, Home-Assistant-Steckdose mit „bei Bedarf einschalten“ auf der Webseite): auf dem Prüf-Bildschirm heißt der Knopf dann „Einschalten und drucken“. Nach der gewohnten Bestätigung schaltet der Server die Steckdose ein, wartet, bis der Drucker und sein Filamentsystem bereit sind, und startet erst dann (wie bei OrcaSlicer); der Bildschirm zeigt, was gerade passiert
+- Slots wählen, auch wenn der Drucker aus ist: Vorbereiten und Prüf-Bildschirm zeigen die zuletzt gesehenen Slots (mit Hinweis, wann sie zuletzt gesehen wurden)
+- Vor dem Start prüft der Server die gewählten Slots noch einmal: Ist ein Slot jetzt leer oder liegt dort ein anderes Material als bei der Auswahl, wird nicht gedruckt und die App sagt, welcher Slot nicht passt. Eine andere Farbe vom gleichen Material ist in Ordnung
+- Bitte testen: Drucker (COSMOS + CANVAS) über die Steckdose ausschalten, ein Modell vorbereiten (Slots müssen erscheinen), „Einschalten und drucken“ – der Drucker muss angehen und nach 1–3 Minuten drucken. Danach einmal eine Spule tauschen (anderes Material), Drucker aus, gleiche Auswahl: der Druck darf nicht starten und die Meldung muss den Slot nennen
+
 ## 0.9.16
 
 - Einstellungen → Erweitert → „Aus einem CAD-Programm öffnen“ (Server ab 0.48.0): zeigt Adresse und Schlüssel, mit denen ein CAD-Programm wie SolidCraft ein Teil direkt an PocketPrint3D schickt (eigener Server: Zugangs-Token, Cloud: eigener Schlüssel, nur einmal sichtbar)

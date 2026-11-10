@@ -51,6 +51,10 @@ struct JobView: View {
     @State private var nfcBusy = false
     @State private var nfcMsg: (ok: Bool, text: String)?
     @State private var linkSheet: LinkSheet?
+    /// Server 0.50.0: the slots last seen while the printer is off (nil = not asked / older server).
+    @State private var known: KnownLanes?
+    /// "Switch on and print" is running: the server switches the printer on and waits for it.
+    @State private var waking = false
 
     /// `slots`: tool per model colour chosen on the prepare screen (the default until changed here).
     init(id: String, slots: [Int: Int] = [:]) {
@@ -87,7 +91,19 @@ struct JobView: View {
     }
 
     // Lane selection (issue #6): which lane of the printer prints each filament of the model.
-    private var printerLanes: [Lane] { LanePlan.usable(printerStatus) }
+    // Printer off (server 0.50.0): the slots the server saw last; checked again right before the start.
+    private var printerLanes: [Lane] {
+        let live = LanePlan.usable(printerStatus)
+        guard live.isEmpty, printerKind == .offline else { return live }
+        return (known?.lanes ?? []).filter { $0.tool != nil }
+    }
+    private var usingKnownLanes: Bool { printerKind == .offline && !printerLanes.isEmpty }
+    /// The server reaches this printer (own server or bridge) and may switch it on through its smart plug
+    /// ("switch on when needed" on the web page, server 0.50.0).
+    private var canWake: Bool {
+        printerInfo?.power == true && printerInfo?.autoOn == true && (!app.isCloud || printerInfo?.bridge != nil)
+    }
+    private var wakeNeeded: Bool { printerKind == .offline && canWake }
     private var colours: [LanePlan.Colour] { LanePlan.colours(job?.result) }
     private var laneTools: [Int: Int] { LanePlan.tools(colours: colours, lanes: printerLanes, choice: laneChoice) }
 
@@ -108,7 +124,9 @@ struct JobView: View {
         // the safety check (NF-05) sits on the button: plate empty, material loaded, then start
         .alert(t(.confirmStartPlateQ, ["printer": printerName, "material": startMaterial(t)]), isPresented: $confirmStart) {
             Button(t(.cancelBtn), role: .cancel) {}
-            Button(t(.start)) { Task { await send(start: true) } }
+            Button(t(wakeNeeded ? .wakePrint : .start)) { Task { await send(start: true) } }
+        } message: {
+            if wakeNeeded { Text(t(.wakeConfirmMsg)) }
         }
         .sheet(item: $gcodeShare) { ActivitySheet(items: [$0.url]).ignoresSafeArea() }
         .sheet(item: $laneSheet) { sheet in laneSheetView(t, sheet.colour) }
@@ -291,7 +309,8 @@ struct JobView: View {
         let busy = printerKind?.isBusy ?? false
         let offline = printerKind == .offline
         let laneWarnings = done ? [] : LanePlan.warnings(t, colours: colours, lanes: printerLanes, tools: laneTools)
-        let canPrint = !busy && !offline && sending == nil && !laneWarnings.contains(where: \.blocking)
+        let canPrint = !busy && (!offline || canWake) && sending == nil && job.state != .sending
+            && !laneWarnings.contains(where: \.blocking)
         let material = Format.shortName(profiles["filament"])
         let cancelled = job.state == .cancelled
         var shareAction: (() -> Void)?
@@ -316,6 +335,7 @@ struct JobView: View {
             Text(name).font(.subheadline).foregroundStyle(Theme.sub).lineLimit(2).padding(.bottom, 16)
 
             if !actionError.isEmpty { PSBanner(kind: .error, text: actionError) }
+            if waking || (job.state == .sending && wakeNeeded) { PSBanner(kind: .info, text: wakeStep(t, job.log)) }
             if let relay {
                 PSBanner(kind: .info, text: relay.step == .upload ? t(.relayUpload, ["pct": String(Int((relay.part * 100).rounded()))])
                                                                   : t(relay.step == .download ? .relayDownload : .relayStart))
@@ -363,6 +383,9 @@ struct JobView: View {
             }
 
             if !done && !printerLanes.isEmpty {
+                if usingKnownLanes {
+                    PSBanner(kind: .info, text: t(.knownSlotsHint, ["ago": known?.seenAt.map { Format.ago(t, $0) } ?? "–"]))
+                }
                 PSSection(title: t(.slots), footer: t(.jobSlotsHint)) {
                     ForEach(Array(colours.enumerated()), id: \.element.index) { i, col in
                         if i > 0 { PSDivider() }
@@ -377,7 +400,10 @@ struct JobView: View {
 
             if !done {
                 if busy { PSBanner(kind: .warn, text: t(.printerBusy, ["printer": printerName])) }
-                if offline { PSBanner(kind: .error, text: t(.printerOffline, ["printer": printerName])) }
+                if offline {
+                    if canWake { PSBanner(kind: .info, text: t(.wakeOfflineHint, ["printer": printerName])) }
+                    else { PSBanner(kind: .error, text: t(.printerOffline, ["printer": printerName])) }
+                }
                 if printerInfo?.leveling != nil {
                     PSCard(padding: 16) {
                         Toggle(isOn: $level) {
@@ -427,8 +453,8 @@ struct JobView: View {
                 }
                 PSButton(title: t(.newModel), kind: .secondary) { app.navigate(to: .print) }
             } else {
-                PSButton(title: t(.print), icon: "play.fill", loading: sending == .print || job.state == .sending,
-                         disabled: !canPrint) { confirmStart = true }
+                PSButton(title: t(offline && canWake ? .wakePrint : .print), icon: offline && canWake ? "power" : "play.fill",
+                         loading: sending == .print || job.state == .sending, disabled: !canPrint) { confirmStart = true }
                 if !uploaded {
                     PSButton(title: t(.uploadOnly), kind: .secondary, icon: "icloud.and.arrow.up",
                              loading: sending == .upload, disabled: sending != nil || job.state == .sending) {
@@ -700,6 +726,11 @@ struct JobView: View {
         }
         printerStatus = st
         printerKind = st?.kind ?? .offline
+        // off: the slots the server saw last (server 0.50.0), for own servers and printers behind a bridge
+        if st == nil || st?.kind == .offline, known == nil, !app.isCloud || printerInfo?.bridge != nil,
+           let api = app.api, let k = try? await api.knownLanes(printer: p) {
+            known = k
+        }
         if !levelLoaded, let info = printers.first(where: { $0.id == p }), let def = info.leveling {
             level = app.loadLevel(p) ?? def
             levelLoaded = true
@@ -715,6 +746,16 @@ struct JobView: View {
         defer { sending = nil }
         let levelValue: Bool? = printerInfo?.leveling != nil ? level : nil
         let lanes = printerLanes.isEmpty ? nil : laneTools
+        let powerOn = start && wakeNeeded
+        // the slots as shown: the server stops the start if one is empty now or holds another material (0.50.0)
+        var expect: [Int: SlotExpect] = [:]
+        for tool in Set((lanes ?? [:]).values) {
+            if let l = printerLanes.first(where: { $0.tool == tool }) {
+                expect[tool] = SlotExpect(material: l.loaded ? l.material : nil)
+            }
+        }
+        waking = powerOn
+        defer { waking = false }
         // printers behind a bridge are sent to by the cloud like on an own server
         if app.isCloud, let info = printerInfo, info.bridge == nil {
             await relaySend(job, info, start: start, leveling: levelValue, lanes: lanes)
@@ -722,16 +763,22 @@ struct JobView: View {
         }
         do {
             try await api.send(job: job.id, start: start, leveling: levelValue, lanes: lanes, spoolId: start ? activeSpool : nil,
-                               timelapse: hasCamera && timelapse)
+                               timelapse: hasCamera && timelapse, wake: powerOn, expect: expect)
             var latest: Job?
-            for _ in 0..<600 {
+            // switching on: up to 10 min boot + filament system (server's wake timeout)
+            for _ in 0..<(powerOn ? 900 : 600) {
                 try await Task.sleep(for: .seconds(1))
                 latest = try await api.job(id: job.id)
+                if let latest, powerOn { self.job = latest }        // the banner follows the server's log
                 if latest?.state != .sending { break }
             }
             if let latest { self.job = latest }
             again = false
-            if let e = latest?.error, !e.isEmpty {
+            if let problems = latest?.slotProblems, let first = problems.first {
+                actionError = app.l10n(.slotNotStarted, ["reason": slotProblemText(app.l10n, first)])
+                known = nil
+                await refreshPrinter()
+            } else if let e = latest?.error, !e.isEmpty {
                 actionError = friendlyError(app.l10n, status: 0, detail: e)
             } else {
                 if start, let latest, latest.state == .started {
@@ -744,6 +791,25 @@ struct JobView: View {
         } catch {
             actionError = error.localizedDescription
             await refreshPrinter()
+        }
+    }
+
+    /// What the server is doing while it switches the printer on (its log lines are English).
+    private func wakeStep(_ t: L10n, _ log: [String]) -> String {
+        let last = log.last ?? ""
+        if last.contains("waiting a moment") { return t(.wakeSettling) }
+        if last.contains("switching it on") { return t(.wakeWaiting) }
+        return t(.wakeSwitchingOn)
+    }
+
+    /// Server 0.50.0: one slot that didn't fit any more, in the user's words ("Slot 2 is empty now").
+    private func slotProblemText(_ t: L10n, _ p: SlotProblem) -> String {
+        let lane = printerLanes.first { $0.tool == p.tool }
+        let slot = lane.map { LanePlan.slotName(t, lane: $0, lanes: printerLanes) } ?? "T\(p.tool)"
+        switch p.problem {
+        case "missing": return t(.slotProblemMissing, ["slot": slot])
+        case "empty": return t(.slotProblemEmpty, ["slot": slot])
+        default: return t(.slotProblemMaterial, ["slot": slot, "found": p.found ?? "–", "expected": p.expected ?? "–"])
         }
     }
 

@@ -135,8 +135,13 @@ struct Printer: Codable, Sendable, Identifiable, Hashable {
     /// Cloud (server 0.26.0): reached through this bridge at home - the server forwards status, control and send;
     /// nil = reached by the phone on the Wi-Fi.
     var bridge: String?
+    /// Server 0.50.0: the plug may switch the printer on for a print ("switch on when needed" on the web page).
+    var autoOn: Bool = false
 
-    enum CodingKeys: String, CodingKey { case id, name, type, machine, leveling, power, cosmos, bridge }
+    enum CodingKeys: String, CodingKey {
+        case id, name, type, machine, leveling, power, cosmos, bridge
+        case autoOn = "auto_on"
+    }
 
     init(id: String, name: String, type: String = "", machine: String = "", leveling: Bool? = nil, power: Bool = false,
          cosmos: Bool = false, bridge: String? = nil) {
@@ -158,6 +163,7 @@ struct Printer: Codable, Sendable, Identifiable, Hashable {
         power = c.lenient(Bool.self, .power) ?? false
         cosmos = c.lenient(Bool.self, .cosmos) ?? false
         bridge = c.lenient(String.self, .bridge).flatMap { $0.isEmpty ? nil : $0 }
+        autoOn = c.lenient(Bool.self, .autoOn) ?? false
     }
 }
 
@@ -1246,10 +1252,13 @@ struct Job: Codable, Sendable, Equatable, Identifiable {
     var timelapse: Timelapse?
     /// % of a started print, as last seen by the server (0.33.0).
     var progress: Double?
+    /// Server 0.50.0: the chosen slots didn't fit any more right before the start (after switching the printer on).
+    var slotProblems: [SlotProblem]?
 
     enum CodingKeys: String, CodingKey {
         case id, kind, state, log, result, error, created, printer, request, timelapse, progress
         case printerFile = "printer_file"
+        case slotProblems = "slot_problems"
     }
 
     /// Started on the printer itself, not through PocketPrint3D (server 0.40.0): no G-code, nothing to send again.
@@ -1270,6 +1279,7 @@ struct Job: Codable, Sendable, Equatable, Identifiable {
         printerFile = c.lenient(String.self, .printerFile).flatMap { $0.isEmpty ? nil : $0 }
         timelapse = c.lenient(Timelapse.self, .timelapse)
         progress = c.lenient(Double.self, .progress)
+        slotProblems = c.lenient([SlotProblem].self, .slotProblems).flatMap { $0.isEmpty ? nil : $0 }
     }
 
     init(id: String, kind: String = "prepare", state: JobState, log: [String] = [], result: JobResult? = nil,
@@ -1278,6 +1288,36 @@ struct Job: Codable, Sendable, Equatable, Identifiable {
         self.id = id; self.kind = kind; self.state = state; self.log = log; self.result = result
         self.error = error; self.created = created; self.printer = printer; self.request = request
         self.printerFile = printerFile; self.timelapse = timelapse
+    }
+}
+
+/// Server 0.50.0: why a start was refused right before it (`/send` `expect`): problem = missing | empty | material | color.
+struct SlotProblem: Codable, Sendable, Equatable {
+    var tool: Int
+    var lane: String?
+    var problem: String
+    var expected: String?
+    var found: String?
+}
+
+/// Server 0.50.0 `GET /api/printers/{id}/lanes`: live slots, or the last ones seen while the printer is off.
+struct KnownLanes: Codable, Sendable, Equatable {
+    var lanes: [Lane]
+    var live: Bool
+    var seenAt: Double?
+
+    enum CodingKeys: String, CodingKey {
+        case lanes, live
+        case seenAt = "seen_at"
+    }
+
+    init(lanes: [Lane], live: Bool, seenAt: Double?) { self.lanes = lanes; self.live = live; self.seenAt = seenAt }
+
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        lanes = c.lenient([Lane].self, .lanes) ?? []
+        live = c.lenient(Bool.self, .live) ?? false
+        seenAt = c.lenient(Double.self, .seenAt)
     }
 }
 
