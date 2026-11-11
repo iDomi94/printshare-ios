@@ -5638,13 +5638,13 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Drucker ist aus: zuletzt gesehene Slots ({ago}). Vor dem Start wird geprüft, ob sie noch passen."
+            "value": "Drucker ist aus: zuletzt gesehene Slots ({ago}). Vor dem Start wird geprüft, ob das Material noch passt."
           }
         },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Printer is off: slots as last seen ({ago}). Before the start they are checked again."
+            "value": "Printer is off: slots as last seen ({ago}). Before the start the material is checked again."
           }
         }
       }
