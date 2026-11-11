@@ -30,6 +30,9 @@ struct JobView: View {
     @State private var elapsed = 0
     @State private var startedAt = Date()
     @State private var confirmStart = false
+    /// Server 0.51.0: "print anyway" for a job waiting with another material in a slot - asks first (NF-05).
+    @State private var confirmDecision = false
+    @State private var deciding = false
     @State private var confirmDelete = false
     @State private var level = true
     @State private var levelLoaded = false
@@ -127,6 +130,12 @@ struct JobView: View {
             Button(t(wakeNeeded ? .wakePrint : .start)) { Task { await send(start: true) } }
         } message: {
             if wakeNeeded { Text(t(.wakeConfirmMsg)) }
+        }
+        .alert(t(.decisionStartQ), isPresented: $confirmDecision) {
+            Button(t(.cancelBtn), role: .cancel) {}
+            Button(t(.decisionStart)) { Task { await decide(start: true) } }
+        } message: {
+            Text(t(.decisionStartMsg))
         }
         .sheet(item: $gcodeShare) { ActivitySheet(items: [$0.url]).ignoresSafeArea() }
         .sheet(item: $laneSheet) { sheet in laneSheetView(t, sheet.colour) }
@@ -310,6 +319,7 @@ struct JobView: View {
         let offline = printerKind == .offline
         let laneWarnings = done ? [] : LanePlan.warnings(t, colours: colours, lanes: printerLanes, tools: laneTools)
         let canPrint = !busy && (!offline || canWake) && sending == nil && job.state != .sending
+            && job.state != .needsDecision
             && !laneWarnings.contains(where: \.blocking)
         let material = Format.shortName(profiles["filament"])
         let cancelled = job.state == .cancelled
@@ -336,6 +346,7 @@ struct JobView: View {
 
             if !actionError.isEmpty { PSBanner(kind: .error, text: actionError) }
             if waking || (job.state == .sending && wakeNeeded) { PSBanner(kind: .info, text: wakeStep(t, job.log)) }
+            if job.state == .needsDecision { decisionCard(t, job) }
             if let relay {
                 PSBanner(kind: .info, text: relay.step == .upload ? t(.relayUpload, ["pct": String(Int((relay.part * 100).rounded()))])
                                                                   : t(relay.step == .download ? .relayDownload : .relayStart))
@@ -457,11 +468,49 @@ struct JobView: View {
                          loading: sending == .print || job.state == .sending, disabled: !canPrint) { confirmStart = true }
                 if !uploaded {
                     PSButton(title: t(.uploadOnly), kind: .secondary, icon: "icloud.and.arrow.up",
-                             loading: sending == .upload, disabled: sending != nil || job.state == .sending) {
+                             loading: sending == .upload,
+                             disabled: sending != nil || job.state == .sending || job.state == .needsDecision) {
                         Task { await send(start: false) }
                     }
                 }
             }
+        }
+    }
+
+    /// Server 0.51.0: switched on, but a slot holds another material - print anyway (after a confirmation) or not.
+    @ViewBuilder
+    private func decisionCard(_ t: L10n, _ job: Job) -> some View {
+        let problem = job.decision?.problems.first ?? job.slotProblems?.first
+        let until = job.decision.map { Date(timeIntervalSince1970: $0.until) } ?? Date().addingTimeInterval(600)
+        PSCard(padding: 16) {
+            VStack(alignment: .leading, spacing: 10) {
+                Label(t(.decisionTitle), systemImage: "exclamationmark.triangle.fill")
+                    .font(.headline).foregroundStyle(Theme.warn)
+                Text(t(.decisionSub, ["reason": problem.map { slotProblemText(t, $0) } ?? "–",
+                                       "time": until.formatted(date: .omitted, time: .shortened)]))
+                    .font(.subheadline).foregroundStyle(Theme.text)
+                    .fixedSize(horizontal: false, vertical: true)
+                HStack(spacing: 10) {
+                    PSButton(title: t(.decisionAbort), kind: .secondary, loading: deciding) {
+                        Task { await decide(start: false) }
+                    }
+                    PSButton(title: t(.decisionStart), loading: deciding) { confirmDecision = true }
+                }
+            }
+        }
+        .padding(.bottom, 12)
+    }
+
+    private func decide(start: Bool) async {
+        guard let api = app.api, let job else { return }
+        deciding = true
+        defer { deciding = false }
+        actionError = ""
+        do {
+            try await api.decide(job: job.id, start: start)
+            self.job = try await api.job(id: job.id)
+        } catch {
+            actionError = error.localizedDescription
         }
     }
 
@@ -764,13 +813,15 @@ struct JobView: View {
         do {
             try await api.send(job: job.id, start: start, leveling: levelValue, lanes: lanes, spoolId: start ? activeSpool : nil,
                                timelapse: hasCamera && timelapse, wake: powerOn, expect: expect)
+            // lock screen / Dynamic Island (server 0.51.0); the server keeps it up to date and ends it
+            if start, let p = printerId { PushNotifications.shared.startActivity(job: job.id, printer: p, name: printerName) }
             var latest: Job?
-            // switching on: up to 10 min boot + filament system (server's wake timeout)
-            for _ in 0..<(powerOn ? 900 : 600) {
+            // switching on: up to 10 min boot + filament system (server's wake timeout) + 10 min for a decision (0.51.0)
+            for _ in 0..<(powerOn ? 1800 : 600) {
                 try await Task.sleep(for: .seconds(1))
                 latest = try await api.job(id: job.id)
                 if let latest, powerOn { self.job = latest }        // the banner follows the server's log
-                if latest?.state != .sending { break }
+                if latest?.state != .sending && latest?.state != .needsDecision { break }
             }
             if let latest { self.job = latest }
             again = false

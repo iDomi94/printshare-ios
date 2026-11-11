@@ -4,6 +4,13 @@ Jeder Abschnitt `## X.Y.Z` wird beim Tag `vX.Y.Z` automatisch als „Was testen�
 (`.github/workflows/testflight.yml`). Text auf Deutsch, höchstens 4000 Zeichen. Fehlt der Abschnitt, stehen dort
 die Commit-Titel seit dem letzten Tag.
 
+## 0.9.18
+
+- Mitteilungen (Server ab 0.51.0): Einstellungen → „Mitteilungen“ einschalten. Das Handy meldet sich, wenn ein Druck fertig oder abgebrochen ist, der Drucker pausiert oder einen Fehler meldet, die KI-Fehlererkennung anschlägt oder ein Druck nicht starten konnte – auch bei geschlossener App. Welche Meldungen kommen, lässt sich dort einstellen; „Testmitteilung senden“ prüft den Weg. Die Texte sind verschlüsselt, nur dein Handy kann sie lesen
+- Live-Aktivität: Ein gestarteter Druck erscheint mit Fortschritt, Restzeit und Schicht auf dem Sperrbildschirm und in der Dynamic Island und wird vom Server aktualisiert; Drucke, die am Drucker oder in OrcaSlicer gestartet wurden, können ebenfalls eine bekommen
+- „Einschalten und drucken“: Liegt nach dem Einschalten in einem Slot ein anderes Material, bricht der Server nicht mehr sofort ab, sondern wartet 10 Minuten. Die Mitteilung „Falsches Material im Slot“ hat die Knöpfe „Prüfen“ und „Nicht drucken“; in der App kannst du nach einer Rückfrage „Trotzdem drucken“. Ohne Antwort wird nicht gedruckt und die Steckdose wieder ausgeschaltet
+- Bitte testen: Mitteilungen einschalten und „Testmitteilung senden“ (muss sofort ankommen, auch bei gesperrtem Handy). Dann einen kurzen Druck starten: Live-Aktivität auf dem Sperrbildschirm prüfen und am Ende die Mitteilung „Druck fertig“. Danach wie bei 0.9.17 ein anderes Material in einen Slot legen, Drucker aus, „Einschalten und drucken“ – die Mitteilung muss kommen und „Nicht drucken“ muss den Druck stoppen
+
 ## 0.9.17
 
 - Drucken, wenn der Drucker aus ist (Server ab 0.50.0, Home-Assistant-Steckdose mit „bei Bedarf einschalten“ auf der Webseite): auf dem Prüf-Bildschirm heißt der Knopf dann „Einschalten und drucken“. Nach der gewohnten Bestätigung schaltet der Server die Steckdose ein, wartet, bis der Drucker und sein Filamentsystem bereit sind, und startet erst dann (wie bei OrcaSlicer); der Bildschirm zeigt, was gerade passiert

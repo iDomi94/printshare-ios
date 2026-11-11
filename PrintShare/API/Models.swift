@@ -1113,6 +1113,8 @@ struct ModelFile: Codable, Sendable, Hashable, Identifiable {
 
 enum JobState: String, Codable, Sendable {
     case slicing, sliced, sending, uploading, uploaded, started, finished, cancelled, error, running, done, unknown
+    /// Server 0.51.0: switched on, but a slot holds another material (or is empty) - waits for "print anyway / don't".
+    case needsDecision = "needs_decision"
 
     init(from decoder: Decoder) throws {
         let raw = (try? decoder.singleValueContainer().decode(String.self)) ?? ""
@@ -1120,7 +1122,7 @@ enum JobState: String, Codable, Sendable {
     }
 
     /// The server is working on the job.
-    var isWorking: Bool { self == .slicing || self == .running || self == .sending }
+    var isWorking: Bool { self == .slicing || self == .running || self == .sending || self == .needsDecision }
     /// The print is over (server 0.33.0 follows started jobs): it can be sent again.
     var isOver: Bool { self == .finished || self == .cancelled }
 }
@@ -1254,9 +1256,11 @@ struct Job: Codable, Sendable, Equatable, Identifiable {
     var progress: Double?
     /// Server 0.50.0: the chosen slots didn't fit any more right before the start (after switching the printer on).
     var slotProblems: [SlotProblem]?
+    /// Server 0.51.0: while `needsDecision` - until when the job waits.
+    var decision: JobDecision?
 
     enum CodingKeys: String, CodingKey {
-        case id, kind, state, log, result, error, created, printer, request, timelapse, progress
+        case id, kind, state, log, result, error, created, printer, request, timelapse, progress, decision
         case printerFile = "printer_file"
         case slotProblems = "slot_problems"
     }
@@ -1280,6 +1284,7 @@ struct Job: Codable, Sendable, Equatable, Identifiable {
         timelapse = c.lenient(Timelapse.self, .timelapse)
         progress = c.lenient(Double.self, .progress)
         slotProblems = c.lenient([SlotProblem].self, .slotProblems).flatMap { $0.isEmpty ? nil : $0 }
+        decision = c.lenient(JobDecision.self, .decision)
     }
 
     init(id: String, kind: String = "prepare", state: JobState, log: [String] = [], result: JobResult? = nil,
@@ -1289,6 +1294,85 @@ struct Job: Codable, Sendable, Equatable, Identifiable {
         self.error = error; self.created = created; self.printer = printer; self.request = request
         self.printerFile = printerFile; self.timelapse = timelapse
     }
+}
+
+/// Server 0.51.0: a job waiting for the user (`state: needs_decision`).
+struct JobDecision: Codable, Sendable, Equatable {
+    var until: Double
+    var problems: [SlotProblem]
+}
+
+/// Server 0.51.0 push notifications (`GET /api/push`).
+struct PushInfo: Codable, Sendable, Equatable {
+    /// Where the phone registers its tokens; nil = this server is the relay (the cloud).
+    var relay: String?
+    var relayHere: Bool
+    var available: Bool
+    var devices: [PushDevice]
+
+    enum CodingKeys: String, CodingKey {
+        case relay, available, devices
+        case relayHere = "relay_here"
+    }
+
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        relay = c.lenient(String.self, .relay)
+        relayHere = c.lenient(Bool.self, .relayHere) ?? false
+        available = c.lenient(Bool.self, .available) ?? true
+        devices = c.lenient([PushDevice].self, .devices) ?? []
+    }
+}
+
+/// Which notifications a phone wants (server defaults: everything but `info`).
+struct PushPrefs: Codable, Sendable, Equatable {
+    var done = true
+    var problems = true
+    var decisions = true
+    var info = false
+    var activities = true
+    var muted: [String] = []
+
+    init() {}
+
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        done = c.lenient(Bool.self, .done) ?? true
+        problems = c.lenient(Bool.self, .problems) ?? true
+        decisions = c.lenient(Bool.self, .decisions) ?? true
+        info = c.lenient(Bool.self, .info) ?? false
+        activities = c.lenient(Bool.self, .activities) ?? true
+        muted = c.lenient([String].self, .muted) ?? []
+    }
+}
+
+struct PushDevice: Codable, Sendable, Equatable, Identifiable {
+    var id: String
+    var name: String
+    var prefs: PushPrefs
+    var liveActivities: Bool
+    var lastError: String?
+
+    enum CodingKeys: String, CodingKey {
+        case id, name, prefs
+        case liveActivities = "live_activities"
+        case lastError = "last_error"
+    }
+
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        id = try c.decode(String.self, forKey: .id)
+        name = c.lenient(String.self, .name) ?? ""
+        prefs = c.lenient(PushPrefs.self, .prefs) ?? PushPrefs()
+        liveActivities = c.lenient(Bool.self, .liveActivities) ?? false
+        lastError = c.lenient(String.self, .lastError)
+    }
+}
+
+/// The push relay's answer to a token registration.
+struct PushHandle: Codable, Sendable, Equatable {
+    var handle: String
+    var secret: String
 }
 
 /// Server 0.50.0: why a start was refused right before it (`/send` `expect`): problem = missing | empty | material | color.
