@@ -31,6 +31,8 @@ enum Screen: Hashable {
     case filament(id: String, name: String)
     /// Own OrcaSlicer printer profile (issue #2).
     case printerProfile(id: String, name: String)
+    /// Smart plug through Home Assistant for one printer (own servers, server 0.12.0 / 0.46.0 `auto_on`).
+    case power(id: String, name: String)
     /// Cloud: a printer of the account and its Wi-Fi address (`CloudPrinterView.new` adds one; `bridge` = add it
     /// behind that bridge, server 0.26.0).
     case cloudPrinter(id: String, bridge: String? = nil)

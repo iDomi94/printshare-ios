@@ -21,6 +21,7 @@ struct PrinterProfileView: View {
     @State private var editMode: EditMode = .inactive
     @State private var selection = Set<String>()
     @State private var askDeleteSelected = false
+    @State private var plug: PowerConfig?
 
     private var profiles: [UserProfile] { allProfiles.filter { $0.kind == "machine" } }
     private var ownPresets: [UserProfile] { allProfiles.filter { $0.kind == "process" || $0.kind == "filament" } }
@@ -59,6 +60,17 @@ struct PrinterProfileView: View {
                     ProgressView().frame(maxWidth: .infinity).padding(16).rowStyle()
                 }
             } header: { header(t(.printerProfile)) } footer: { footer(t(.profileHelp)) }
+
+            // smart plug (own servers; server 0.52.0 moved it here from the classic web page)
+            if !app.isCloud && !editing {
+                Section {
+                    PSRow(icon: "bolt", label: t(.plugTitle),
+                          sub: plug?.configured == true ? t(.plugSubOn, ["entity": plug?.entity ?? ""]) : t(.plugSub)) {
+                        app.push(.power(id: printer, name: name))
+                    }
+                    .rowStyle()
+                } header: { header(t(.plugTitle)) }
+            }
 
             if !ownPresets.isEmpty {
                 Section {
@@ -128,6 +140,8 @@ struct PrinterProfileView: View {
         }
         .toolbar(editing ? .hidden : .automatic, for: .tabBar)
         .task { await load() }
+        // also when coming back from the smart plug screen
+        .onAppear { Task { await loadPlug() } }
         .fileImporter(isPresented: $importing, allowedContentTypes: [.json, .zip, .data]) { result in
             if case .success(let url) = result { Task { await upload(url) } }
         }
@@ -190,6 +204,11 @@ struct PrinterProfileView: View {
 
     private func describeOwn(_ t: L10n, _ p: UserProfile) -> String {
         [t.profileKind(p.kind), p.inherits.map { t(.basedOn, ["name": $0]) }].compactMap { $0 }.joined(separator: " · ")
+    }
+
+    private func loadPlug() async {
+        guard !app.isCloud, let api = app.api else { return }
+        plug = try? await api.powerConfig(printer: printer)
     }
 
     private func load() async {

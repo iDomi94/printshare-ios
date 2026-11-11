@@ -623,6 +623,56 @@ struct FailureConfig: Codable, Sendable, Equatable {
     }
 }
 
+/// `GET|PUT|DELETE /api/printers/<id>/power/config` (server 0.12.0, `auto_on` 0.46.0): the smart plug through Home
+/// Assistant. Never contains the token.
+struct PowerConfig: Codable, Sendable, Equatable {
+    var configured: Bool
+    /// running as Home Assistant add-on: address and token may stay empty
+    var addon: Bool
+    var url: String
+    var entity: String
+    var tokenSet: Bool
+    var autoOn: Bool
+
+    enum CodingKeys: String, CodingKey {
+        case configured, addon, url, entity
+        case tokenSet = "token_set"
+        case autoOn = "auto_on"
+    }
+
+    init(configured: Bool = false, addon: Bool = false, url: String = "", entity: String = "", tokenSet: Bool = false,
+         autoOn: Bool = false) {
+        self.configured = configured; self.addon = addon; self.url = url; self.entity = entity
+        self.tokenSet = tokenSet; self.autoOn = autoOn
+    }
+
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        configured = c.lenient(Bool.self, .configured) ?? false
+        addon = c.lenient(Bool.self, .addon) ?? false
+        url = c.lenient(String.self, .url) ?? ""
+        entity = c.lenient(String.self, .entity) ?? ""
+        tokenSet = c.lenient(Bool.self, .tokenSet) ?? false
+        autoOn = c.lenient(Bool.self, .autoOn) ?? false
+    }
+}
+
+/// `POST /api/printers/<id>/power/entities`: switchable entities of Home Assistant (switch, light, input_boolean).
+struct PowerEntity: Codable, Sendable, Equatable, Identifiable {
+    var entity: String
+    var name: String
+    var state: String?
+    var id: String { entity }
+}
+
+/// `POST /api/printers/<id>/power/test`: `ok` with the plug's name and state, else the error.
+struct PowerTest: Codable, Sendable, Equatable {
+    var ok: Bool
+    var state: String?
+    var name: String?
+    var error: String?
+}
+
 /// `GET/PUT /api/manyfold/config` (server 0.21.0): never contains the key.
 struct ManyfoldConfig: Codable, Sendable, Equatable {
     var configured: Bool

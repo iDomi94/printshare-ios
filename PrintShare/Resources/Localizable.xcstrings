@@ -1457,38 +1457,6 @@
         }
       }
     },
-    "classicWeb": {
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Klassische Webseite"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Classic web page"
-          }
-        }
-      }
-    },
-    "classicWebSub": {
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Weitere Einstellungen: Steckdose, Kopplungs-Code für die App, Druckerprofile"
-          }
-        },
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "More settings: smart plug, pairing code for the app, printer profiles"
-          }
-        }
-      }
-    },
     "clipboardEmpty": {
       "localizations": {
         "de": {
@@ -8913,6 +8881,54 @@
         }
       }
     },
+    "pairAppHint": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "In der PocketPrint3D-App: Eigener Server → QR-Code scannen. Der Code enthält das Zugangs-Token – nicht öffentlich zeigen."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "In the PocketPrint3D app: Own server → Scan QR code. The code contains the access token – don't show it publicly."
+          }
+        }
+      }
+    },
+    "pairAppSub": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "QR-Code für die PocketPrint3D-App"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "QR code for the PocketPrint3D app"
+          }
+        }
+      }
+    },
+    "pairAppTitle": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Weiteres Handy verbinden"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connect another phone"
+          }
+        }
+      }
+    },
     "pairCmdHint": {
       "localizations": {
         "de": {
@@ -8925,6 +8941,134 @@
           "stringUnit": {
             "state": "translated",
             "value": "“PrintShare” is the container name from the Unraid template – with Docker Compose it is “printshare”."
+          }
+        }
+      }
+    },
+    "pairHide": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "QR-Code verbergen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hide QR code"
+          }
+        }
+      }
+    },
+    "pairIngress": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Über Home Assistant geöffnet: diese Adresse erreicht die App nicht. Bitte die IP-Adresse des Home-Assistant-Servers mit Port 8484 eintragen."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Opened through Home Assistant: the app can't reach this address. Please enter the Home Assistant server's IP address with port 8484."
+          }
+        }
+      }
+    },
+    "pairLocalhost": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Diese Adresse zeigt auf den Server selbst – das Handy erreicht sie nicht. Bitte die IP-Adresse des Servers eintragen (z. B. http://192.168.1.10:8484)."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This address points to the server itself – the phone can't reach it. Please enter the server's IP address (e.g. http://192.168.1.10:8484)."
+          }
+        }
+      }
+    },
+    "pairManual": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Oder von Hand eingeben – Server: {url}{remote} · Token: {token}"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Or enter by hand – server: {url}{remote} · token: {token}"
+          }
+        }
+      }
+    },
+    "pairManualRemote": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": " · unterwegs: {remote}"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": " · away: {remote}"
+          }
+        }
+      }
+    },
+    "pairRemote": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Adresse unterwegs (optional, z. B. Tailscale)"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Away address (optional, e.g. Tailscale)"
+          }
+        }
+      }
+    },
+    "pairShow": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "QR-Code anzeigen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show QR code"
+          }
+        }
+      }
+    },
+    "pairUrl": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Adresse zu Hause"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Home address"
           }
         }
       }
@@ -9101,6 +9245,310 @@
           "stringUnit": {
             "state": "translated",
             "value": "Textured PEI"
+          }
+        }
+      }
+    },
+    "plugAddon": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PocketPrint3D läuft als Home-Assistant-Add-on: Adresse und Token können leer bleiben, nur die Steckdose wählen."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PocketPrint3D runs as a Home Assistant add-on: address and token can stay empty, just choose the plug."
+          }
+        }
+      }
+    },
+    "plugAutoOn": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bei Bedarf einschalten"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Switch on when needed"
+          }
+        }
+      }
+    },
+    "plugAutoOnHint": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ist der Drucker aus, schaltet PocketPrint3D ihn für einen Druck ein („Einschalten und drucken“ in der App, „Hochladen und drucken“ aus OrcaSlicer), wartet bis er bereit ist (höchstens 10 Minuten) und startet dann. Niemand prüft dabei die Druckplatte – nur einschalten, wenn sie nach jedem Druck geräumt wird."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "If the printer is off, PocketPrint3D switches it on for a print (“Switch on and print” in the app, “Upload and Print” from OrcaSlicer), waits until it is ready (at most 10 minutes) and then starts. Nobody checks the build plate – only turn this on if it is cleared after every print."
+          }
+        }
+      }
+    },
+    "plugChoose": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Steckdose wählen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choose a plug"
+          }
+        }
+      }
+    },
+    "plugEntity": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Steckdose (Entität)"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Plug (entity)"
+          }
+        }
+      }
+    },
+    "plugHint": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eine smarte Steckdose in Home Assistant schaltet den Drucker ein und aus. Das Token erstellst du in Home Assistant unter Profil → Sicherheit → Langlebige Zugangs-Token."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A smart plug in Home Assistant switches the printer on and off. Create the token in Home Assistant under Profile → Security → Long-lived access tokens."
+          }
+        }
+      }
+    },
+    "plugLoad": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Steckdosen aus Home Assistant laden"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Load plugs from Home Assistant"
+          }
+        }
+      }
+    },
+    "plugLoaded": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "{n} schaltbare Geräte gefunden."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "{n} switchable devices found."
+          }
+        }
+      }
+    },
+    "plugOk": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Verbindung OK: {name} ist {state}."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connection OK: {name} is {state}."
+          }
+        }
+      }
+    },
+    "plugRemove": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Steckdose entfernen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remove smart plug"
+          }
+        }
+      }
+    },
+    "plugRemoveQ": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Steckdose für {printer} entfernen?"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remove the smart plug for {printer}?"
+          }
+        }
+      }
+    },
+    "plugSaved": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gespeichert."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Saved."
+          }
+        }
+      }
+    },
+    "plugSub": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Drucker über Home Assistant ein- und ausschalten"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Switch the printer on and off through Home Assistant"
+          }
+        }
+      }
+    },
+    "plugSubOn": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eingerichtet: {entity}"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Set up: {entity}"
+          }
+        }
+      }
+    },
+    "plugTest": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Verbindung testen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Test connection"
+          }
+        }
+      }
+    },
+    "plugTitle": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Steckdose"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Smart plug"
+          }
+        }
+      }
+    },
+    "plugToken": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Langlebiges Zugangs-Token"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Long-lived access token"
+          }
+        }
+      }
+    },
+    "plugTokenKept": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Token gespeichert (leer lassen = behalten)"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Token stored (leave empty = keep)"
+          }
+        }
+      }
+    },
+    "plugUrl": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Home-Assistant-Adresse"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Home Assistant address"
           }
         }
       }
@@ -11053,6 +11501,182 @@
           "stringUnit": {
             "state": "translated",
             "value": "Server"
+          }
+        }
+      }
+    },
+    "serverBridgeConnected": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Verbunden mit dem Konto {account}."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connected to the account {account}."
+          }
+        }
+      }
+    },
+    "serverBridgeConnecting": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Verbinde mit {cloud} …"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connecting to {cloud} …"
+          }
+        }
+      }
+    },
+    "serverBridgeError": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fehler: {error}"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Error: {error}"
+          }
+        }
+      }
+    },
+    "serverBridgeHint": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Verbindet diesen Server mit deinem kostenlosen PocketPrint3D-Cloud-Konto. Dann erreicht die App seine Drucker von überall – nur über eine ausgehende Verbindung, nichts muss im Router freigegeben werden."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connects this server to your free PocketPrint3D Cloud account. The app then reaches its printers from anywhere – through an outgoing connection only, nothing has to be opened in your router."
+          }
+        }
+      }
+    },
+    "serverBridgeOff": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aus."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Off."
+          }
+        }
+      }
+    },
+    "serverBridgeOn": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mit PocketPrint3D Cloud verbinden"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connect to PocketPrint3D Cloud"
+          }
+        }
+      }
+    },
+    "serverBridgePairing": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gib diesen Code in der App im Cloud-Konto ein (Einstellungen → Erweitert → Unterwegs drucken). Er gilt noch {min} Min., danach erscheint automatisch ein neuer."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enter this code in the app with your cloud account (Settings → Advanced → Print from anywhere). It is valid for {min} more min., then a new one appears by itself."
+          }
+        }
+      }
+    },
+    "serverBridgeReset": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mit anderem Konto koppeln"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pair with another account"
+          }
+        }
+      }
+    },
+    "serverBridgeResetQ": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kopplung mit {account} lösen und einen neuen Code anzeigen?"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unpair from {account} and show a new code?"
+          }
+        }
+      }
+    },
+    "serverBridgeSub": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Diesen Server mit der PocketPrint3D Cloud verbinden"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connect this server to PocketPrint3D Cloud"
+          }
+        }
+      }
+    },
+    "serverBridgeTitle": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unterwegs drucken"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Print from anywhere"
           }
         }
       }

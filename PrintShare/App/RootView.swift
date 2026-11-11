@@ -19,6 +19,7 @@ struct RootView: View {
                             case .control(let id, let name): ControlView(printer: id, name: name)
                             case .filament(let id, let name): FilamentView(printer: id, name: name)
                             case .printerProfile(let id, let name): PrinterProfileView(printer: id, name: name)
+                            case .power(let id, let name): PowerSettingsView(printer: id, name: name)
                             case .cloudPrinter(let id, let bridge): CloudPrinterView(id: id, bridge: bridge)
                             case .bridges: BridgesView()
                             case .orcaUpload(let id, let name): OrcaUploadView(printer: id, name: name)

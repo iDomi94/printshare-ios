@@ -4,6 +4,11 @@ Jeder Abschnitt `## X.Y.Z` wird beim Tag `vX.Y.Z` automatisch als „Was testen�
 (`.github/workflows/testflight.yml`). Text auf Deutsch, höchstens 4000 Zeichen. Fehlt der Abschnitt, stehen dort
 die Commit-Titel seit dem letzten Tag.
 
+## 0.9.19
+
+- Steckdose direkt in der App einrichten (eigener Server): Einstellungen → Drucker → „Steckdose“. Home-Assistant-Adresse, Token und Steckdose eintragen (die Liste der Steckdosen lädt die App aus Home Assistant), Verbindung testen, „Bei Bedarf einschalten“ an- oder ausschalten. Bisher ging das nur auf der klassischen Webseite des Servers, die mit Server 0.52.0 wegfällt. Läuft der Server als Home-Assistant-Add-on, reicht die Wahl der Steckdose
+- Bitte testen: beim COSMOS die Steckdose einrichten („Steckdosen aus Home Assistant laden“, Steckdose wählen, „Verbindung testen“, Speichern) – danach muss die Druckerseite „Eingerichtet: …“ zeigen und die Steuerung den Ein-/Ausschalter
+
 ## 0.9.17
 
 - Drucken, wenn der Drucker aus ist (Server ab 0.50.0, Home-Assistant-Steckdose mit „bei Bedarf einschalten“ auf der Webseite): auf dem Prüf-Bildschirm heißt der Knopf dann „Einschalten und drucken“. Nach der gewohnten Bestätigung schaltet der Server die Steckdose ein, wartet, bis der Drucker und sein Filamentsystem bereit sind, und startet erst dann (wie bei OrcaSlicer); der Bildschirm zeigt, was gerade passiert
