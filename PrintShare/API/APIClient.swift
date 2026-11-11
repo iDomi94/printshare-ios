@@ -94,6 +94,37 @@ struct SlotExpect: Encodable, Sendable, Equatable {
     var material: String?
 }
 private struct RelayedBody: Encodable { var start: Bool; var file: String }
+private struct DecisionBody: Encodable { var action: String; var confirm: Bool }
+private struct PushDeviceBody: Encodable {
+    var handle: String
+    var secret: String
+    var key: String
+    var platform = "ios"
+    var lang: String
+    var name: String
+    var prefs: PushPrefs?
+}
+/// Only the sent fields change; `startHandle` "" removes push-to-start.
+struct PushDeviceUpdate: Encodable, Sendable, Equatable {
+    var prefs: PushPrefs?
+    var lang: String?
+    var startHandle: String?
+    var startSecret: String?
+
+    func encode(to encoder: Encoder) throws {
+        var c = encoder.container(keyedBy: Key.self)
+        try c.encodeIfPresent(prefs, forKey: .prefs)
+        try c.encodeIfPresent(lang, forKey: .lang)
+        try c.encodeIfPresent(startHandle, forKey: .startHandle)
+        try c.encodeIfPresent(startSecret, forKey: .startSecret)
+    }
+    enum Key: String, CodingKey {
+        case prefs, lang
+        case startHandle = "start_handle"
+        case startSecret = "start_secret"
+    }
+}
+private struct ActivityBody: Encodable { var handle: String; var secret: String; var device: String? }
 private struct ObserveBody: Encodable { var statuses: [String: PrinterStatus?] }
 private struct PairBody: Encodable { var code: String; var name: String? }
 private struct NameBody: Encodable { var name: String }
@@ -615,6 +646,42 @@ actor APIClient {
                                                       timelapse: start ? timelapse : nil,
                                                       wake: start && wake ? true : nil, expect: expected))
     }
+
+    /// Server 0.51.0: a job waiting in `needsDecision` - "start" needs the user's confirmation first (NF-05).
+    func decide(job id: String, start: Bool) async throws {
+        let _: Ack = try await request("/api/jobs/\(enc(id))/decision", method: "POST",
+                                       body: DecisionBody(action: start ? "start" : "abort", confirm: start))
+    }
+
+    // MARK: push notifications (server 0.51.0)
+
+    func pushInfo() async throws -> PushInfo { try await request("/api/push") }
+
+    func addPushDevice(_ handle: PushHandle, key: String, lang: String, name: String, prefs: PushPrefs?) async throws -> PushDevice {
+        try await request("/api/push/devices", method: "POST",
+                          body: PushDeviceBody(handle: handle.handle, secret: handle.secret, key: key, lang: lang, name: name,
+                                               prefs: prefs))
+    }
+
+    func updatePushDevice(id: String, _ update: PushDeviceUpdate) async throws -> PushDevice {
+        try await request("/api/push/devices/\(enc(id))", method: "PUT", body: update)
+    }
+
+    func removePushDevice(id: String) async throws {
+        let _: Ack = try await request("/api/push/devices/\(enc(id))", method: "DELETE")
+    }
+
+    func testPush(device id: String) async throws {
+        let _: Ack = try await request("/api/push/devices/\(enc(id))/test", method: "POST", timeout: 20)
+    }
+
+    func registerLiveActivity(job id: String, _ handle: PushHandle, device: String?) async throws {
+        let _: Ack = try await request("/api/jobs/\(enc(id))/live-activity", method: "POST",
+                                       body: ActivityBody(handle: handle.handle, secret: handle.secret, device: device))
+    }
+
+    /// The address this client uses right now (the cloud is its own push relay).
+    func baseURL() async -> String { await base() }
 
     /// Server 0.50.0: slots live, or the last ones seen while the printer is off. Older servers: 404 → nil.
     func knownLanes(printer: String) async throws -> KnownLanes? {

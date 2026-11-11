@@ -10,3 +10,7 @@ ShareExtension/Info.plist
 ShareExtension/ShareExtension.entitlements
 *.xcarchive
 *.ipa
+NotificationService/Info.plist
+NotificationService/NotificationService.entitlements
+PrintWidgets/Info.plist
+PrintWidgets/PrintWidgets.entitlements

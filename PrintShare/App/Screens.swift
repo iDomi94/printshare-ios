@@ -53,6 +53,8 @@ enum Screen: Hashable {
     case orcaAccount
     /// "Open in PocketPrint3D" from a CAD program: key / access for SolidCraft & co. (server 0.48.0).
     case importKey
+    /// Push notifications and Live Activities (server 0.51.0).
+    case notifications
     /// printables.com in a web view with the user's own Printables login (test build).
     case printablesWeb
 }

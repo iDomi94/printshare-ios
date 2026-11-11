@@ -368,3 +368,25 @@ if it contradicts `printshare/api.py` the server wins; otherwise the simplest id
   `/api/auth/token`. Texts `classicWeb*`, `webToken*`, `notConnectedSubWebHome` are generated but unused here.
 - Not run on a device; no Xcode build was possible in the sync environment (Linux).
 
+
+## Server 0.51.0 - push notifications + Live Activities (2026-11-11, own feature, server PR halvar20000/printshare#40)
+- Concept: project file `analysen/konzept-benachrichtigungen-live-activity.md`; server side `docs/PUSH.md`.
+- `PrintShare/Push/PushNotifications.swift`: APNs token → push relay (`POST <relay>/push/register`, relay = `GET /api/push`
+  `relay`, or this server when `relay_here`) → handle; handle + the phone's own 32-byte key (App Group defaults,
+  `Shared/PrintActivity.swift` `PushShared`) → `POST /api/push/devices`. One record per server/account in
+  `UserDefaults.standard` (`ps_push_<account>`); a changed token registers again and removes the old device.
+  `env` = sandbox for DEBUG builds, production otherwise (TestFlight).
+- `NotificationService/` (new app extension): decrypts the server's ChaCha20-Poly1305 blob (`pp3d`) with the key, sets
+  title/body and `userInfo` {event, job, printer}. Without it iOS shows `push.fallback` (generated text key).
+- Categories `SLOT_CHECK` (Prüfen = open the job, Nicht drucken = `POST /api/jobs/{id}/decision` abort) and `AI_ALERT`
+  (Pausieren). "Print anyway" is never a notification action: it needs the app's confirmation dialog (NF-05).
+- `PrintWidgets/` (new widget extension): `ActivityConfiguration` for `PrintActivityAttributes` (type name and the
+  content state keys s/p/end/l/lt are the server's - keep them). Names come from the App Group, the relay carries ids only.
+  Started locally by `JobView.send` for server-reached printers; push-to-start token (iOS 17.2+) on the device;
+  every activity's update token goes to `POST /api/jobs/{id}/live-activity`.
+- Job state `needs_decision` (in `isWorking`): the job screen shows a card with "Nicht drucken" / "Trotzdem drucken"
+  (confirmation alert, then `decision` start with `confirm`).
+- **Manual steps before TestFlight:** App ID `com.dominiqueherbrigpersonalteam.printshare` needs "Push Notifications"
+  and "Time Sensitive Notifications"; the two new extension ids (`.notification-service`, `.widgets`) need the App Group.
+  The cloud needs the APNs key (server `docs/PUSH.md`).
+- **Not verified:** nothing here has run on a device or simulator yet (no Mac in the session); CI builds it.

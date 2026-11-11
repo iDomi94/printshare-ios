@@ -51,6 +51,7 @@ final class AppModel {
         keychain.set(StoreKey.lang, pref.rawValue)
         l10n = L10n(pref: pref)
         rebuildAPI()
+        PushNotifications.shared.languageChanged()
     }
 
     /// Back in the foreground: maybe we left home (or came back) -> find the working address again.
@@ -322,8 +323,16 @@ final class AppModel {
         switch DeepLink.parse(url) {
         case .connect(let s): showConnect(ConnectRequest(server: s, autoConnect: true))
         case .share: processInbox()
+        case .job(let id): openJob(id)
         case .other: break
         }
+    }
+
+    /// From a notification or the Live Activity: the job's screen on top of the jobs tab.
+    func openJob(_ id: String) {
+        guard ready, server != nil else { return }
+        tab = .jobs
+        if path.last != .job(id) { path = [.job(id)] }
     }
 
     /// Links or files shared from Safari, Files … open the prepare screen (MQ-01, MQ-03).
