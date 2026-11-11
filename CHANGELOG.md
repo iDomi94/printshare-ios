@@ -4,6 +4,11 @@ Jeder Abschnitt `## X.Y.Z` wird beim Tag `vX.Y.Z` automatisch als „Was testen�
 (`.github/workflows/testflight.yml`). Text auf Deutsch, höchstens 4000 Zeichen. Fehlt der Abschnitt, stehen dort
 die Commit-Titel seit dem letzten Tag.
 
+## 0.9.19
+
+- Steckdose direkt in der App einrichten (eigener Server): Einstellungen → Drucker → „Steckdose“. Home-Assistant-Adresse, Token und Steckdose eintragen (die Liste der Steckdosen lädt die App aus Home Assistant), Verbindung testen, „Bei Bedarf einschalten“ an- oder ausschalten. Bisher ging das nur auf der klassischen Webseite des Servers, die mit Server 0.53.0 wegfällt. Läuft der Server als Home-Assistant-Add-on, reicht die Wahl der Steckdose
+- Bitte testen: beim COSMOS die Steckdose einrichten („Steckdosen aus Home Assistant laden“, Steckdose wählen, „Verbindung testen“, Speichern) – danach muss die Druckerseite „Eingerichtet: …“ zeigen und die Steuerung den Ein-/Ausschalter
+
 ## 0.9.18
 
 - Mitteilungen (Server ab 0.51.0): Einstellungen → „Mitteilungen“ einschalten. Das Handy meldet sich, wenn ein Druck fertig oder abgebrochen ist, der Drucker pausiert oder einen Fehler meldet, die KI-Fehlererkennung anschlägt oder ein Druck nicht starten konnte – auch bei geschlossener App. Welche Meldungen kommen, lässt sich dort einstellen; „Testmitteilung senden“ prüft den Weg. Die Texte sind verschlüsselt, nur dein Handy kann sie lesen

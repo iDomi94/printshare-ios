@@ -152,6 +152,21 @@ private struct AdjustBody: Encodable {
     var confirm: Bool
 }
 private struct LinkBody: Encodable { var link: String }
+/// Smart plug settings; `token` nil = keep the stored one (the server never sends it back).
+struct PowerSettingsBody: Encodable, Sendable {
+    var url: String
+    var entity: String
+    var token: String?
+    var autoOn: Bool
+    func encode(to encoder: Encoder) throws {
+        var c = encoder.container(keyedBy: CodingKeys.self)
+        try c.encode(url, forKey: .url)
+        try c.encode(entity, forKey: .entity)
+        try c.encodeIfPresent(token, forKey: .token)
+        try c.encode(autoOn, forKey: .autoOn)
+    }
+    enum CodingKeys: String, CodingKey { case url, entity, token, autoOn = "auto_on" }
+}
 private struct ManyfoldBody: Encodable {
     var url: String
     var token: String?
@@ -397,6 +412,28 @@ actor APIClient {
     func setPower(printer: String, on: Bool) async throws {
         let _: Ack = try await request("/api/printers/\(enc(printer))/power", method: "POST", body: PowerBody(on: on),
                                        timeout: 20)
+    }
+
+    /// Smart plug settings (own servers; made on the classic web page alone until server 0.52.0).
+    func powerConfig(printer: String) async throws -> PowerConfig {
+        try await request("/api/printers/\(enc(printer))/power/config")
+    }
+
+    func setPowerConfig(printer: String, _ body: PowerSettingsBody) async throws -> PowerConfig {
+        try await request("/api/printers/\(enc(printer))/power/config", method: "PUT", body: body, timeout: 20)
+    }
+
+    func deletePowerConfig(printer: String) async throws -> PowerConfig {
+        try await request("/api/printers/\(enc(printer))/power/config", method: "DELETE")
+    }
+
+    /// Checks address, token and entity without saving.
+    func testPower(printer: String, _ body: PowerSettingsBody) async throws -> PowerTest {
+        try await request("/api/printers/\(enc(printer))/power/test", method: "POST", body: body, timeout: 20)
+    }
+
+    func powerEntities(printer: String, _ body: PowerSettingsBody) async throws -> [PowerEntity] {
+        try await request("/api/printers/\(enc(printer))/power/entities", method: "POST", body: body, timeout: 20)
     }
 
     // MARK: printer control (server 0.10.0)
