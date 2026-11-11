@@ -1,7 +1,7 @@
 import SwiftUI
 
 /// Smart plug of one printer through Home Assistant (issue #9, server 0.12.0; "switch on when needed" = `auto_on`,
-/// 0.46.0). Own servers only. Until server 0.52.0 this was set up on the classic web page alone. The token is
+/// 0.46.0). Own servers only. Until server 0.53.0 this was set up on the classic web page alone. The token is
 /// write-only: left empty, the stored one is kept.
 struct PowerSettingsView: View {
     let printer: String

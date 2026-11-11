@@ -6,7 +6,7 @@ die Commit-Titel seit dem letzten Tag.
 
 ## 0.9.19
 
-- Steckdose direkt in der App einrichten (eigener Server): Einstellungen → Drucker → „Steckdose“. Home-Assistant-Adresse, Token und Steckdose eintragen (die Liste der Steckdosen lädt die App aus Home Assistant), Verbindung testen, „Bei Bedarf einschalten“ an- oder ausschalten. Bisher ging das nur auf der klassischen Webseite des Servers, die mit Server 0.52.0 wegfällt. Läuft der Server als Home-Assistant-Add-on, reicht die Wahl der Steckdose
+- Steckdose direkt in der App einrichten (eigener Server): Einstellungen → Drucker → „Steckdose“. Home-Assistant-Adresse, Token und Steckdose eintragen (die Liste der Steckdosen lädt die App aus Home Assistant), Verbindung testen, „Bei Bedarf einschalten“ an- oder ausschalten. Bisher ging das nur auf der klassischen Webseite des Servers, die mit Server 0.53.0 wegfällt. Läuft der Server als Home-Assistant-Add-on, reicht die Wahl der Steckdose
 - Bitte testen: beim COSMOS die Steckdose einrichten („Steckdosen aus Home Assistant laden“, Steckdose wählen, „Verbindung testen“, Speichern) – danach muss die Druckerseite „Eingerichtet: …“ zeigen und die Steuerung den Ein-/Ausschalter
 
 ## 0.9.18

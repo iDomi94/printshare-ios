@@ -1,7 +1,7 @@
 import XCTest
 @testable import PrintShare
 
-/// Server 0.52.0: the smart plug is set up in the apps (before only on the classic web page). Shapes from the server's
+/// Server 0.53.0: the smart plug is set up in the apps (before only on the classic web page). Shapes from the server's
 /// `docs/API.md` (`/api/printers/<id>/power/config|test|entities`, unchanged since 0.12.0 / 0.46.0).
 final class ServerFiftyTwoTests: XCTestCase {
     private func client() -> APIClient {
