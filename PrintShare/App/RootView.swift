@@ -31,6 +31,7 @@ struct RootView: View {
                             case .failureDetection: FailureDetectionView()
                             case .orcaAccount: OrcaAccountView()
                             case .importKey: ImportKeyView()
+                            case .notifications: NotificationsView()
                             case .printablesWeb: PrintablesWebView()
                             }
                         }

@@ -42,6 +42,12 @@ struct SettingsView: View {
                 .pickerStyle(.segmented).labelsHidden().padding(12)
             }
 
+            if server != nil {
+                PSSection {
+                    PSRow(icon: "bell.badge", label: t(.notifyTitle), sub: t(.notifySub)) { app.push(.notifications) }
+                }
+            }
+
             if let server {
                 timelapseSection(t, cloud: server.isCloud)
                 advanced(t, cloud: server.isCloud)

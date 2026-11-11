@@ -14,10 +14,14 @@ final class BundleVersionTests: XCTestCase {
         XCTAssertGreaterThanOrEqual(Int(appBuild ?? "") ?? 0, 100, "CURRENT_PROJECT_VERSION starts at 100")
 
         let plugins = try XCTUnwrap(Bundle.main.builtInPlugInsURL)
-        let appex = try XCTUnwrap(try FileManager.default.contentsOfDirectory(at: plugins, includingPropertiesForKeys: nil)
-            .first { $0.pathExtension == "appex" })
-        let (extVersion, extBuild) = versions(try XCTUnwrap(Bundle(url: appex)))
-        XCTAssertEqual(extVersion, appVersion)
-        XCTAssertEqual(extBuild, appBuild)
+        let appexes = try FileManager.default.contentsOfDirectory(at: plugins, includingPropertiesForKeys: nil)
+            .filter { $0.pathExtension == "appex" }
+        // share extension, notification service and widgets (server 0.51.0)
+        XCTAssertEqual(appexes.count, 3, "\(appexes.map(\.lastPathComponent))")
+        for appex in appexes {
+            let (extVersion, extBuild) = versions(try XCTUnwrap(Bundle(url: appex)))
+            XCTAssertEqual(extVersion, appVersion, appex.lastPathComponent)
+            XCTAssertEqual(extBuild, appBuild, appex.lastPathComponent)
+        }
     }
 }

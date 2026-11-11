@@ -22,8 +22,14 @@ targets:
     platform: iOS
     sources:
       - path: PrintShare
+      - path: Shared
     dependencies:
       - target: ShareExtension
+        embed: true
+      # push notifications + Live Activities (server 0.51.0)
+      - target: NotificationService
+        embed: true
+      - target: PrintWidgets
         embed: true
     settings:
       base:
@@ -38,6 +44,10 @@ targets:
         # spools by NFC chip (server 0.38.0) and OpenPrintTag: "NFC Tag Reading" on the App ID
         com.apple.developer.nfc.readersession.formats:
           - TAG
+        # push notifications (server 0.51.0): "Push Notifications" + "Time Sensitive Notifications" on the App ID;
+        # Xcode switches it to production when exporting for TestFlight
+        aps-environment: development
+        com.apple.developer.usernotifications.time-sensitive: true
     info:
       path: PrintShare/Info.plist
       properties:
@@ -65,6 +75,8 @@ targets:
         NSCameraUsageDescription: PocketPrint3D uses the camera only to scan the pairing QR code of your server.
         NFCReaderUsageDescription: PocketPrint3D reads the NFC chip of a filament spool to know which spool it is.
         ITSAppUsesNonExemptEncryption: false
+        NSSupportsLiveActivities: true
+        NSSupportsLiveActivitiesFrequentUpdates: true
         CFBundleURLTypes:
           - CFBundleURLName: com.dominiqueherbrigpersonalteam.printshare
             CFBundleURLSchemes: [printshare]
@@ -100,6 +112,58 @@ targets:
               NSExtensionActivationSupportsText: true
               NSExtensionActivationSupportsWebURLWithMaxCount: 1
               NSExtensionActivationSupportsFileWithMaxCount: 1
+  NotificationService:
+    type: app-extension
+    platform: iOS
+    sources:
+      - path: NotificationService
+        excludes: ["Info.plist"]
+      - path: Shared/PushPayload.swift
+      - path: Shared/PrintActivity.swift
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.dominiqueherbrigpersonalteam.printshare.notification-service
+        APPLICATION_EXTENSION_API_ONLY: YES
+        SKIP_INSTALL: YES
+    entitlements:
+      path: NotificationService/NotificationService.entitlements
+      properties:
+        com.apple.security.application-groups:
+          - group.com.dominiqueherbrigpersonalteam.printshare
+    info:
+      path: NotificationService/Info.plist
+      properties:
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        CFBundleDisplayName: PocketPrint3D
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.usernotifications.service
+          NSExtensionPrincipalClass: $(PRODUCT_MODULE_NAME).NotificationService
+  PrintWidgets:
+    type: app-extension
+    platform: iOS
+    sources:
+      - path: PrintWidgets
+        excludes: ["Info.plist"]
+      - path: Shared/PrintActivity.swift
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.dominiqueherbrigpersonalteam.printshare.widgets
+        APPLICATION_EXTENSION_API_ONLY: YES
+        SKIP_INSTALL: YES
+    entitlements:
+      path: PrintWidgets/PrintWidgets.entitlements
+      properties:
+        com.apple.security.application-groups:
+          - group.com.dominiqueherbrigpersonalteam.printshare
+    info:
+      path: PrintWidgets/Info.plist
+      properties:
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        CFBundleDisplayName: PocketPrint3D
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.widgetkit-extension
   PrintShareTests:
     type: bundle.unit-test
     platform: iOS
@@ -120,6 +184,8 @@ schemes:
       targets:
         PrintShare: all
         ShareExtension: all
+        NotificationService: all
+        PrintWidgets: all
     test:
       targets:
         - PrintShareTests

@@ -1985,6 +1985,102 @@
         }
       }
     },
+    "decisionAbort": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nicht drucken"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Don't print"
+          }
+        }
+      }
+    },
+    "decisionStart": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trotzdem drucken"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Print anyway"
+          }
+        }
+      }
+    },
+    "decisionStartMsg": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ein anderes Material kann andere Temperaturen brauchen. Ist die Platte leer?"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Another material may need other temperatures. Is the plate empty?"
+          }
+        }
+      }
+    },
+    "decisionStartQ": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wirklich mit diesem Material drucken?"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Really print with this material?"
+          }
+        }
+      }
+    },
+    "decisionSub": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Der Drucker ist an, aber {reason}. Ohne Antwort wird der Druck um {time} abgebrochen."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The printer is on, but {reason}. Without an answer the print is cancelled at {time}."
+          }
+        }
+      }
+    },
+    "decisionTitle": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Der Drucker wartet auf dich"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The printer is waiting for you"
+          }
+        }
+      }
+    },
     "del": {
       "localizations": {
         "de": {
@@ -5361,6 +5457,22 @@
         }
       }
     },
+    "jobState.needs_decision": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wartet auf dich"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Waiting for you"
+          }
+        }
+      }
+    },
     "jobState.running": {
       "localizations": {
         "de": {
@@ -7597,6 +7709,326 @@
           "stringUnit": {
             "state": "translated",
             "value": "Welcome to PocketPrint3D"
+          }
+        }
+      }
+    },
+    "notifyAbort": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nicht drucken"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Don't print"
+          }
+        }
+      }
+    },
+    "notifyActivities": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Live-Aktivität auf dem Sperrbildschirm"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Live Activity on the lock screen"
+          }
+        }
+      }
+    },
+    "notifyActivitiesSub": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fortschritt und Restzeit im Sperrbildschirm und in der Dynamic Island, auch für Drucke, die am Drucker oder in OrcaSlicer gestartet wurden."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Progress and time left on the lock screen and in the Dynamic Island, also for prints started on the printer or in OrcaSlicer."
+          }
+        }
+      }
+    },
+    "notifyCheck": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prüfen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Check"
+          }
+        }
+      }
+    },
+    "notifyDecisions": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rückfragen vor dem Start"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Questions before the start"
+          }
+        }
+      }
+    },
+    "notifyDecisionsSub": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zum Beispiel: Nach dem Einschalten liegt im Slot ein anderes Material."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "For example: after switching on, a slot holds another material."
+          }
+        }
+      }
+    },
+    "notifyDenied": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mitteilungen sind für PocketPrint3D ausgeschaltet. Du kannst sie in den Einstellungen erlauben."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Notifications are turned off for PocketPrint3D. You can allow them in Settings."
+          }
+        }
+      }
+    },
+    "notifyDone": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Druck fertig oder abgebrochen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Print finished or cancelled"
+          }
+        }
+      }
+    },
+    "notifyEnable": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mitteilungen erhalten"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Get notifications"
+          }
+        }
+      }
+    },
+    "notifyInfo": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Drucke, die woanders gestartet wurden"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prints started elsewhere"
+          }
+        }
+      }
+    },
+    "notifyIntro": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dein Handy meldet sich, wenn ein Druck fertig ist, etwas schiefgeht oder der Drucker eine Frage hat – auch wenn die App zu ist. Die Texte sind verschlüsselt, nur dein Handy kann sie lesen."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your phone lets you know when a print is done, something goes wrong or the printer has a question – also while the app is closed. The texts are encrypted; only your phone can read them."
+          }
+        }
+      }
+    },
+    "notifyNoToken": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Das Handy hat noch keine Push-Adresse von Apple bekommen. Prüfe die Internetverbindung und versuche es noch einmal."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The phone has no push address from Apple yet. Check the internet connection and try again."
+          }
+        }
+      }
+    },
+    "notifyPause": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pausieren"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pause"
+          }
+        }
+      }
+    },
+    "notifyPhoneOnly": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Drucker, die nur dein Handy im WLAN erreicht, melden sich nicht von selbst. Dafür brauchst du eine Brücke (Erweitert → Unterwegs drucken)."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Printers only your phone reaches on the Wi-Fi can't report by themselves. For that you need a bridge (Advanced → Print from anywhere)."
+          }
+        }
+      }
+    },
+    "notifyProblems": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Probleme: Pause, Fehler, KI-Alarm"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Problems: paused, error, AI alert"
+          }
+        }
+      }
+    },
+    "notifyRelayOff": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Auf deinem Server sind Mitteilungen ausgeschaltet (PRINTSHARE_PUSH_RELAY=off)."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Notifications are switched off on your server (PRINTSHARE_PUSH_RELAY=off)."
+          }
+        }
+      }
+    },
+    "notifySub": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Druck fertig, Fehler, Rückfragen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Print finished, errors, questions"
+          }
+        }
+      }
+    },
+    "notifyTest": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Testmitteilung senden"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Send a test notification"
+          }
+        }
+      }
+    },
+    "notifyTestSent": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gesendet – sie sollte gleich ankommen."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sent – it should arrive in a moment."
+          }
+        }
+      }
+    },
+    "notifyTitle": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mitteilungen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Notifications"
           }
         }
       }
@@ -10717,6 +11149,54 @@
           "stringUnit": {
             "state": "translated",
             "value": "PrusaLink password"
+          }
+        }
+      }
+    },
+    "push.activity.body": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PocketPrint3D zeigt den Fortschritt auf dem Sperrbildschirm."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PocketPrint3D shows the progress on the lock screen."
+          }
+        }
+      }
+    },
+    "push.activity.title": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Druck läuft"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Printing"
+          }
+        }
+      }
+    },
+    "push.fallback": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Neues von deinem Drucker"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "News from your printer"
           }
         }
       }
