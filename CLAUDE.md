@@ -20,7 +20,7 @@ server 0.10.1 `/api/model-file`, merged upstream), infill pattern per print with
 Texts are generated from the `i18n.ts` of upstream `6d386c1`. When upstream changes, compare `mobile/` and `printshare/api.py` since
 the commit above and port the difference.
 
-**Verified:** CI (macos-latest): builds without errors or warnings in Swift 6 mode, all unit tests green. Unit tests cover URL normalisation,
+**Verified:** CI (runner `xcode-27`, same Xcode as the TestFlight build since 2026-11-23): builds without errors or warnings in Swift 6 mode, all unit tests green. Unit tests cover URL normalisation,
 pairing links, the friendly-error rules and their order, formats, decoding of every endpoint (incl. unknown enum
 values, preview format 1 and 2, inspect, colours per job), request shapes (`leveling` only with a print start, preview /
 inspect / G-code URLs), the API client's home/away routing with a `URLProtocol` stub (probe picks the faster address,
