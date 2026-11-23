@@ -25,6 +25,8 @@ enum Screen: Hashable {
     case job(String)
     case model(source: String, id: String)
     case preview(String)
+    /// The 3D preview of a running print, following the printer's current layer (0.9.20).
+    case livePreview(job: String, printer: Printer)
     /// Temperatures, fans, light, speed of one printer (issue #5).
     case control(id: String, name: String)
     /// Filament per slot (server 0.37.0): load / unload, material + colour, spool per slot (0.38.0).

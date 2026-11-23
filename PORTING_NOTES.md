@@ -390,3 +390,27 @@ if it contradicts `printshare/api.py` the server wins; otherwise the simplest id
   and "Time Sensitive Notifications"; the two new extension ids (`.notification-service`, `.widgets`) need the App Group.
   The cloud needs the APNs key (server `docs/PUSH.md`).
 - **Not verified:** nothing here has run on a device or simulator yet (no Mac in the session); CI builds it.
+
+## Server 0.54.0 - Live Activity with more information (2026-11-23, own feature, app 0.9.20)
+- Concept: project file `analysen/konzept-live-activity-erweitert.md` (Dominique chose: pictures rendered by the app,
+  camera button + milestone pictures + tap → camera, the rest as proposed).
+- Content state + `h` (heating), `tn/tnt/tb/tbt/tc` (°C), all optional (old servers send none, old apps ignore them).
+  `ContentState.frame` = the server's `notify.frame` (`l·24/lt`, else `p·24/100`): the server pushes when it changes.
+- `PrintShare/Push/ActivityPictures.swift`: when an activity is seen (started here, push-to-start, app start) the app
+  loads `/api/jobs/{id}/preview?format=2`, builds `PlateMesh` (filament colours, 120k-segment budget) and renders 25
+  pictures "up to layer n/24" with `SCNRenderer` (`PlateScene(thumbnail:)`: dark background, no bed, the rest of the
+  model as a ghost at 13 %) into the App Group (`ActivityImages`, `Shared/PrintActivity.swift`). No preview (print
+  started at the printer) → marker file `none`. Pictures of dismissed activities are deleted, others after a day.
+- Camera: `RefreshCameraIntent` (`Shared/ActivityIntents.swift`, compiled into app + widget; `LiveActivityIntent` runs
+  in the app's process, `ActivityIntentHooks` set in `AppDelegate`) loads `/camera/snapshot?w=320` with a client built
+  from the keychain server and redraws the activity (same state, new stale date). Setting "Bild in der Live-Aktivität":
+  Modell / Kamera / Keins (App Group defaults); a camera picture younger than 10 min wins over the model.
+  Tapping the picture opens `printshare://camera?printer=` (`DeepLink.camera`, sheet in `RootView`).
+- Pref `snapshots` (server): notification extension loads the decrypted `image` path from the server addresses saved
+  per device id (`PushShared.saveServerURLs` at registration), home first, 8 s each; NSE got ATS arbitrary loads.
+- Printers tab: busy printer with a started job → "Kamera | Modell" switch (remembered per printer, `ps_printer_card_view`);
+  Modell = the same layer picture, tap → `Screen.livePreview` = `PreviewView(follow:)`: 3D, ghosted rest, "Dem Druck
+  folgen" polls the printer every 5 s (`PreviewView.layerIndex`).
+- **Not verified:** no device/simulator run - how the pictures look, whether the widget's memory limit holds with them,
+  whether the camera button works on a locked phone, whether the NSE may reach a LAN address (local network permission)
+  are open. The camera button needs a server-reached printer (own server or bridge).

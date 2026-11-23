@@ -14,6 +14,8 @@ final class AppModel {
     var path: [Screen] = []
     var tab: AppTab = .print
     var connectRequest: ConnectRequest?
+    /// The live camera of a printer, from the Live Activity's picture.
+    var cameraRequest: CameraTarget?
     /// Search text handed from the home screen's link field to the Discover tab, which takes it once.
     var pendingSearch: String?
     /// Printer slot (tool) per model colour chosen on the prepare screen, per job id: the job screen's default.
@@ -58,6 +60,7 @@ final class AppModel {
     func appBecameActive() {
         Task { await APIClient.resetRoutes() }
         processInbox()
+        PushNotifications.shared.appBecameActive()
     }
 
     // MARK: per-printer choices (spec 4)
@@ -324,8 +327,15 @@ final class AppModel {
         case .connect(let s): showConnect(ConnectRequest(server: s, autoConnect: true))
         case .share: processInbox()
         case .job(let id): openJob(id)
+        case .camera(let id): openCamera(id)
         case .other: break
         }
+    }
+
+    /// From the Live Activity: the printer's live camera over whatever is open.
+    func openCamera(_ printer: String) {
+        guard ready, server != nil else { return }
+        cameraRequest = CameraTarget(printer: printer, name: PushShared.printerName(printer) ?? printer)
     }
 
     /// From a notification or the Live Activity: the job's screen on top of the jobs tab.

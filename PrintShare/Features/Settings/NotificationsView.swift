@@ -13,6 +13,7 @@ struct NotificationsView: View {
     @State private var info = ""
     @State private var denied = false
     @State private var serverOld = false
+    @State private var imageMode = ActivityImages.mode
 
     private var push: PushNotifications { PushNotifications.shared }
 
@@ -48,9 +49,34 @@ struct NotificationsView: View {
                         PSDivider()
                         toggle(t(.notifyInfo), icon: "printer", on: device.prefs.info) { v in set { $0.info = v } }
                     }
+                    PSSection(footer: t(.notifySnapshotsSub)) {
+                        toggle(t(.notifySnapshots), icon: "camera", on: device.prefs.snapshots) { v in set { $0.snapshots = v } }
+                    }
                     PSSection(footer: t(.notifyActivitiesSub)) {
                         toggle(t(.notifyActivities), icon: "platter.filled.bottom.iphone", on: device.prefs.activities) { v in
                             set { $0.activities = v }
+                        }
+                        if device.prefs.activities {
+                            PSDivider()
+                            VStack(alignment: .leading, spacing: 8) {
+                                Label {
+                                    Text(t(.activityPicture)).font(.body).foregroundStyle(Theme.text)
+                                } icon: {
+                                    Image(systemName: "photo").foregroundStyle(Theme.accent)
+                                }
+                                Picker(t(.activityPicture), selection: Binding(get: { imageMode }, set: { m in
+                                    Haptics.tap()
+                                    imageMode = m
+                                    ActivityImages.mode = m
+                                })) {
+                                    Text(t(.activityPicturePreview)).tag(ActivityImages.Mode.preview)
+                                    Text(t(.activityPictureCamera)).tag(ActivityImages.Mode.camera)
+                                    Text(t(.activityPictureNone)).tag(ActivityImages.Mode.none)
+                                }
+                                .pickerStyle(.segmented).labelsHidden()
+                                Text(t(.activityPictureSub)).font(.footnote).foregroundStyle(Theme.sub)
+                            }
+                            .padding(.horizontal, 14).padding(.vertical, 10)
                         }
                     }
                     PSButton(title: t(.notifyTest), kind: .secondary, icon: "paperplane", loading: busy) {

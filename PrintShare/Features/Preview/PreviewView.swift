@@ -25,6 +25,8 @@ private enum ColorMode: Hashable { case type, color }
 /// the whole bed, or the sliced plate in 3D (rotatable).
 struct PreviewView: View {
     let id: String
+    /// A running print on this printer: start in 3D at its current layer and follow it (0.9.20).
+    var follow: Printer?
 
     @Environment(AppModel.self) private var app
     @State private var preview: Preview?
@@ -37,6 +39,9 @@ struct PreviewView: View {
     @State private var colorPref: ColorMode?
     @State private var plate: PlateScene?
     @State private var plateBuilt: PlateKey?
+    /// Following the printer: the slider moves with the print until the user drags it.
+    @State private var following = false
+    @State private var printerLayer: Int?
 
     var body: some View {
         let t = app.l10n
@@ -55,9 +60,34 @@ struct PreviewView: View {
                 ProgressView().controlSize(.large).frame(maxWidth: .infinity, maxHeight: .infinity).background(Theme.bg)
             }
         }
-        .navigationTitle(t(.previewTitle))
+        .navigationTitle(t(follow == nil ? .previewTitle : .livePreviewTitle))
         .navigationBarTitleDisplayMode(.inline)
         .task { await load() }
+        .task(id: following) { await followPrinter() }
+    }
+
+    /// Every 5 s while following: the printer's layer (or progress) mapped onto the preview's layers.
+    private func followPrinter() async {
+        guard following, let follow else { return }
+        while !Task.isCancelled && following {
+            if let st = try? await app.printerStatus(follow), let scene {
+                let index = Self.layerIndex(layer: st.layer, layers: st.layers, progress: st.progress,
+                                            count: scene.layers.count)
+                printerLayer = index
+                if following { layer = index }
+            }
+            try? await Task.sleep(for: .seconds(5))
+        }
+    }
+
+    /// The printer's layer on the preview's scale (printers count their start code differently): by layer / layers
+    /// when reported, else by progress.
+    nonisolated static func layerIndex(layer: Int?, layers: Int?, progress: Double?, count: Int) -> Int {
+        guard count > 0 else { return 0 }
+        let fraction: Double
+        if let layer, let layers, layers > 0 { fraction = Double(layer) / Double(layers) }
+        else { fraction = (progress ?? 0) / 100 }
+        return min(max(Int((fraction * Double(count)).rounded(.up)) - 1, 0), count - 1)
     }
 
     private func colorMode(_ scene: PreviewScene) -> ColorMode {
@@ -78,6 +108,16 @@ struct PreviewView: View {
                     Text(t(.view3d)).tag(ViewMode.threeD)
                 }
                 .pickerStyle(.segmented).labelsHidden()
+                if follow != nil {
+                    Toggle(isOn: Binding(get: { following }, set: { on in
+                        following = on
+                        if on, let printerLayer { layer = printerLayer }
+                    })) {
+                        Label(t(.followPrint), systemImage: "dot.radiowaves.left.and.right")
+                            .font(.subheadline).foregroundStyle(Theme.text)
+                    }
+                    .tint(Theme.accent)
+                }
                 if scene.tools.count > 1 {
                     Picker(t(.colorMode), selection: Binding(get: { cmode }, set: { colorPref = $0 })) {
                         Text(t(.byColor)).tag(ColorMode.color)
@@ -111,12 +151,12 @@ struct PreviewView: View {
                             .font(.subheadline).foregroundStyle(Theme.sub)
                     }
                     HStack(spacing: 12) {
-                        stepButton("minus", t(.prevLayer), disabled: current <= 0) { layer = max(0, current - 1) }
-                        Slider(value: Binding(get: { Double(current) }, set: { layer = Int($0.rounded()) }),
+                        stepButton("minus", t(.prevLayer), disabled: current <= 0) { following = false; layer = max(0, current - 1) }
+                        Slider(value: Binding(get: { Double(current) }, set: { following = false; layer = Int($0.rounded()) }),
                                in: 0...Double(max(last, 1)), step: 1)
                             .disabled(last == 0)
                             .accessibilityLabel(t(.layerOf, ["n": String(current + 1), "total": String(scene.layers.count)]))
-                        stepButton("plus", t(.nextLayer), disabled: current >= last) { layer = min(last, current + 1) }
+                        stepButton("plus", t(.nextLayer), disabled: current >= last) { following = false; layer = min(last, current + 1) }
                     }
                 }
                 legend(t, scene, preview, current, cmode)
@@ -143,7 +183,7 @@ struct PreviewView: View {
     @ViewBuilder
     private func plateView(_ t: L10n, _ current: Int) -> some View {
         if let plate {
-            PlateSceneView(plate: plate, upTo: current)
+            PlateSceneView(plate: plate, upTo: current, ghost: follow != nil)
         } else {
             ProgressView().controlSize(.large).frame(maxWidth: .infinity, maxHeight: .infinity)
         }
@@ -306,6 +346,10 @@ struct PreviewView: View {
             scene = built
             layer = max(0, (built?.layers.count ?? 1) - 1)  // the finished part first, like the Expo app
             loaded = true
+            if follow != nil {
+                mode = .threeD
+                following = true
+            }
         } catch {
             self.error = error.localizedDescription
         }

@@ -10,7 +10,7 @@ settings:
   base:
     SWIFT_VERSION: "6.0"
     SWIFT_STRICT_CONCURRENCY: complete
-    MARKETING_VERSION: "0.9.19"         # = version in mobile/app.json of the Expo app
+    MARKETING_VERSION: "0.9.20"         # = version in mobile/app.json of the Expo app
     CURRENT_PROJECT_VERSION: "100"      # above the EAS build numbers
     DEVELOPMENT_TEAM: ${DEVELOPMENT_TEAM}
     CODE_SIGN_STYLE: Automatic
@@ -136,6 +136,10 @@ targets:
         CFBundleShortVersionString: $(MARKETING_VERSION)
         CFBundleVersion: $(CURRENT_PROJECT_VERSION)
         CFBundleDisplayName: PocketPrint3D
+        # camera pictures of notifications come from the own server, often plain http in the home network (0.9.20)
+        NSAppTransportSecurity:
+          NSAllowsArbitraryLoads: true
+          NSAllowsLocalNetworking: true
         NSExtension:
           NSExtensionPointIdentifier: com.apple.usernotifications.service
           NSExtensionPrincipalClass: $(PRODUCT_MODULE_NAME).NotificationService
@@ -146,6 +150,8 @@ targets:
       - path: PrintWidgets
         excludes: ["Info.plist"]
       - path: Shared/PrintActivity.swift
+      # the camera button of the Live Activity (runs in the app's process)
+      - path: Shared/ActivityIntents.swift
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.dominiqueherbrigpersonalteam.printshare.widgets

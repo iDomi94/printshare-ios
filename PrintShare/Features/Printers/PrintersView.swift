@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 /// Live status and control of every printer (DR-04, DR-05, DR-06); details in ControlView (issue #5).
 struct PrintersView: View {
@@ -31,6 +32,13 @@ struct PrintersView: View {
     @State private var booked: [Booked] = []
     /// Cloud: when the server was last told what the printers on this Wi-Fi do (server 0.33.0).
     @State private var lastObserve = Date.distantPast
+    /// Printer → its started job (for the model picture of the current layer, 0.9.20), and when that was asked.
+    @State private var printJobs: [String: String] = [:]
+    @State private var lastJobs = Date.distantPast
+    /// Printer → "model" when the card shows the print up to the current layer instead of the camera.
+    @AppStorage("ps_printer_card_view") private var cardViewsRaw = ""
+    /// Bumped when layer pictures were rendered, so the cards look again.
+    @State private var picturesReady = 0
 
     private struct Booked: Identifiable {
         var booking: Booking
@@ -172,7 +180,34 @@ struct PrintersView: View {
                     }
                     .padding(.top, 14)
                 }
-                if cams[p.id] == true && app.viaServer(p) {
+                let job = busy ? printJobs[p.id] : nil
+                let hasCam = cams[p.id] == true && app.viaServer(p)
+                if job != nil && hasCam {
+                    Picker("", selection: Binding(get: { showsModel(p.id) }, set: { setShowsModel(p.id, $0) })) {
+                        Text(t(.camera)).tag(false)
+                        Text(t(.modelView)).tag(true)
+                    }
+                    .pickerStyle(.segmented).labelsHidden()
+                    .padding(.top, 14)
+                }
+                if let job, let s, showsModel(p.id) || !hasCam {
+                    Button { Haptics.tap(); app.push(.livePreview(job: job, printer: p)) } label: {
+                        LayerPicture(job: job, status: s, ready: picturesReady)
+                            .overlay(alignment: .bottomTrailing) {
+                                Label(t(.view3d), systemImage: "cube")
+                                    .font(.caption).foregroundStyle(.white)
+                                    .padding(.horizontal, 10).padding(.vertical, 4)
+                                    .background(Color.black.opacity(0.55)).clipShape(Capsule()).padding(8)
+                            }
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel(t(.livePreviewTitle))
+                    .padding(.top, 14)
+                    .task(id: job) {
+                        guard let api = app.api, !ActivityImages.hasFrames(job) else { return }
+                        if await ActivityPictures.prepare(job: job, api: api) { picturesReady += 1 }
+                    }
+                } else if hasCam {
                     Button { Haptics.tap(); camera = CameraTarget(printer: p.id, name: p.name) } label: {
                         CameraImage(printer: p.id, width: 640, interval: 5)
                             .aspectRatio(16 / 9, contentMode: .fit)
@@ -191,6 +226,30 @@ struct PrintersView: View {
             }
         }
         .padding(.bottom, 16)
+    }
+
+    private func showsModel(_ printer: String) -> Bool {
+        cardViewsRaw.split(separator: ",").contains { $0 == Substring(printer) }
+    }
+
+    private func setShowsModel(_ printer: String, _ on: Bool) {
+        var set = Set(cardViewsRaw.split(separator: ",").map(String.init))
+        if on { set.insert(printer) } else { set.remove(printer) }
+        cardViewsRaw = set.sorted().joined(separator: ",")
+    }
+
+    /// Which started job each busy printer runs (asked at most every 30 s, and only while something prints).
+    private func loadPrintJobs(_ api: APIClient, _ list: [Entry]) async {
+        guard list.contains(where: { $0.status?.kind.isBusy == true }) else { printJobs = [:]; return }
+        let missing = list.contains { $0.status?.kind.isBusy == true && printJobs[$0.id] == nil }
+        guard missing ? Date().timeIntervalSince(lastJobs) > 10 : Date().timeIntervalSince(lastJobs) > 30 else { return }
+        lastJobs = Date()
+        guard let jobs = try? await api.jobs() else { return }
+        var out: [String: String] = [:]
+        for j in jobs.sorted(by: { $0.created > $1.created }) where j.state == .started && !j.isExternal {
+            if let printer = j.printer, out[printer] == nil { out[printer] = j.id }
+        }
+        printJobs = out
     }
 
     private func powerOffButton(_ t: L10n, _ p: Printer) -> some View {
@@ -311,6 +370,7 @@ struct PrintersView: View {
             out = list.compactMap { p in out.first { $0.id == p.id } }
             for e in out where e.status != nil { poweredAt[e.id] = nil }
             error = ""
+            await loadPrintJobs(api, out)
             await observe(api, out)
             await settle(out)
         } catch {
@@ -379,5 +439,31 @@ struct PrintersView: View {
         acting = ""
         try? await Task.sleep(for: .milliseconds(800))
         await load()
+    }
+}
+
+/// The print up to the printer's current layer: one of the layer pictures the Live Activity uses (0.9.20).
+private struct LayerPicture: View {
+    let job: String
+    let status: PrinterStatus
+    /// Changes when new pictures were rendered.
+    let ready: Int
+
+    var body: some View {
+        let state = PrintActivityAttributes.ContentState(s: "printing", p: Int((status.progress ?? 0).rounded()),
+                                                         l: status.layer, lt: status.layers)
+        ZStack {
+            Color(white: 0.16)
+            if let url = ActivityImages.frameFile(job, state.frame), let img = UIImage(contentsOfFile: url.path) {
+                Image(uiImage: img).resizable().aspectRatio(contentMode: .fit)
+            } else if let none = ActivityImages.noPreviewURL(job), FileManager.default.fileExists(atPath: none.path) {
+                Image(systemName: "cube.transparent").font(.largeTitle).foregroundStyle(.white.opacity(0.5))
+            } else {
+                ProgressView().tint(.white)
+            }
+        }
+        .aspectRatio(16 / 9, contentMode: .fit)
+        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+        .id(ready)
     }
 }

@@ -4,6 +4,14 @@ Jeder Abschnitt `## X.Y.Z` wird beim Tag `vX.Y.Z` automatisch als „Was testen�
 (`.github/workflows/testflight.yml`). Text auf Deutsch, höchstens 4000 Zeichen. Fehlt der Abschnitt, stehen dort
 die Commit-Titel seit dem letzten Tag.
 
+## 0.9.20
+
+- Live-Aktivität mit mehr Infos (Server ab 0.54.0): Düsen-, Bett- und (wenn vorhanden) Kammertemperatur, „Heizt auf“ vor der ersten Schicht, und Aktualisierung bei jeder sichtbaren Änderung (höchstens einmal pro Minute)
+- Bild in der Live-Aktivität: das Modell bis zur aktuellen Schicht – es wächst mit dem Druck. Der Kamera-Knopf holt ein aktuelles Kamerabild, ohne die App zu öffnen; Antippen des Bildes öffnet die Live-Kamera. Einstellungen → Mitteilungen → „Bild in der Live-Aktivität“: Modell, Kamera oder keins
+- Neu (aus): „Kamerabilder als Kontrolle“ – Mitteilung mit Kamerabild, wenn die erste Schicht fertig ist und zur Halbzeit; die Fertig-Mitteilung bekommt auch ein Bild
+- Druckerübersicht: Bei einem laufenden Druck zeigt „Modell“ statt der Kamera den Druck bis zur aktuellen Schicht; antippen öffnet die 3D-Ansicht, die mit „Dem Druck folgen“ mitläuft
+- Bitte testen: Druck starten, Sperrbildschirm: Temperaturen, „Heizt auf“, Modellbild (wächst es mit?), Kamera-Knopf bei gesperrtem Handy. „Kamerabilder als Kontrolle“ einschalten – kommt nach der ersten Schicht eine Mitteilung mit Bild (zu Hause und unterwegs)? Druckerübersicht → „Modell“ → 3D-Ansicht folgt dem Druck
+
 ## 0.9.19
 
 - Steckdose direkt in der App einrichten (eigener Server): Einstellungen → Drucker → „Steckdose“. Home-Assistant-Adresse, Token und Steckdose eintragen (die Liste der Steckdosen lädt die App aus Home Assistant), Verbindung testen, „Bei Bedarf einschalten“ an- oder ausschalten. Bisher ging das nur auf der klassischen Webseite des Servers, die mit Server 0.53.0 wegfällt. Läuft der Server als Home-Assistant-Add-on, reicht die Wahl der Steckdose

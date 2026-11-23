@@ -85,6 +85,7 @@ final class PushNotifications {
         PushCategory.register(app.l10n)
         PushShared.lang = app.l10n.lang.rawValue
         observeActivities()
+        ActivityPictures.purge(keep: Set(Activity<PrintActivityAttributes>.activities.map(\.attributes.job)))
         // a new token (restore, reinstall) has to reach the relay again
         if record() != nil { UIApplication.shared.registerForRemoteNotifications() }
         if let tap = pendingTap {
@@ -175,6 +176,9 @@ final class PushNotifications {
         let device = try await api.addPushDevice(handle, key: key, lang: app.l10n.lang.rawValue,
                                                  name: UIDevice.current.name, prefs: prefs)
         save(Record(device: device.id, relay: relay, token: token, activities: device.prefs.activities))
+        if let server = app.server {
+            PushShared.saveServerURLs(device: device.id, [server.url, server.remoteUrl ?? ""])
+        }
         await savePrinterNames()
         if #available(iOS 17.2, *), let start = Activity<PrintActivityAttributes>.pushToStartToken {
             await syncStartToken(start.hexString)
@@ -266,6 +270,31 @@ final class PushNotifications {
                 await self.registerActivity(job: job, token: data.hexString)
             }
         }
+        Task { await self.preparePictures(job: job) }
+        Task {
+            for await state in activity.activityStateUpdates where state == .dismissed {
+                if let folder = ActivityImages.folder(job) { try? FileManager.default.removeItem(at: folder) }
+            }
+        }
+    }
+
+    /// The layer pictures of a running print (0.9.20); after they are there the activity is redrawn once.
+    private func preparePictures(job: String) async {
+        guard let api = app?.api, !ActivityImages.hasFrames(job) else { return }
+        if await ActivityPictures.prepare(job: job, api: api) { await ActivityPictures.redraw(job: job) }
+    }
+
+    /// Back in the foreground: pictures that couldn't be made in the background (push-to-start), and a fresh camera
+    /// picture when the user prefers the camera.
+    func appBecameActive() {
+        guard let api = app?.api else { return }
+        for a in Activity<PrintActivityAttributes>.activities where a.activityState == .active {
+            let job = a.attributes.job, printer = a.attributes.printer
+            Task { await self.preparePictures(job: job) }
+            if ActivityImages.mode == .camera {
+                Task { await ActivityPictures.refreshCamera(job: job, printer: printer, api: api) }
+            }
+        }
     }
 
     private func registerActivity(job: String, token: String) async {
@@ -325,6 +354,8 @@ final class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCent
     func application(_ application: UIApplication,
                      didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil) -> Bool {
         UNUserNotificationCenter.current().delegate = self
+        // the Live Activity's camera button runs in this process, also without a scene
+        ActivityPictures.installIntentHook()
         return true
     }
 
