@@ -64,7 +64,7 @@ final class ServerFortyNineTests: XCTestCase {
         try await api.dismissInbox(id: "a b")
         try await api.clearInbox()
 
-        lock.lock(); let r = seen; lock.unlock()
+        let r = lock.withLock { seen }
         XCTAssertEqual(r.map { $0.httpMethod }, ["GET", "POST", "DELETE", "GET", "DELETE", "DELETE"])
         XCTAssertEqual(r[0].url?.path, "/api/import-key")
         XCTAssertEqual(r[3].url?.path, "/api/inbox")
