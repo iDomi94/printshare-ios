@@ -158,22 +158,15 @@ final class PlateScene {
 
     var layerCount: Int { layerNodes.count }
 
-    init(_ mesh: PlateMesh) {
-        scene.background.contents = UIColor(Theme.input)
+    /// `thumbnail`: for the pictures of the Live Activity and the printer list (0.9.20) - dark background, no bed,
+    /// the camera a little closer.
+    init(_ mesh: PlateMesh, thumbnail: Bool = false) {
+        scene.background.contents = thumbnail ? UIColor(white: 0.16, alpha: 1) : UIColor(Theme.input)
         let center = mesh.center
         content.position = SCNVector3(-center.x, -center.y, -center.z)
         scene.rootNode.addChildNode(content)
 
-        let bed = SCNBox(width: CGFloat(mesh.bed.x), height: 1, length: CGFloat(mesh.bed.y), chamferRadius: 0)
-        bed.materials = [Self.flat(UIColor(Theme.track))]
-        let bedNode = SCNNode(geometry: bed)
-        bedNode.position = SCNVector3(0, -0.52, 0)  // top just below the first layer
-        content.addChildNode(bedNode)
-        if let grid = Self.grid(mesh.bed) {
-            let gridNode = SCNNode(geometry: grid)
-            gridNode.position = SCNVector3(0, -0.01, 0)
-            content.addChildNode(gridNode)
-        }
+        if !thumbnail { addBed(mesh) }
 
         let ambient = SCNNode()
         ambient.light = SCNLight()
@@ -186,7 +179,7 @@ final class PlateScene {
         cam.automaticallyAdjustsZRange = true
         camera.camera = cam
         let size = (mesh.high - mesh.low).max()
-        let distance = max(size, 40) * 1.7
+        let distance = max(size, thumbnail ? 10 : 40) * (thumbnail ? 1.45 : 1.7)
         camera.position = SCNVector3(distance * 0.45, distance * 0.6, distance)
         camera.look(at: SCNVector3(0, 0, 0))
         let head = SCNNode()  // light from the viewer, moves with the camera
@@ -197,6 +190,19 @@ final class PlateScene {
         scene.rootNode.addChildNode(camera)
 
         setLayers(mesh)
+    }
+
+    private func addBed(_ mesh: PlateMesh) {
+        let bed = SCNBox(width: CGFloat(mesh.bed.x), height: 1, length: CGFloat(mesh.bed.y), chamferRadius: 0)
+        bed.materials = [Self.flat(UIColor(Theme.track))]
+        let bedNode = SCNNode(geometry: bed)
+        bedNode.position = SCNVector3(0, -0.52, 0)  // top just below the first layer
+        content.addChildNode(bedNode)
+        if let grid = Self.grid(mesh.bed) {
+            let gridNode = SCNNode(geometry: grid)
+            gridNode.position = SCNVector3(0, -0.01, 0)
+            content.addChildNode(gridNode)
+        }
     }
 
     func setLayers(_ mesh: PlateMesh) {
@@ -215,13 +221,23 @@ final class PlateScene {
             content.addChildNode(node)
             return node
         }
-        show(upTo: upTo)
+        show(upTo: upTo, ghost: ghost)
     }
 
-    /// Hides the layers above `index` (0-based), like the layer slider of the 2D view.
-    func show(upTo index: Int) {
+    private var ghost = false
+
+    /// Hides the layers above `index` (0-based), like the layer slider of the 2D view. With `ghost` they stay as a
+    /// faint outline instead (what is still to be printed).
+    func show(upTo index: Int, ghost: Bool = false) {
         upTo = index
-        for (i, node) in layerNodes.enumerated() where node.isHidden != (i > index) { node.isHidden = i > index }
+        self.ghost = ghost
+        for (i, node) in layerNodes.enumerated() {
+            let above = i > index
+            let hidden = above && !ghost
+            if node.isHidden != hidden { node.isHidden = hidden }
+            let opacity: CGFloat = above ? 0.13 : 1
+            if node.opacity != opacity { node.opacity = opacity }
+        }
     }
 
     func isShown(_ index: Int) -> Bool { index < layerNodes.count && !layerNodes[index].isHidden }
@@ -278,6 +294,8 @@ final class PlateScene {
 struct PlateSceneView: UIViewRepresentable {
     let plate: PlateScene
     let upTo: Int
+    /// Show the layers above `upTo` faintly (a print in progress).
+    var ghost = false
 
     func makeUIView(context: Context) -> SCNView {
         let view = SCNView()
@@ -292,12 +310,12 @@ struct PlateSceneView: UIViewRepresentable {
 
     func updateUIView(_ view: SCNView, context: Context) {
         if view.scene !== plate.scene { attach(view) }
-        plate.show(upTo: upTo)
+        plate.show(upTo: upTo, ghost: ghost)
     }
 
     private func attach(_ view: SCNView) {
         view.scene = plate.scene
         view.pointOfView = plate.camera
-        plate.show(upTo: upTo)
+        plate.show(upTo: upTo, ghost: ghost)
     }
 }

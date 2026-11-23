@@ -16,6 +16,7 @@ struct RootView: View {
                             case .job(let id): JobView(id: id, slots: app.plannedSlots[id] ?? [:])
                             case .model(let source, let id): ModelDetailView(source: source, id: id)
                             case .preview(let id): PreviewView(id: id)
+                            case .livePreview(let job, let printer): PreviewView(id: job, follow: printer)
                             case .control(let id, let name): ControlView(printer: id, name: name)
                             case .filament(let id, let name): FilamentView(printer: id, name: name)
                             case .printerProfile(let id, let name): PrinterProfileView(printer: id, name: name)
@@ -39,6 +40,7 @@ struct RootView: View {
                 .sheet(item: $app.connectRequest) { request in
                     ConnectView(request: request, current: app.server)
                 }
+                .sheet(item: $app.cameraRequest) { CameraView(printer: $0.printer, title: $0.name) }
                 .onChange(of: app.server) { _, _ in app.processInbox() }
             } else {
                 Theme.bg.ignoresSafeArea()

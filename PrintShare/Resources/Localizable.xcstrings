@@ -113,6 +113,86 @@
         }
       }
     },
+    "activityPicture": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bild in der Live-Aktivität"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Picture in the Live Activity"
+          }
+        }
+      }
+    },
+    "activityPictureCamera": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kamera"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Camera"
+          }
+        }
+      }
+    },
+    "activityPictureNone": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keins"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "None"
+          }
+        }
+      }
+    },
+    "activityPicturePreview": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Modell"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Model"
+          }
+        }
+      }
+    },
+    "activityPictureSub": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Modell: der Druck bis zur aktuellen Schicht, wächst mit. Kamera: das letzte Kamerabild – mit dem Kamera-Knopf in der Live-Aktivität holst du ein neues, ohne die App zu öffnen."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Model: the print up to the current layer, growing with it. Camera: the last camera picture – the camera button in the Live Activity fetches a new one without opening the app."
+          }
+        }
+      }
+    },
     "actual": {
       "localizations": {
         "de": {
@@ -4177,6 +4257,22 @@
         }
       }
     },
+    "followPrint": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dem Druck folgen"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Follow the print"
+          }
+        }
+      }
+    },
     "gcode2d": {
       "localizations": {
         "de": {
@@ -6401,6 +6497,22 @@
         }
       }
     },
+    "livePreviewTitle": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aktuelle Schicht"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Current layer"
+          }
+        }
+      }
+    },
     "login": {
       "localizations": {
         "de": {
@@ -6877,6 +6989,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Needed so slicing uses the right profile."
+          }
+        }
+      }
+    },
+    "modelView": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Modell"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Model"
           }
         }
       }
@@ -7965,6 +8093,38 @@
           "stringUnit": {
             "state": "translated",
             "value": "Notifications are switched off on your server (PRINTSHARE_PUSH_RELAY=off)."
+          }
+        }
+      }
+    },
+    "notifySnapshots": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kamerabilder als Kontrolle"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Camera pictures as a check"
+          }
+        }
+      }
+    },
+    "notifySnapshotsSub": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eine Mitteilung mit Kamerabild, wenn die erste Schicht fertig ist und zur Halbzeit; die Fertig-Mitteilung bekommt auch ein Bild. Braucht eine Kamera am Drucker."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A notification with a camera picture when the first layer is done and at half time; the \"finished\" notification gets a picture too. Needs a camera on the printer."
           }
         }
       }
@@ -10605,6 +10765,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Checking the status …"
+          }
+        }
+      }
+    },
+    "printerCheckingBadge": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wird geprüft"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Checking"
           }
         }
       }

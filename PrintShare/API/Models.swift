@@ -1380,6 +1380,8 @@ struct PushPrefs: Codable, Sendable, Equatable {
     var problems = true
     var decisions = true
     var info = false
+    /// Server 0.54.0: first layer / halfway notifications and the "finished" one with a camera picture.
+    var snapshots = false
     var activities = true
     var muted: [String] = []
 
@@ -1391,6 +1393,7 @@ struct PushPrefs: Codable, Sendable, Equatable {
         problems = c.lenient(Bool.self, .problems) ?? true
         decisions = c.lenient(Bool.self, .decisions) ?? true
         info = c.lenient(Bool.self, .info) ?? false
+        snapshots = c.lenient(Bool.self, .snapshots) ?? false
         activities = c.lenient(Bool.self, .activities) ?? true
         muted = c.lenient([String].self, .muted) ?? []
     }
