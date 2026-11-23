@@ -17,10 +17,7 @@ final class NotificationService: UNNotificationServiceExtension {
                 // a camera picture (first layer, halfway, finished; server 0.54.0): try home, then away address
                 let handler = Handler(contentHandler, content)
                 self.handler = handler
-                Task {
-                    let attachment = await Self.attachment(urls)
-                    handler.deliver(attachment)
-                }
+                Self.download(urls[...]) { handler.deliver($0) }
                 return
             }
         }
@@ -53,17 +50,20 @@ final class NotificationService: UNNotificationServiceExtension {
         }
     }
 
-    /// The picture as a local .jpg file (attachments need a file).
-    private static func attachment(_ urls: [URL]) async -> URL? {
-        for url in urls {
-            var req = URLRequest(url: url, cachePolicy: .reloadIgnoringLocalCacheData, timeoutInterval: 8)
-            req.httpMethod = "GET"
-            guard let (data, res) = try? await URLSession.shared.data(for: req),
-                  (res as? HTTPURLResponse)?.statusCode == 200, !data.isEmpty else { continue }
-            let file = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString + ".jpg")
-            if (try? data.write(to: file)) != nil { return file }
-        }
-        return nil
+    /// The picture as a local .jpg file (attachments need a file); the addresses one after the other. Completion
+    /// handlers instead of a Task: nothing non-Sendable crosses into it.
+    private static func download(_ urls: ArraySlice<URL>, done: @escaping @Sendable (URL?) -> Void) {
+        guard let url = urls.first else { return done(nil) }
+        let rest = urls.dropFirst()
+        var req = URLRequest(url: url, cachePolicy: .reloadIgnoringLocalCacheData, timeoutInterval: 8)
+        req.httpMethod = "GET"
+        URLSession.shared.dataTask(with: req) { data, res, _ in
+            if let data, !data.isEmpty, (res as? HTTPURLResponse)?.statusCode == 200 {
+                let file = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString + ".jpg")
+                if (try? data.write(to: file)) != nil { return done(file) }
+            }
+            download(rest, done: done)
+        }.resume()
     }
 
     override func serviceExtensionTimeWillExpire() {
