@@ -69,7 +69,7 @@ final class ServerFortyFourTests: XCTestCase {
         try await api.motion(printer: "cc", MotionAction(action: "load", material: "PETG", slot: 3, confirm: true))
         try await api.motion(printer: "cc", MotionAction(action: "macro", macro: "CLEAN_NOZZLE", confirm: true))
 
-        lock.lock(); let r = seen; lock.unlock()
+        let r = lock.withLock { seen }
         XCTAssertEqual(r[0].httpMethod, "POST")
         XCTAssertEqual(r[0].url?.path, "/api/printers/cc/motion")
         XCTAssertEqual(body(r[0])?["action"] as? String, "jog")
@@ -118,7 +118,7 @@ final class ServerFortyFourTests: XCTestCase {
         _ = try await api.syncOrca()
         _ = try await api.disconnectOrca(removePresets: true)
 
-        lock.lock(); let r = seen; lock.unlock()
+        let r = lock.withLock { seen }
         XCTAssertEqual(r[0].httpMethod, "PUT")
         XCTAssertEqual(body(r[0])?["client_id"] as? String, "oc_app_x")
         XCTAssertTrue(body(r[1])?["client_id"] is NSNull)    // null removes the entered ID
@@ -150,7 +150,7 @@ final class ServerFortyFourTests: XCTestCase {
         let api = client()
         _ = try await api.setOrcaSchedule(intervalH: 0)
         _ = try await api.setOrcaSchedule(onPrepare: false)
-        lock.lock(); let r = seen; lock.unlock()
+        let r = lock.withLock { seen }
         XCTAssertEqual(r[0].httpMethod, "PUT")
         XCTAssertEqual(r[0].url?.path, "/api/orca-cloud/schedule")
         XCTAssertEqual(body(r[0])?["interval_h"] as? Int, 0)

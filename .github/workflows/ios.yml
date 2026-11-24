@@ -7,7 +7,8 @@ on:
 
 jobs:
   build-test:
-    runs-on: macos-latest
+    # same Xcode as the TestFlight build (testflight.yml), so new Xcode 27 errors/warnings show up here first
+    runs-on: xcode-27
     env:
       DEVELOPMENT_TEAM: ""
     steps:

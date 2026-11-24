@@ -122,7 +122,7 @@ final class ServerTwentyThreeTests: XCTestCase {
         let image = await api.imageURL("/api/manyfold/image/12/3")
         let outside = await api.imageURL("https://media.printables.com/x.jpg")
 
-        lock.lock(); let r = seen; lock.unlock()
+        let r = lock.withLock { seen }
         XCTAssertEqual(r[0].httpMethod, "PUT")
         XCTAssertNil(body(r[0])?["token"])                         // left out = keep the stored key
         XCTAssertEqual(body(r[1])?["token"] as? String, "k")

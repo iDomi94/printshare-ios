@@ -71,7 +71,7 @@ final class ServerFortyTests: XCTestCase {
         let got = try await api.timelapseConfig()                      // 3
         let set = try await api.setTimelapseConfig(always: true)       // 4
 
-        lock.lock(); let r = seen; lock.unlock()
+        let r = lock.withLock { seen }
         XCTAssertEqual(body(r[0])?["timelapse"] as? Bool, false)
         XCTAssertNotNil(body(r[0])?["timelapse"])
         XCTAssertNil(body(r[1])?["timelapse"])
